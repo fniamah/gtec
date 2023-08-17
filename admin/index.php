@@ -36,6 +36,8 @@ session_destroy();
 
 	<!-- Theme JS files -->
 	<script type="text/javascript" src="assets/js/core/app.js"></script>
+    <script type="text/javascript" src="assets/js/plugins/notifications/pnotify.min.js"></script>
+    <script type="text/javascript" src="assets/js/pages/components_notifications_pnotify.js"></script>
 	<!-- /theme JS files -->
     <style type="text/css">
         body {

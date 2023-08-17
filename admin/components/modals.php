@@ -37,7 +37,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12" align="center">
-                        <img src="assets/images/spinner.gif" class="img-responsive" style="width: 50px; height: 50px;"/>
+                        <img src="assets/images/preview.gif" class="img-responsive" style="width: 200px; height: 180px;"/>
                     </div>
                     <div class="col-md-12" style="text-align: center;">
                         <p id="loadermsg"></p>
@@ -85,6 +85,55 @@
                         </div>
                         <div class="col-md-12" style="text-align: center;">
                             <p>Deleting record.....</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="reject_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <input type="hidden" id="rejectId" />
+                    <input type="hidden" id="rejectTable" />
+                    <input type="hidden" id="rejectStatus" />
+                    <input type="hidden" id="rejectIsced" />
+                    <input type="hidden" id="rejectProg" />
+                    <div class="col-md-12" align="center">
+                        <img src="../admin/assets/images/pnotify/warning.PNG" style="width: 80px; height: 80px;" class="img-responsive" />
+                    </div>
+                    <div class="col-md-12">
+                        <p style="text-align: center; font-weight: bold; font-size: x-large" id="rejectMsg"></p>
+                        <p style="text-align: center; font-size: large">You won't be able to revert this!</p>
+                    </div>
+                    <div class="col-md-12" style="margin-bottom: 20px;">
+                        <label>Brief Note(Optional)</label>
+                        <textarea id="rejectNote" rows="4" maxlength="150" class="form-control" placeholder="Brief Note (optional)"></textarea>
+                    </div>
+                    <div id="approveshow" class="hidden">
+                        <div class="col-md-12" style="margin-bottom: 20px;">
+                            <label>Accredited Date</label>
+                            <input id="rejectaccdate" type="date" class="form-control" value="<?php echo date('Y-m-d'); ?>" />
+                        </div>
+                        <div class="col-md-12" style="margin-bottom: 20px;">
+                            <label>Expiry Date</label>
+                            <input id="rejectexpirydate" type="date" class="form-control" value="<?php echo date('Y-m-d'); ?>" />
+                        </div>
+                    </div>
+                    <div id="rejecthide">
+                        <div class="col-md-6" align="right"><button type="button" class="btn btn-success" onclick="rejectRecord()"/>Yes</div>
+                        <div class="col-md-6" align="left"><button type="button" class="btn btn-danger"  data-dismiss="modal" />Cancel</div>
+                    </div>
+                    <div id="rejectloader" class="hidden">
+                        <div class="col-md-12" align="center">
+                            <img src="assets/images/spinner.gif" class="img-responsive" style="width: 50px; height: 50px;"/>
+                        </div>
+                        <div class="col-md-12" style="text-align: center;">
+                            <p>Rejecting.....</p>
                         </div>
                     </div>
                 </div>

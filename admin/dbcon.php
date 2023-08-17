@@ -129,6 +129,49 @@ function getIsced($id){
     return $response;
 }
 
+function getCollege($id){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $response="N/A";
+    $sel="SELECT name FROM institute_colleges WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) != 0){
+        $data = $conn->fetch($selrun);
+        $response = $data['name'];
+    }
+    return $response;
+}
+
+
+function getFaculty($id){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $response="N/A";
+    if(!empty($id)){
+        $sel="SELECT name FROM institute_faculties WHERE id = $id";
+        $selrun = $conn->query($dbcon,$sel);
+        if($conn->sqlnum($selrun) != 0){
+            $data = $conn->fetch($selrun);
+            $response = $data['name'];
+        }
+    }
+
+    return $response;
+}
+
+function getDepartment($id){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $response="N/A";
+    $sel="SELECT name FROM institute_departments WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) != 0){
+        $data = $conn->fetch($selrun);
+        $response = $data['name'];
+    }
+    return $response;
+}
+
 function getCategory($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -168,10 +211,33 @@ function getStaffRank($id){
     return $response;
 }
 
+function getProgram($id){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $response="N/A";
+    $sel="SELECT programme FROM programmes WHERE prog_code = '$id'";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) != 0){
+        $data = $conn->fetch($selrun);
+        $response = $data['programme'];
+    }
+    return $response;
+}
+
 function getAccreditationCount(){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $sel="SELECT COUNT(institution) AS totalCount FROM programmes";
+    $sel="SELECT COUNT(institution) AS totalCount FROM acc_programmes";
+    $selrun = $conn->query($dbcon,$sel);
+    $data = $conn->fetch($selrun);
+    $response = $data['totalCount'];
+    return $response;
+}
+
+function getApplicantCount($status){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $sel="SELECT COUNT(first_name) AS totalCount FROM appadmissions WHERE status='$status'";
     $selrun = $conn->query($dbcon,$sel);
     $data = $conn->fetch($selrun);
     $response = $data['totalCount'];
@@ -182,16 +248,6 @@ function getInstitutionCount(){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $sel="SELECT COUNT(name) AS totalCount FROM institutes WHERE status='Active'";
-    $selrun = $conn->query($dbcon,$sel);
-    $data = $conn->fetch($selrun);
-    $response = $data['totalCount'];
-    return $response;
-}
-
-function getEnrollmentCount(){
-    $conn=new Db_connect;
-    $dbcon=$conn->conn();
-    $sel="SELECT COUNT(student_id) AS totalCount FROM enrollments";
     $selrun = $conn->query($dbcon,$sel);
     $data = $conn->fetch($selrun);
     $response = $data['totalCount'];
@@ -287,6 +343,33 @@ function sendEmail($recipient,$msg,$sender,$subject){
         )
     );
     $mail->send();
+    /*$mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host = 'smtp.office365.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'fpt@gtec.edu.gh';
+    $mail->Password = 'gimp!@2005';
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
+    $mail->setFrom('fpt@gtec.edu.gh');
+    $mail->addAddress($recipient);
+    $mail->isHTML(true);
+    $mail->Subject = $subject;
+    $mail->Body = $msg;
+    $mail->SMTPOptions = array(
+        'ssl' => array(
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        )
+    );
+    if(!$mail->send()){
+        echo "Message Could not be sent.";
+        echo "Mailer Error: ".$mail->ErrorInfo;
+    }else{
+        echo "Message has been sent";
+    }
+    //$mail->send();*/
 
     //echo "<script>alert('Mail sent successfully');</script>";
 }
