@@ -1549,6 +1549,16 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
+                                            <select id="stdapptype" data-placeholder="Application Type" class="select">
+                                                <option></option>
+                                                <option value="Undergraduate">Undergraduate</option>
+                                                <option value="Postgraduate">Postgraduate</option>
+                                                <option value="International">Scholarship</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
                                             <select id="stdprog" data-placeholder="Program Applied" class="select">
                                                 <option></option>
                                             </select>
@@ -1588,37 +1598,35 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
 
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select id="stdqualify" data-placeholder="Select Application Qualification" class="select">
+                                            <select id="stdqualify" data-placeholder="Select Application Status" class="select">
                                                 <option></option>
-                                                <option value="Yes">Yes</option>
-                                                <option value="No">No</option>
+                                                <option value="Qualified">Qualified</option>
+                                                <option value="Offered">Offered Admission</option>
+                                                <option value="Enrolled">Enrolled</option>
+                                                <option value="Graduated">Graduated</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select id="stdoffer" data-placeholder="Select Offer" class="select">
+                                            <select id="stdproglevel" data-placeholder="Year Admitted To" class="select">
                                                 <option></option>
-                                                <option value="Yes">Yes</option>
-                                                <option value="No">No</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select id="stdaccept" data-placeholder="Select Acceptance" class="select">
-                                                <option></option>
-                                                <option value="Yes">Yes</option>
-                                                <option value="No">No</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <select id="stdfeepay" data-placeholder="Fee Paying" class="select">
+                                            <select id="stdfeepay" data-placeholder="Fee Payment Type" class="select">
                                                 <option></option>
                                                 <option value="Full Fee-Paying">Full Fee-Paying</option>
-                                                <option value="Government Subsidized">Fovernment Subsidized</option>
+                                                <option value="Government Subsidized">Government Subsidized</option>
                                                 <option value="Scholarship">Scholarship</option>
                                             </select>
                                         </div>
@@ -1824,7 +1832,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 <div class="row">
                                     <div class="col-md-5">
                                         <div class="form-group">
-                                            <select name="institution" id="stdinstitutionget" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdaddprog')">
+                                            <select name="institution" id="stdinstitutionget" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdaddprog','','All')">
                                                 <option></option>
                                                 <?php
                                                 if($actype == "GTEC"){
@@ -2052,7 +2060,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 <div class="row">
                                     <div class="col-md-5">
                                         <div class="form-group">
-                                            <select name="institution" id="stdinstitutionget" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdaddprog')">
+                                            <select name="institution" id="stdinstitutionget" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdaddprog','','All')">
                                                 <option></option>
                                                 <?php
                                                 if($actype == "GTEC"){
@@ -2279,7 +2287,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 <div class="row">
                                     <div class="col-md-5">
                                         <div class="form-group">
-                                            <select name="institution" id="stdinstitutionget" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdaddprog')">
+                                            <select name="institution" id="stdinstitutionget" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdaddprog','','All')">
                                                 <option></option>
                                                 <?php
                                                 if($actype =="GTEC"){
@@ -3577,9 +3585,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                         $count= 0;
                                         $sel = "";
                                         if($actype == "GTEC"){
-                                            $sel = "SELECT * FROM acc_programmes_proposed WHERE status = 'Pending' ORDER BY programme ASC";
+                                            $sel = "SELECT * FROM acc_programmes_proposed ORDER BY programme ASC";
                                         }else{
-                                            $sel = "SELECT * FROM acc_programmes_proposed WHERE status = 'Pending' AND institution = '$institution' ORDER BY programme ASC";
+                                            $sel = "SELECT * FROM acc_programmes_proposed WHERE institution = '$institution' ORDER BY programme ASC";
                                         }
 
                                         $selrun = $conn->query($dbcon,$sel);

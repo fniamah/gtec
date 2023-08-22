@@ -66,7 +66,7 @@
                     </li>
                     <?php } if(str_contains($access,'Applications') || str_contains($access,'Enrollments') || str_contains($access,'Graduations')){?>
                     <li>
-                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students</span></a>
+                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students Mgt</span></a>
                         <ul>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_application"><i class="icon-pen6"></i><span>Applications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_admissions"><i class="icon-graduation"></i><span>Admissions</span></a></li><?php } ?>
@@ -79,7 +79,31 @@
                         <a href="#" class="menu-item"><i class="icon-pie-chart7"></i> <span>Reports</span></a>
                         <ul>
                             <?php if(str_contains($access,'Summary Report')){?><li><a href="colors_primary.html"><i class="icon-pie-chart8"></i><span>Summary</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Analytics Report')){?><li><a href="colors_danger.html"><i class="icon-pie-chart5"></i><span>Analytics</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Analytics Report')){?>
+                                <li>
+                                    <a href="#"><i class="icon-pie-chart5"></i> <span>Analytics</span></a>
+                                    <ul>
+                                        <li><a href="starters/horizontal_nav.html">ISCED</a></li>
+                                        <li><a href="starters/1_col.html">Gross Enrollment Ratio</a></li>
+                                        <li><a href="starters/2_col.html">Gender Parity Index</a></li>
+                                        <li><a href="starters/2_col.html">Science To Humanities Ratio</a></li>
+                                        <li><a href="starters/2_col.html">Equivalence of part and full-time staff.</a></li>
+                                        <li><a href="starters/2_col.html">Student-Teacher Ratio 1</a></li>
+                                        <li><a href="starters/2_col.html">Student-Teacher Ratio 2</a></li>
+                                        <li><a href="starters/2_col.html">Enrollment Quota</a></li>
+                                        <li><a href="starters/2_col.html">Academic Staff Pyramid</a></li>
+                                        <li><a href="starters/2_col.html">Percentage Of Female Teachers</a></li>
+                                        <li><a href="starters/2_col.html">Distribution of Students in Tertiary Education by ISCED.</a></li>
+                                        <li><a href="starters/2_col.html">Distribution of Graduates by ISCED</a></li>
+                                        <li><a href="starters/2_col.html">Percentage of private enrollment</a></li>
+                                        <li><a href="starters/2_col.html">Percentage of Teaching Staff in Private Institution</a></li>
+                                        <li><a href="starters/2_col.html">Number of Students in Tertiary Education Per 100,000 Inhabitants</a></li>
+                                        <li><a href="starters/2_col.html">Total Students Enrollment</a></li>
+                                        <li><a href="starters/2_col.html">Total Students Enrollment</a></li>
+                                        <li><a href="starters/2_col.html">Enrollment Vs Graduation</a></li>
+                                    </ul>
+                                </li>
+                            <?php } ?>
                         </ul>
                     </li>
                     <?php } ?>

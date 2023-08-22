@@ -334,6 +334,7 @@ if(isset($_GET['getInstitutePrograms'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $id = mysqli_real_escape_string($dbcon,$_GET['getInstitutePrograms']);
+    $flag = mysqli_real_escape_string($dbcon,$_GET['flag']);
     $sel = "SELECT id, programme FROM acc_programmes WHERE institution='$id' ORDER BY programme ASC";
     $selrun = $conn->query($dbcon,$sel);
 
@@ -341,9 +342,11 @@ if(isset($_GET['getInstitutePrograms'])){
     if($conn->sqlnum($selrun) == 0){
         $response = $response."<option value=''></option>";
     }else{
-        $response = $response."<option value='All'>All</option>";
+        if($flag == "All"){
+            $response = $response."<option value='All'>All</option>";
+        }
         while($data = $conn->fetch($selrun)){
-            $response = $response."<option value='".$data['id']."'>".getProgram($data['programme'])."</option>";
+            $response = $response."<option value='".$data['programme']."'>".getProgram($data['programme'])."</option>";
         }
     }
     print $response;
@@ -721,9 +724,12 @@ if(isset($_POST['rejectRow'])){
     $insrun = $conn->query($dbcon,$ins);
 
     if($insrun){
-        //DELETE THE PROPOSED PROGRAMME
-        $del = "DELETE FROM acc_programmes_proposed WHERE id=$id";
-        $conn->query($dbcon,$del);
+        if($status == "Accepted"){
+            //DELETE THE PROPOSED PROGRAMME
+            $del = "DELETE FROM acc_programmes_proposed WHERE id=$id";
+            $conn->query($dbcon,$del);
+        }
+
 
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Proposed program, <b>$prog</b> has been $status";
@@ -1510,9 +1516,7 @@ if(isset($_POST['addNewStudent'])){
     $shsprog=mysqli_real_escape_string($dbcon,$_POST['shsprog']);
     $prog=mysqli_real_escape_string($dbcon,$_POST['prog']);
     $progoffered=mysqli_real_escape_string($dbcon,$_POST['progoffered']);
-    $qualify=mysqli_real_escape_string($dbcon,$_POST['qualify']);
-    $offer=mysqli_real_escape_string($dbcon,$_POST['offer']);
-    $accept=mysqli_real_escape_string($dbcon,$_POST['accept']);
+    $status=mysqli_real_escape_string($dbcon,$_POST['status']);
     $feepaying=mysqli_real_escape_string($dbcon,$_POST['feepaying']);
     $year=mysqli_real_escape_string($dbcon,$_POST['year']);
     $progtype=mysqli_real_escape_string($dbcon,$_POST['progtype']);
@@ -1523,24 +1527,8 @@ if(isset($_POST['addNewStudent'])){
     $chkrun = $conn->query($dbcon,$chk);
     if($conn->sqlnum($chkrun) == 0){
 
-        /*DECIDE THE CATEGORY TO PLACE STUDENT BASED ON $qualify, $offer and $accept
-            If student qualifies = yes but offer = no and accept=no, place student record into applications.
-            else if student qualifies = yes but offer = yes and accept=no, place student record into admissions.
-            else if student qualifies = yes but offer = yes and accept=yes, place student record into enrollments.
-        */
-        $status="";
-        if($qualify == "Yes" && $offer == "No" && $accept == "No"){
-            $status = "Qualified";
-        }elseif($offer == "Yes" && $accept == "No"){
-            $status="Offered";
-        }elseif($accept == "Yes"){
-            $status = "Enrolled";
-        }else{
-            $status = "Pending";
-        }
-
         //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
-        echo $ins = "INSERT INTO appadmissions(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+        $ins = "INSERT INTO appadmissions(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
          other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
           high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,programme_level) 
           VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
@@ -1549,7 +1537,7 @@ if(isset($_POST['addNewStudent'])){
 
         if($insrun){
             $response['errorCode'] = "0";
-            $response['errorMsg'] = "Applicant Details Added Successfully";
+            $response['errorMsg'] = "Application Completed Successfully";
         }else{
             $response['errorCode'] = "1";
             $response['errorMsg'] = "Applicant Details Could Not Be Saved Successfully";
@@ -1558,16 +1546,6 @@ if(isset($_POST['addNewStudent'])){
 
 
     }else{
-        $status="";
-        if($qualify == "Yes" && $offer == "No" && $accept == "No"){
-            $status = "Qualified";
-        }elseif($offer == "Yes" && $accept == "No"){
-            $status="Offered";
-        }elseif($accept == "Yes"){
-            $status = "Enrolled";
-        }else{
-            $status = "Pending";
-        }
         $upd="UPDATE appadmissions SET status='$status' WHERE applicant_id='$stdid'";
         $conn->query($dbcon,$upd);
         $response['errorCode'] = "0";
@@ -1609,7 +1587,7 @@ if(isset($_GET['getAllApplicants'])){
     if($conn->sqlnum($selrun) == 0){
         $response = $response."<tr><td colspan='6'>No Applicants Available For The Selection Above</td></tr>";
     }else{
-        $btn =$btn."<div class='row'><div class='col-md-6' align='right'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div><div class='col-md-6' align='left'><button type='button' class='btn btn-success btn-lg'>Export</button></div></div>";
+        $btn =$btn."<div class='row'><div class='col-md-6' align='right'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div><div class='col-md-6' align='left'><button type='button' class='btn btn-success btn-lg'><span class='icon icon-download10'></span>Download</button></div></div>";
         while($data = $conn->fetch($selrun)){
             $count++;
             $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td></tr>";
