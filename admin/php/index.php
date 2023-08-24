@@ -1227,7 +1227,111 @@ if(isset($_GET['sortDataTableApplicants'])){
     }
 
 
-    echo $qry = "SELECT * FROM appadmissions $clause";
+    $qry = "SELECT * FROM appadmissions $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td>".$row['applicant_id']."</td>
+                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
+                            <td>".$row['gender']."</td>
+                            <td>".$row['birth_date']."</td>
+                            <td>".$row['birth_country']."</td>
+                            <td>".$row['nationality']."</td>
+                            <td>".$row['religion']."</td>
+                            <td>".$row['home_town']."</td>
+                            <td>".$row['home_region']."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['year']."</td>
+                            <td>".$row['applicant_id_type']."</td>
+                            <td>".$row['applicant_national_id']."</td>
+                            <td>".$row['high_school']."</td>
+                            <td>".$row['high_school_program']."</td>
+                            <td>".getProgram($row['programme_applied'])."</td>
+                            <td>".$row['programme_type']."</td>
+                            <td>".$row['fee_type']."</td>
+                            <td>".$row['disability']."</td>
+                            <td>".$row['disability_type']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+}
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr>");
+    }else{
+        print $data;
+    }
+
+    $conn->close($dbcon);
+
+}
+
+if(isset($_GET['sortDataTableStudents'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $prog = $_GET['prog'];
+    $apptype = $_GET['apptype'];
+    $progtype = $_GET['progtype'];
+    $level = $_GET['level'];
+    $feepay = $_GET['feepay'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($prog != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }else{
+            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }
+    }
+    if($apptype != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE application_type = '$apptype'";
+        }else{
+            $clause = $clause."AND application_type = '$apptype'";
+        }
+    }
+    if($level != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE admission_level = '$level'";
+        }else{
+            $clause = $clause."AND admission_level = '$level'";
+        }
+    }
+    if($progtype != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE programme_type = '$progtype'";
+        }else{
+            $clause = $clause."AND programme_type = '$progtype'";
+        }
+    }
+
+    if($feepay != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE fee_type = '$feepay'";
+        }else{
+            $clause = $clause."AND fee_type = '$feepay'";
+        }
+    }
+
+
+    echo $qry = "SELECT * FROM enrollments $clause";
     $qryrun = $conn->query($dbcon,$qry);
     $data ="";
     while($row = $conn->fetch($qryrun)){
@@ -1521,6 +1625,7 @@ if(isset($_POST['addNewStudent'])){
     $year=mysqli_real_escape_string($dbcon,$_POST['year']);
     $progtype=mysqli_real_escape_string($dbcon,$_POST['progtype']);
     $level=mysqli_real_escape_string($dbcon,$_POST['level']);
+    $apptype=mysqli_real_escape_string($dbcon,$_POST['apptype']);
 
     //CHECK IF STUDENT ID EXISTS
     $chk = "SELECT first_name FROM appadmissions WHERE applicant_id = '$stdid'";
@@ -1528,11 +1633,26 @@ if(isset($_POST['addNewStudent'])){
     if($conn->sqlnum($chkrun) == 0){
 
         //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
-        $ins = "INSERT INTO appadmissions(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+        $ins="";
+        if($status == "Qualified" || $status == "Offered"){
+            $ins = "INSERT INTO appadmissions(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
          other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
-          high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,programme_level) 
+          high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
           VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
-          '$region','$shs','$shsprog','$disable','$distype','$prog','$feepaying','$progtype','$progoffered','$status','$level')";
+          '$region','$shs','$shsprog','$disable','$distype','$prog','$feepaying','$progtype','$progoffered','$status','$level','$apptype')";
+        }elseif($status == "Enrolled"){
+            $ins = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+         other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+          high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+          VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
+          '$region','$shs','$shsprog','$disable','$distype','$feepaying','$progtype','$progoffered','$status','$level','$apptype')";
+        }else{
+            $ins = "INSERT INTO graduates(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+         other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+          high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+          VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
+          '$region','$shs','$shsprog','$disable','$distype','$prog','$feepaying','$progtype','$progoffered','$status','$level','$apptype')";
+        }
         $insrun = $conn->query($dbcon,$ins);
 
         if($insrun){
@@ -1614,12 +1734,41 @@ if(isset($_POST['admitApplicant'])){
     }else{
         $status = "Graduated";
     }
+
     $obj = explode(",",$applicants);
-    for($i=0;$i < COUNT($obj);$i++){
-        $appId = $obj[$i];
-        $upd = "UPDATE appadmissions SET status = '$status' WHERE applicant_id='$appId'";
-        $conn->query($dbcon,$upd);
-    }
+        for($i=0;$i < COUNT($obj);$i++){
+            $appId = $obj[$i];
+
+            if($status == "Qualified" || $status =="Offered"){
+                $upd = "UPDATE appadmissions SET status = '$status' WHERE applicant_id='$appId'";
+                $conn->query($dbcon,$upd);
+            }
+            elseif($status == "Enrolled" || $status == "Graduated"){
+                $mov="";
+                if($status == "Enrolled"){
+                    //MOVE RECORDS FROM APPADMISSIONS TO ENROLLMENTS
+                    $mov = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+                      SELECT institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type FROM appadmissions WHERE applicant_id = '$appId'";
+                    }
+                    else{
+                    $mov = "INSERT INTO graduates(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+                      SELECT institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type FROM appadmissions WHERE applicant_id = '$appId'";
+                }
+                $conn->query($dbcon,$mov);
+                //DELETE THE RECORDS FROM THE APPADMISSIONS TABLE
+                $del ="DELETE FROM appadmissions WHERE applicant_id = '$appId'";
+                $conn->query($dbcon,$del);
+            }
+        }
+
     $response['errorCode'] = "0";
     $response['errorMsg'] = "Applicant(s) Have Been ".$status." Successfully";
     print json_encode($response);

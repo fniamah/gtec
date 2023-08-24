@@ -20,15 +20,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="sidemenu.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/admin/components/sidemenu.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="410">
-              <caret line="98" column="113" selection-start-line="98" selection-start-column="113" selection-end-line="98" selection-end-column="113" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="modals.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/admin/components/modals.php">
           <provider selected="true" editor-type-id="text-editor">
@@ -41,8 +32,8 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/admin/assets/js/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="334">
-              <caret line="218" column="66" selection-start-line="218" selection-start-column="66" selection-end-line="218" selection-end-column="66" />
+            <state relative-caret-position="232">
+              <caret line="1730" selection-start-line="1730" selection-end-line="1730" />
               <folding>
                 <element signature="n#style#0;n#h1#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
@@ -55,17 +46,40 @@
                 <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dashboard.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="dashboard.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/admin/dashboard.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="1555" column="76" selection-start-line="1555" selection-start-column="76" selection-end-line="1555" selection-end-column="76" />
+            <state relative-caret-position="208">
+              <caret line="5552" column="86" selection-start-line="5552" selection-start-column="86" selection-end-line="5552" selection-end-column="86" />
               <folding>
+                <element signature="n#fieldset#0;n#form#0;n#div#0;n#div#1;n#div#5;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" />
+                <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#6;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#ul#0;n#div#0;n#div#0;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#2;n#div#0;n#fieldset#0;n#form#0;n#div#0;n#div#1;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#button#0;n#form#0;n#div#0;n#div#1;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#1;n#div#1;n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#1;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" />
+                <element signature="n#style#0;n#div#2;n#div#0;n#fieldset#0;n#form#0;n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#button#0;n#form#0;n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#1;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
                 <element signature="e#113#119#0" expanded="true" />
                 <element signature="e#119#125#0" expanded="true" />
@@ -77,8 +91,8 @@
       <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/admin/php/index.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="164">
-              <caret line="1589" column="140" selection-start-line="1589" selection-start-column="140" selection-end-line="1589" selection-end-column="140" />
+            <state relative-caret-position="137">
+              <caret line="1333" column="42" selection-start-line="1333" selection-start-column="42" selection-end-line="1333" selection-end-column="42" />
               <folding>
                 <element signature="e#666#672#0" expanded="true" />
                 <element signature="e#678#684#0" expanded="true" />
@@ -92,8 +106,6 @@
                 <element signature="e#959#965#0" expanded="true" />
                 <element signature="e#965#971#0" expanded="true" />
                 <element signature="e#1046#1052#0" expanded="true" />
-                <element signature="n#style#0;n#button#0;n#form#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#button#0;n#form#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#button#0;n#form#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#p#0;n#!!top" expanded="true" />
               </folding>
@@ -137,6 +149,15 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="sidemenu.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/admin/components/sidemenu.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="80" column="128" selection-start-line="80" selection-start-column="128" selection-end-line="80" selection-end-column="128" />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -148,20 +169,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>delete</find>
-      <find>acc_programmes_</find>
-      <find>ADDPROP</find>
-      <find>curl</find>
-      <find>acc_programmes_proposed</find>
-      <find>rejectr</find>
-      <find>['programs</find>
-      <find>addnewprog</find>
-      <find>acc_pr</find>
-      <find>['acc_programs</find>
-      <find>['acc_proPO</find>
-      <find>['acc_prop</find>
-      <find>sortdatatableappli</find>
-      <find>['studen</find>
       <find>getinstitute</find>
       <find>getpro</find>
       <find>['student_app</find>
@@ -174,10 +181,24 @@
       <find>export</find>
       <find>stdprog</find>
       <find>student_appli</find>
-      <find>addnewstu</find>
       <find>download</find>
       <find>createstu</find>
+      <find>student_applica</find>
+      <find>addnewstu</find>
+      <find>&lt;th&gt; Programme Level&lt;/th&gt;</find>
+      <find>admit</find>
+      <find>proceed</find>
+      <find>admitapplica</find>
+      <find>student_enroll</find>
+      <find>students_rec</find>
+      <find>sortdatatableapp</find>
       <find>student_appl</find>
+      <find>sortdatatableap</find>
+      <find>addnewstude</find>
+      <find>updateapp</find>
+      <find>sortdatatablestudent</find>
+      <find>students_recor</find>
+      <find>sortdatatablestude</find>
     </findStrings>
     <replaceStrings>
       <replace>Edit</replace>
@@ -188,6 +209,7 @@
       <replace>&lt;?php include(&quot;components/back_n_forward_buttons.php&quot;); ?&gt;</replace>
       <replace>errorNotification('Error!','Processing failed! Contact systems administrator for assistance','danger');</replace>
       <replace>&quot;post&quot;</replace>
+      <replace>&lt;th&gt; Admission Level&lt;/th&gt;</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -214,10 +236,10 @@
         <option value="$PROJECT_DIR$/admin/assets/css/minified/bootstrap.min.css" />
         <option value="$PROJECT_DIR$/admin/dbcon.php" />
         <option value="$PROJECT_DIR$/admin/components/modals.php" />
+        <option value="$PROJECT_DIR$/admin/components/sidemenu.php" />
         <option value="$PROJECT_DIR$/admin/php/index.php" />
         <option value="$PROJECT_DIR$/admin/assets/js/main.js" />
         <option value="$PROJECT_DIR$/admin/dashboard.php" />
-        <option value="$PROJECT_DIR$/admin/components/sidemenu.php" />
       </list>
     </option>
   </component>
@@ -291,12 +313,6 @@
               <item name="fptec" type="b2602c69:ProjectViewProjectNode" />
               <item name="fptec" type="462c0819:PsiDirectoryNode" />
               <item name="admin" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fptec" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fptec" type="462c0819:PsiDirectoryNode" />
-              <item name="admin" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="fptec" type="b2602c69:ProjectViewProjectNode" />
@@ -416,11 +432,13 @@
       <workItem from="1692344681400" duration="3865000" />
       <workItem from="1692480987641" duration="2446000" />
       <workItem from="1692517130888" duration="5310000" />
+      <workItem from="1692740739748" duration="1000" />
+      <workItem from="1692824201000" duration="10891000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="382822000" />
+    <option name="totallyTimeSpent" value="393714000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="830" extended-state="6" />
@@ -435,7 +453,7 @@
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.20470263" />
+      <window_info anchor="bottom" id="Terminal" order="9" visible="true" weight="0.20470263" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -724,10 +742,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/admin/components/sidemenu.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="80" column="128" selection-start-line="80" selection-start-column="128" selection-end-line="80" selection-end-column="128" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/admin/php/index.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="164">
-          <caret line="1589" column="140" selection-start-line="1589" selection-start-column="140" selection-end-line="1589" selection-end-column="140" />
+        <state relative-caret-position="137">
+          <caret line="1333" column="42" selection-start-line="1333" selection-start-column="42" selection-end-line="1333" selection-end-column="42" />
           <folding>
             <element signature="e#666#672#0" expanded="true" />
             <element signature="e#678#684#0" expanded="true" />
@@ -742,8 +767,6 @@
             <element signature="e#965#971#0" expanded="true" />
             <element signature="e#1046#1052#0" expanded="true" />
             <element signature="n#style#0;n#button#0;n#form#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#button#0;n#form#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#button#0;n#form#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#p#0;n#!!top" expanded="true" />
           </folding>
         </state>
@@ -751,8 +774,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/admin/assets/js/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="334">
-          <caret line="218" column="66" selection-start-line="218" selection-start-column="66" selection-end-line="218" selection-end-column="66" />
+        <state relative-caret-position="232">
+          <caret line="1730" selection-start-line="1730" selection-end-line="1730" />
           <folding>
             <element signature="n#style#0;n#h1#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
@@ -765,26 +788,42 @@
             <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#td#0;n#tr#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/admin/dashboard.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="1555" column="76" selection-start-line="1555" selection-start-column="76" selection-end-line="1555" selection-end-column="76" />
+        <state relative-caret-position="208">
+          <caret line="5552" column="86" selection-start-line="5552" selection-start-column="86" selection-end-line="5552" selection-end-column="86" />
           <folding>
+            <element signature="n#fieldset#0;n#form#0;n#div#0;n#div#1;n#div#5;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" />
+            <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#6;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#ul#0;n#div#0;n#div#0;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#2;n#div#0;n#fieldset#0;n#form#0;n#div#0;n#div#1;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#button#0;n#form#0;n#div#0;n#div#1;n#div#7;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#1;n#div#1;n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#1;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#li#0;n#ul#0;n#div#0;n#div#0;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" />
+            <element signature="n#style#0;n#div#2;n#div#0;n#fieldset#0;n#form#0;n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#button#0;n#form#0;n#div#0;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#1;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#tr#0;n#tbody#0;n#table#0;n#div#0;n#div#0;n#div#3;n#div#1;n#div#1;n#div#8;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="e#113#119#0" expanded="true" />
             <element signature="e#119#125#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/admin/components/sidemenu.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="410">
-          <caret line="98" column="113" selection-start-line="98" selection-start-column="113" selection-end-line="98" selection-end-column="113" />
         </state>
       </provider>
     </entry>

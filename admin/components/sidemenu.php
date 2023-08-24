@@ -66,12 +66,20 @@
                     </li>
                     <?php } if(str_contains($access,'Applications') || str_contains($access,'Enrollments') || str_contains($access,'Graduations')){?>
                     <li>
-                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students Mgt</span></a>
+                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Application Mgt</span></a>
                         <ul>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_application"><i class="icon-pen6"></i><span>Applications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_admissions"><i class="icon-graduation"></i><span>Admissions</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?student_enrollments"><i class="icon-user-plus"></i><span>Enrollments</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Graduations')){?><li><a href="../admin/dashboard.php?student_graduation"><i class="icon-graduation2"></i><span>Graduations</span></a></li><?php } ?>
+
+                        </ul>
+                    </li>
+                        <?php }if(str_contains($access,'Enrollments')) { ?>
+                    <li>
+                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students Mgt</span></a>
+                        <ul>
+                            <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?students_records"><i class="icon-user-plus"></i><span>Students</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Graduations')){?><li><a href="../admin/dashboard.php?student_graduation"><i class="icon-graduation2"></i><span>Graduates</span></a></li><?php } ?>
                         </ul>
                     </li>
                     <?php } if(str_contains($access,'Summary Report') || str_contains($access,'Analytics Report')){?>

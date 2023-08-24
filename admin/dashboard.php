@@ -74,6 +74,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
     <script type="text/javascript" src="assets/js/pages/components_notifications_pnotify.js"></script>
     <script type="text/javascript" src="assets/js/pages/components_loaders.js"></script>
     <!-- /theme JS files -->
+    <!-- DATA TABLES
+	<link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/b-print-2.4.1/r-2.5.0/datatables.min.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+	<script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/b-print-2.4.1/r-2.5.0/datatables.min.js"></script>
+    -->
     <!-- /theme JS files -->
     <style type="text/css">
         body {
@@ -1353,7 +1359,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <div class="page-header" style="margin: 20px;">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Students </li>
+                            <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
                             <li class="active"><a href="dashboard.php?student_application">Applications</a></li>
                         </ul>
@@ -1573,7 +1579,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select id="stdacadyear" data-placeholder="Year" class="select">
+                                            <select id="stdacadyear" data-placeholder="Year of Admission" class="select">
                                                 <option></option>
                                                 <?php
                                                 $curryear = date("Y");
@@ -1609,7 +1615,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select id="stdproglevel" data-placeholder="Year Admitted To" class="select">
+                                            <select id="stdproglevel" data-placeholder="Level Admitted To" class="select">
                                                 <option></option>
                                                 <option value="1">1</option>
                                                 <option value="2">2</option>
@@ -1724,7 +1730,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;">
-                                    <table class="table table-hover datatable-basic">
+                                    <table class="table table-hover" id="dataTable">
                                         <thead>
                                         <tr>
                                             <th> Student/Reference Number </th>
@@ -1966,7 +1972,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <th> SHS Programme Offered  </th>
                                             <th> Name Of Programme Applied</th>
                                             <th> Name Of Programme Offered</th>
-                                            <th> Programme Level</th>
+                                            <th> Admission Level</th>
                                             <th> Mode of Study</th>
                                             <th> Fee Paying Status</th>
                                             <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
@@ -2007,7 +2013,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <td><?php echo $row['high_school_program']; ?></td>
                                                 <td><?php echo getProgram($row['programme_applied']); ?></td>
                                                 <td><?php echo getProgram($row['programme_offered']); ?></td>
-                                                <td><?php echo $row['programme_level']; ?></td>
+                                                <td><?php echo $row['admission_level']; ?></td>
                                                 <td><?php echo $row['programme_type']; ?></td>
                                                 <td><?php echo $row['fee_type']; ?></td>
                                                 <td><?php echo $row['disability']; ?></td>
@@ -2036,9 +2042,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <div class="page-header" style="margin: 20px;">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Students </li>
+                            <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">Enrollments</a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">Students Enrollment</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -2048,9 +2054,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_staff">
+                    <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Enroll New Applicant(s)</h6>
+                            <h6 class="panel-title">Enroll New Students(s)</h6>
                         </div>
 
                         <form class="stepy-clickable">
@@ -2099,7 +2105,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <!-- /clickable title -->
 
                     <!-- Clickable title -->
-                    <div class="panel panel-white" id="view_staff">
+                    <!--<div class="panel panel-white" id="view_staff">
                         <div class="panel-heading">
                             <h6 class="panel-title">Enrolled Applicants</h6>
                         </div>
@@ -2194,7 +2200,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <th> SHS Programme Offered  </th>
                                             <th> Name Of Programme Applied</th>
                                             <th> Name Of Programme Offered</th>
-                                            <th> Programme Level</th>
+                                            <th> Admission Level</th>
                                             <th> Mode of Study</th>
                                             <th> Fee Paying Status</th>
                                             <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
@@ -2234,7 +2240,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <td><?php echo $row['high_school_program']; ?></td>
                                                 <td><?php echo getProgram($row['programme_applied']); ?></td>
                                                 <td><?php echo getProgram($row['programme_offered']); ?></td>
-                                                <td><?php echo $row['programme_level']; ?></td>
+                                                <td><?php echo $row['admission_level']; ?></td>
                                                 <td><?php echo $row['programme_type']; ?></td>
                                                 <td><?php echo $row['fee_type']; ?></td>
                                                 <td><?php echo $row['disability']; ?></td>
@@ -2242,6 +2248,194 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <td><?php echo $row['status']; ?></td>
                                             </tr>
                                         <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>-->
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['students_records'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">Students Enrollment</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Select Criteria</h6>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Admission Year</label>
+                                    <select name="institution" id="studentyear1" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Institution</label>
+                                    <select name="institution" id="studentinst1" class="form-control">
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Programme</label>
+                                    <select name="institution" id="studentprog1" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $sel = "SELECT prog_code, programme FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
+                                        $selrun = $conn->query($dbcon,$sel);
+                                        while($row = $conn->fetch($selrun)){
+                                            ?>
+                                            <option value="<?php echo $row['prog_code']; ?>"><?php echo $row['programme']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Application Type</label>
+                                        <select id="studentapptype" data-placeholder="Application Type" class="select">
+                                            <option value="All">All</option>
+                                            <option value="Undergraduate">Undergraduate</option>
+                                            <option value="Postgraduate">Postgraduate</option>
+                                            <option value="International">Scholarship</option>
+                                        </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Programme Type</label>
+                                        <select name="institution" id="studentprogtype" data-placeholder="Programme Type" class="select">
+                                            <option value="All">All</option>
+                                            <option value="distance">distance</option>
+                                            <option value="evening">evening</option>
+                                            <option value="regular">regular</option>
+                                            <option value="weekend">weekend</option>
+                                        </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Student Level</label>
+                                        <select id="studentproglevel" data-placeholder="Level Admitted To" class="select">
+                                            <option value="All">All</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                            <option value="7">7</option>
+                                        </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Fee Payment Type</label>
+                                        <select id="studentfeepay" data-placeholder="Fee Payment Type" class="select">
+                                            <option value="All">All</option>
+                                            <option value="Full Fee-Paying">Full Fee-Paying</option>
+                                            <option value="Government Subsidized">Government Subsidized</option>
+                                            <option value="Scholarship">Scholarship</option>
+                                        </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getStudentDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Students List</h6>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div align="right">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
+                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
+                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
+                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;">
+                                    <table class="table table-hover datatable-basic">
+                                        <thead>
+                                        <tr>
+                                            <th> Student/Reference Number </th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>Date of Birth</th>
+                                            <th>Country Of Birth</th>
+                                            <th>Nationality</th>
+                                            <th>Religion</th>
+                                            <th>Hometown</th>
+                                            <th>Home Region</th>
+                                            <th>Institution</th>
+                                            <th>Application Year </th>
+                                            <th> National ID Type</th>
+                                            <th> National ID Number</th>
+                                            <th>Senior High School Attended </th>
+                                            <th> SHS Programme Offered  </th>
+                                            <th> Name Of Programme Applied</th>
+                                            <th> Name Of Programme Offered</th>
+                                            <th> Admission Level</th>
+                                            <th> Mode of Study</th>
+                                            <th> Fee Paying Status</th>
+                                            <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
+                                            <th> Indicate the Special Education Needs (e.g. Physically Challenged, Visually Impaired)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
                                         </tbody>
                                     </table>
                                 </div>
@@ -2421,7 +2615,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <th> SHS Programme Offered  </th>
                                             <th> Name Of Programme Applied</th>
                                             <th> Name Of Programme Offered</th>
-                                            <th> Programme Level</th>
+                                            <th> Admission Level</th>
                                             <th> Mode of Study</th>
                                             <th> Fee Paying Status</th>
                                             <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
@@ -2461,7 +2655,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <td><?php echo $row['high_school_program']; ?></td>
                                                 <td><?php echo getProgram($row['programme_applied']); ?></td>
                                                 <td><?php echo getProgram($row['programme_offered']); ?></td>
-                                                <td><?php echo $row['programme_level']; ?></td>
+                                                <td><?php echo $row['admission_level']; ?></td>
                                                 <td><?php echo $row['programme_type']; ?></td>
                                                 <td><?php echo $row['fee_type']; ?></td>
                                                 <td><?php echo $row['disability']; ?></td>
@@ -5320,7 +5514,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php echo getApplicantCount('Graduated'); ?></h3>
-                                            <div  class="dashboard-stats">Graduations</div>
+                                            <div  class="dashboard-stats">Staff</div>
                                         </div>
                                     </div>
                                     <!-- /members online -->
@@ -5356,10 +5550,122 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php echo getApplicantCount('Enrolled'); ?></h3>
-                                            <div  class="dashboard-stats">Enrollments</div>
+                                            <div  class="dashboard-stats">System Users</div>
                                         </div>
                                     </div>
                                     <!-- /members online -->
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Traffic sources -->
+                                    <div class="panel panel-flat">
+                                        <div class="panel-heading">
+                                            <h6 class="panel-title">Application Statistics</h6>
+                                        </div>
+
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <ul class="list-inline text-center">
+                                                        <li>
+                                                            <a href="#" class="btn border-teal text-teal btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-markup"></i></a>
+                                                        </li>
+                                                        <li class="text-left">
+                                                            <div class="text-semibold">Qualified</div>
+                                                            <div class="text-muted">2,349 avg</div>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <div class="content-group" id="new-visitors"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-4">
+                                                    <ul class="list-inline text-center">
+                                                        <li>
+                                                            <a href="#" class="btn border-warning-400 text-warning-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-bookmarks"></i></a>
+                                                        </li>
+                                                        <li class="text-left">
+                                                            <div class="text-semibold">Admitted</div>
+                                                            <div class="text-muted">08:20 avg</div>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <div class="content-group" id="new-sessions"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-4">
+                                                    <ul class="list-inline text-center">
+                                                        <li>
+                                                            <a href="#" class="btn border-indigo-400 text-indigo-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-users4"></i></a>
+                                                        </li>
+                                                        <li class="text-left">
+                                                            <div class="text-semibold">Enrolled</div>
+                                                            <div class="text-muted"><span class="status-mark border-success position-left"></span> 5,378 avg</div>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <div class="content-group" id="total-online"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="position-relative" id="traffic-sources"></div>
+                                    </div>
+                                    <!-- /traffic sources -->
+                                </div>
+                                <div class="col-md-6">
+                                    <!-- Traffic sources -->
+                                    <div class="panel panel-flat">
+                                        <div class="panel-heading">
+                                            <h6 class="panel-title">Students Statistics</h6>
+                                        </div>
+
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <ul class="list-inline text-center">
+                                                        <li>
+                                                            <a href="#" class="btn border-teal text-teal btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-graduation"></i></a>
+                                                        </li>
+                                                        <li class="text-left">
+                                                            <div class="text-semibold">Students</div>
+                                                            <div class="text-muted">2,349 avg</div>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <div class="content-group" id="new-visitors"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-6">
+                                                    <ul class="list-inline text-center">
+                                                        <li>
+                                                            <a href="#" class="btn border-warning-400 text-warning-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-graduation2"></i></a>
+                                                        </li>
+                                                        <li class="text-left">
+                                                            <div class="text-semibold">Graduates</div>
+                                                            <div class="text-muted">08:20 avg</div>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <div class="content-group" id="new-sessions"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="position-relative" id="traffic-sources"></div>
+                                    </div>
+                                    <!-- /traffic sources -->
                                 </div>
                             </div>
                             <div class="row">
