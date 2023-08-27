@@ -1,5 +1,7 @@
 <?php
 include("dbcon.php");
+include("Classes/Dashboard.php");
+
 if (!isset($_SESSION['uname'])) {
     header("location: index.php");
     exit(0);
@@ -73,6 +75,10 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
     <script type="text/javascript" src="assets/js/plugins/notifications/pnotify.min.js"></script>
     <script type="text/javascript" src="assets/js/pages/components_notifications_pnotify.js"></script>
     <script type="text/javascript" src="assets/js/pages/components_loaders.js"></script>
+
+    <script type="text/javascript" src="assets/js/plugins/forms/tags/tagsinput.min.js"></script>
+    <script type="text/javascript" src="assets/js/plugins/forms/tags/tokenfield.min.js"></script>
+    <script type="text/javascript" src="assets/js/pages/form_tags_input.js"></script>
     <!-- /theme JS files -->
     <!-- DATA TABLES
 	<link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/b-print-2.4.1/r-2.5.0/datatables.min.css" rel="stylesheet">
@@ -205,6 +211,10 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             font-size: x-large;
             color: #FFDC0A;
             font-weight: bold;
+        }
+
+        #small{
+            color: rgba(107,129,105,0.98);
         }
     </style>
 
@@ -573,12 +583,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="inshort" class="form-control btnrqd" placeholder="Date Of First Accreditation" />
+                                            <input type="date" id="instaccredit" class="form-control btnrqd" placeholder="Date Of First Accreditation" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="inshort" class="form-control btnrqd" placeholder="Date Accreditation Expires" />
+                                            <input type="date" id="instexpire" class="form-control btnrqd" placeholder="Date Accreditation Expires" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -819,7 +829,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                     <td><a class="clicklink" href="../admin/dashboard.php?view_instituion=<?php echo $id; ?>"><?php echo $row['fcont']; ?></a></td>
                                                     <td><a class="clicklink" href="../admin/dashboard.php?view_instituion=<?php echo $id; ?>"><?php echo $row['fmail']; ?></a></td>
                                                     <td>
-                                                        <a class="btn btn-sm" onclick="deleteModal(<?php echo $id; ?>,'institutes')"><span class="icon icon-trash"></span></a><a class="btn btn-sm" onclick="updateRole(<?php echo $id; ?>)"><span class="icon icon-database-edit2"></span></a>
+                                                        <a class="btn btn-sm" onclick="deleteModal(<?php echo $id; ?>,'institutes')"><span class="icon icon-trash"></span></a>
                                                     </td>
 
                                                 </tr>
@@ -874,8 +884,14 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <?php }else{
                         $rows = $conn->fetch($selrun);
                         ?>
-                        <div class="panel panel-white" id="add_new_institution">
+                        <div class="panel panel-white" id="view_institution">
                             <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-md-6"></div>
+                                    <div class="col-md-6" align="right">
+                                        <a onclick="toggle('add_new_institution','view_institution')"><span class="icon icon-pencil7"></span></a>
+                                    </div>
+                                </div>
                                 <h6 class="panel-title">Added On <?php echo $rows['createdAt']; ?></h6>
                             </div>
                             <div class="row" style="margin: 10px;">
@@ -888,6 +904,8 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                         <li><span style="font-weight: bold;">Institution Name</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['name']; ?></li>
                                         <li><span style="font-weight: bold;">Category</span>:&nbsp;&nbsp;&nbsp;  <?php echo getCategory($rows['category_id']); ?></li>
                                         <li><span style="font-weight: bold;">Description</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['description']; ?></li>
+                                        <li><span style="font-weight: bold;">Accreditation Date</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['accredit']; ?></li>
+                                        <li><span style="font-weight: bold;">Expiry Date</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['expire']; ?></li>
                                     </ul>
                                 </div>
                                 <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
@@ -915,6 +933,190 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 <div class="col-md-12" id="map"></div>
                             </div>
                         </div>
+                        <div class="panel panel-white hidden" id="add_new_institution">
+                            <div class="panel-heading">
+                                <h6 class="panel-title">Update Institution Info</h6>
+                            </div>
+
+                            <form class="stepy-clickable">
+                                <fieldset title="1">
+                                    <legend class="text-semibold">Institution Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insname" class="form-control btnrqd" value="<?php echo $rows['name']; ?>" />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="inshort" class="form-control btnrqd" value="<?php echo $rows['short_name']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="inscode" readonly class="form-control btnrqd" value="<?php echo $rows['institution_code']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="inscat"  data-placeholder="Select Institution Category" class="select btnrqd">
+                                                    <option  value="<?php echo $rows['category_id']; ?>"><?php echo getCategory($rows['category_id']); ?></option>
+                                                    <?php
+                                                    $sel = "SELECT name, id FROM institute_categories ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    while($row = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="date" id="instaccredit" class="form-control btnrqd" value="<?php echo $rows['accredit']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="instexpire" class="form-control btnrqd" value="<?php echo $rows['expire']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <textarea id="insdesc" class="form-control" placeholder="Description" maxlength="200" rows="4"><?php echo $rows['description']; ?></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset title="2">
+                                    <legend class="text-semibold">Contact Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="inscont" class="form-control btnrqd"  value="<?php echo $rows['contact_telephone']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insemail" class="form-control" value="<?php echo $rows['contact_email']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insurl" class="form-control" value="<?php echo $rows['url']; ?>" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <h5>Details Of Head Of Institution</h5>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insnamehead" class="form-control btnrqd" value="<?php echo $rows['hname']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insconthead" class="form-control" value="<?php echo $rows['hcont']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insemailhead" class="form-control" value="<?php echo $rows['hmail']; ?>" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <h5>Details Of Person Filling Form</h5>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insnamefill" class="form-control btnrqd"  value="<?php echo $rows['fname']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="inscontfill" class="form-control" value="<?php echo $rows['fcont']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="insemailfill" class="form-control" value="<?php echo $rows['fmail']; ?>" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                                <fieldset title="3">
+                                    <legend class="text-semibold">Location Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="digaddress" class="form-control btnrqd" value="<?php echo $rows['digital_address']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4"><button type="button" onclick="getAddressDetails()"><img src="assets/images/map.jpeg" class="img-responsive" style="width: 50px; height: 40px" /> </button></div>
+                                    </div>
+                                    <div id="dighide">
+                                        <div class="row" align="center">
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Region</label>
+                                                    <input type="text" readonly id="digregion" class="form-control" value="<?php echo $rows['region']; ?>" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                        </div>
+                                        <div class="row" align="center">
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>District</label>
+                                                    <input type="text" readonly id="digdistrict" class="form-control" value="<?php echo $rows['district']; ?>" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                        </div>
+                                        <div class="row" align="center">
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Town</label>
+                                                    <input type="text" readonly id="digtown" class="form-control" value="<?php echo $rows['town']; ?>" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                        </div>
+                                        <div class="row" align="center">
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label>Latitude</label>
+                                                    <input type="text" readonly id="diglat" class="form-control" value="<?php echo $rows['latitude']; ?>" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label>Laongitude</label>
+                                                    <input type="text" readonly id="diglongt" class="form-control" value="<?php echo $rows['longitude']; ?>" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 hidden-xs hidden-sm">&nbsp;</div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12" align="center" style="margin-bottom: 20px">
+                                            <button class="btn btn-sm btn-primary" type="button" onclick="updateInstitution()">Update Institution  </button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
+                            </form>
+                        </div>
                     <?php } ?>
                 </div>
                 <!-- /content area -->
@@ -939,6 +1141,496 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
 
                 window.initMap = initMap;
             </script>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['view_student'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $id=$_GET['view_student'];
+
+            $sel = "SELECT * FROM enrollments WHERE id = $id";
+            $selrun = $conn->query($dbcon,$sel);
+
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li><a href="dashboard.php?students_records">Student Records</a></li>
+                            <li class="active">View</li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <?php if($conn->sqlnum($selrun) == 0){ ?>
+                        <div class="panel panel-white">
+                            <div class="row">
+
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
+                                    No Institution Details Found
+                                </div>
+                            </div>
+                        </div>
+                    <?php }else{
+                        $rows = $conn->fetch($selrun);
+                        ?>
+                        <div class="panel panel-white" id="view_student_record">
+                            <div class="panel-heading" align="right">
+                                <h6 class="panel-title"><a onclick="updateStudentView()"><span class="icon icon-pencil7"></span></a></h6>
+                            </div>
+                            <div class="row" style="margin: 10px;">
+
+                                <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
+                                    <span class="text-muted"><h5>Personal Details:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <li><span style="font-weight: bold;">Name</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['first_name']." ".$rows['surname']." ".$rows['other_names']; ?></li>
+                                        <li><span style="font-weight: bold;">Date Of Birth</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['birth_date']; ?></li>
+                                        <li><span style="font-weight: bold;">Gender</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['gender']; ?></li>
+                                        <li><span style="font-weight: bold;">ID Type</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['applicant_id_type']; ?></li>
+                                        <li><span style="font-weight: bold;">ID Number</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['applicant_national_id']; ?></li>
+                                        <li><span style="font-weight: bold;">Nationality</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['nationality']; ?></li>
+                                        <li><span style="font-weight: bold;">Birth Country</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['birth_country']; ?></li>
+                                        <li><span style="font-weight: bold;">Religion</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['religion']; ?></li>
+                                        <li><span style="font-weight: bold;">Hometown</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['home_town']; ?></li>
+                                        <li><span style="font-weight: bold;">Hometown Region</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['home_region']; ?></li>
+                                        <li><span style="font-weight: bold;">Senior High School Attended</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['high_school']; ?></li>
+                                        <li><span style="font-weight: bold;">Senior High School Program</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['high_school_program']; ?></li>
+                                        <li><span style="font-weight: bold;">Disability Status</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['disability']; ?></li>
+                                        <li><span style="font-weight: bold;">Disability Type</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['disability_type']; ?></li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
+                                    <span class="text-muted"><h5>Academic Details:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <li><span style="font-weight: bold;">Student ID</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['applicant_id']; ?></li>
+                                        <li><span style="font-weight: bold;">Institution</span>:&nbsp;&nbsp;&nbsp;  <?php echo getInstitution($rows['institution']); ?></li>
+                                        <li><span style="font-weight: bold;">Application Type</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['application_type']; ?></li></li>
+                                        <li><span style="font-weight: bold;">Programme Offered</span>:&nbsp;&nbsp;&nbsp; <?php echo getProgram($rows['programme_offered']); ?></li></li>
+                                        <li><span style="font-weight: bold;">Admission Year</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['year']; ?></li></li>
+                                        <li><span style="font-weight: bold;">Programme Type</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['programme_type']; ?></li></li>
+                                        <li><span style="font-weight: bold;">Level Admitted</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['admission_level']; ?></li></li>
+                                        <li><span style="font-weight: bold;">Fee Payment Type</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['fee_type']; ?></li></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="panel panel-white hidden" id="edit_student_record">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-md-6"><h6 class="panel-title">Update Student Records</h6></div>
+                                    <div class="col-md-6"></div>
+                                </div>
+
+                            </div>
+
+                            <form class="stepy-clickable">
+                                <fieldset title="1">
+                                    <legend class="text-semibold">Personal Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stdfname" class="form-control btnrqd" value="<?php echo $rows['first_name']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stdlname" class="form-control btnrqd" value="<?php echo $rows['surname']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stdoname" class="form-control" value="<?php echo $rows['other_names']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="date"  id="stddob" class="form-control btnrqd" value="<?php echo $rows['birth_date']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="gender" id="stdsex" class="form-control btnrqd">
+                                                    <option value="<?php echo $rows['gender']; ?>"><?php echo $rows['gender']; ?></option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Male">Male</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="gender" id="stdidtype" class="form-control btnrqd">
+                                                    <option value="<?php echo $rows['applicant_id_type']; ?>"><?php echo $rows['applicant_id_type']; ?></option>
+                                                    <option value="">National ID Type</option>
+                                                    <option value="Ghana Card">Ghana Card</option>
+                                                    <option value="National ID">National ID</option>
+                                                    <option value="Passport">Passport</option>
+                                                    <option value="Social Security">Social Security</option>
+                                                    <option value="Voter ID">Voter's ID</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stdidnum" class="form-control btnrqd" value="<?php echo $rows['applicant_national_id']; ?>"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdcountry" data-placeholder="Nationality" class="select">
+                                                    <option value="<?php echo $rows['nationality']; ?>"><?php echo $rows['nationality']; ?></option>
+                                                    <option value="Ghanaian">Ghanaian</option>
+                                                    <?php
+                                                    $countryCount = count($nationalityJSON);
+                                                    for($i=0; $i < $countryCount; $i++){
+                                                        ?>
+                                                        <option value="<?php echo $nationalityJSON[$i]; ?>"><?php echo $nationalityJSON[$i]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdbirth" data-placeholder="Birth Country" class="select">
+                                                    <option value="<?php echo $rows['birth_country']; ?>"><?php echo $rows['birth_country']; ?></option>
+                                                    <option value="Ghana">Ghana</option>
+                                                    <?php
+                                                    $countryCount = count($countryJson);
+                                                    for($i=0; $i < $countryCount; $i++){
+                                                        ?>
+                                                        <option value="<?php echo $countryJson[$i]; ?>"><?php echo $countryJson[$i]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="gender" id="stdreligion" class="select btnrqd" data-placeholder="Select Religion">
+                                                    <option value="<?php echo $rows['religion']; ?>"><?php echo $rows['religion']; ?></option>
+                                                    <option value="African Traditional Religion">African Traditional Religion</option>
+                                                    <option value="Christianity">Christianity</option>
+                                                    <option value="Islam">Islam</option>
+                                                    <option value="Others">Others</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stdtown" class="form-control btnrqd" value="<?php echo $rows['home_town']; ?>"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdregion" data-placeholder="Hometown Region" class="select">
+                                                    <option value="<?php echo $rows['home_region']; ?>"><?php echo $rows['home_region']; ?></option>
+                                                    <?php
+                                                    $countryCount = count($regions);
+                                                    for($i=0; $i < $countryCount; $i++){
+                                                        ?>
+                                                        <option value="<?php echo $regions[$i]; ?>"><?php echo $regions[$i]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdshs" data-placeholder="Senior High School" class="select">
+                                                    <option value="<?php echo $rows['high_school']; ?>"><?php echo $rows['high_school']; ?></option>
+                                                    <?php
+                                                    $shsCount = count($shs);
+                                                    for($i=0; $i < $shsCount; $i++){
+                                                        ?>
+                                                        <option value="<?php echo $shs[$i]; ?>"><?php echo $shs[$i]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdshsprog" data-placeholder="SHS Program" class="select">
+                                                    <option value="<?php echo $rows['high_school_program']; ?>"><?php echo $rows['high_school_program']; ?></option>
+                                                    <?php
+                                                    $shsprogCount = count($shsprog);
+                                                    for($i=0; $i < $shsprogCount; $i++){
+                                                        ?>
+                                                        <option value="<?php echo $shsprog[$i]; ?>"><?php echo $shsprog[$i]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stddisable" data-placeholder="Select Disability Status" class="select">
+                                                    <option value="<?php echo $rows['disability']; ?>"><?php echo $rows['disability']; ?></option>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stddisabletype" class="form-control btnrqd" value="<?php echo $rows['disability_type']; ?>" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset title="2">
+                                    <legend class="text-semibold">Admission Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stdid" class="form-control btnrqd" value="<?php echo $rows['applicant_id']; ?>" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stdinstitution" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdprog','stdprogoff')">
+                                                    <option value="<?php echo $rows['institution']; ?>"><?php echo getInstitution($rows['institution']); ?></option>
+                                                    <?php
+                                                    if($actype == "GTEC"){
+                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        while($row = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                                        <?php }}else{ ?>
+                                                        <option value="<?php echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdapptype" data-placeholder="Application Type" class="select">
+                                                    <option value="<?php echo $rows['application_type']; ?>"><?php echo $rows['application_type']; ?></option>
+                                                    <option value="Undergraduate">Undergraduate</option>
+                                                    <option value="Postgraduate">Postgraduate</option>
+                                                    <option value="International">Scholarship</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdprogoff" data-placeholder="Program Offered" class="select">
+                                                    <option value="<?php echo $rows['programme_offered']; ?>"><?php echo getProgram($rows['programme_offered']); ?></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdacadyear" data-placeholder="Year of Admission" class="select">
+                                                    <option value="<?php echo $rows['year']; ?>"><?php echo $rows['year']; ?></option>
+                                                    <?php
+                                                    $curryear = date("Y");
+                                                    for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                        ?>
+                                                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stdprogtype" data-placeholder="Programme Type" class="select">
+                                                    <option value="<?php echo $rows['programme_type']; ?>"><?php echo $rows['programme_type']; ?></option>
+                                                    <option value="distance">distance</option>
+                                                    <option value="evening">evening</option>
+                                                    <option value="regular">regular</option>
+                                                    <option value="weekend">weekend</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdproglevel" data-placeholder="Level Admitted To" class="select">
+                                                    <option value="<?php echo $rows['admission_level']; ?>"><?php echo $rows['admission_level']; ?></option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                    <option value="6">6</option>
+                                                    <option value="7">7</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stdfeepay" data-placeholder="Fee Payment Type" class="select">
+                                                    <option value="<?php echo $rows['fee_type']; ?>"><?php echo $rows['fee_type']; ?></option>
+                                                    <option value="Full Fee-Paying">Full Fee-Paying</option>
+                                                    <option value="Government Subsidized">Government Subsidized</option>
+                                                    <option value="Scholarship">Scholarship</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12" align="center" style="margin-bottom: 20px">
+                                            <button class="btn btn-sm btn-primary" type="button" onclick="updateNewStudentRecord()"><span class="icon icon-add-to-list"></span>Update Student Records</button>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                                <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
+                            </form>
+                        </div>
+                    <?php } ?>
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['summary_report'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Reports. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?summary_report">Summary Report</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">International Standard Classification of Education(ISCED)<br/><small id="small">mapping programmes run by Tertiary Education Institutions by ISCED fields of study</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <?php
+                            $sel = "SELECT name FROM isceds WHERE status = 'Active'";
+                            $selrun = $conn->query($dbcon,$sel);
+                            if($conn->sqlnum($selrun) == 0){
+                            ?>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                    No records Found
+                                </div>
+                            <?php }else{ ?>
+                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
+                                <?php
+                                    while($data = $conn->fetch($selrun)){ ?>
+                                    <p style="font-weight: bold"><?php echo $data['name']; ?></p>
+                                <?php } ?>
+                            </div>
+                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
+                                Bar graph will bebhere
+                            </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Gender Parity Index (GPI)<br/><small id="small">GPI= [Total Female Student Enrolment in Tertiary Education] ÷ [Total Male Enrolment in Tertiary Education</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <?php
+                            $sel = "SELECT DISTINCT year FROM enrollments WHERE status = 'Active'";
+                            $selrun = $conn->query($dbcon,$sel);
+                            if($conn->sqlnum($selrun) == 0){
+                            ?>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                    No records Found
+                                </div>
+                            <?php }else{ ?>
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Total Male Enrollments</th>
+                                            <th>Total Female Enrollments</th>
+                                            <th>G.P.I</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                <?php
+                                    while($data = $conn->fetch($selrun)){
+                                        $yr = $data['year'];
+                                        $response = getGPIDetails($yr);
+                                        $obj = json_decode($response);
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $data['year']; ?></td>
+                                        <td><?php echo $obj->male ?></td>
+                                        <td><?php echo $obj->female; ?></td>
+                                        <td><?php echo $obj->gpi; ?></td>
+                                    </tr>
+                                <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Student Teacher Ratio (STR1)<br/><small id="small">GPI= [Total Female Student Enrolment in Tertiary Education] ÷ [Total Male Enrolment in Tertiary Education</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <?php
+                            $sel = "SELECT DISTINCT year FROM enrollments WHERE status = 'Active'";
+                            $selrun = $conn->query($dbcon,$sel);
+                            if($conn->sqlnum($selrun) == 0){
+                            ?>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                    No records Found
+                                </div>
+                            <?php }else{ ?>
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Total Male Enrollments</th>
+                                            <th>Total Female Enrollments</th>
+                                            <th>G.P.I</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                <?php
+                                    while($data = $conn->fetch($selrun)){
+                                        $yr = $data['year'];
+                                        $response = getGPIDetails($yr);
+                                        $obj = json_decode($response);
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $data['year']; ?></td>
+                                        <td><?php echo $obj->male ?></td>
+                                        <td><?php echo $obj->female; ?></td>
+                                        <td><?php echo $obj->gpi; ?></td>
+                                    </tr>
+                                <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+                <!-- /content area -->
+
+            </div>
             <?php $conn->close($dbcon);}elseif(isset($_GET['staff'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
@@ -1804,6 +2496,297 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- /content area -->
 
             </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['add_student'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?add_student">Add Student</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Add New Student</h6>
+                        </div>
+
+                        <form class="stepy-clickable">
+                            <fieldset title="1">
+                                <legend class="text-semibold">Personal Details</legend>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stdfname" class="form-control btnrqd" placeholder="First Name" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stdlname" class="form-control btnrqd" placeholder="Surname" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stdoname" class="form-control" placeholder="Other Name(s)" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="date"  id="stddob" class="form-control btnrqd" value="<?php echo date('Y-m-d'); ?>" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select name="gender" id="stdsex" class="form-control btnrqd">
+                                                <option value="">Select Gender</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Male">Male</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select name="gender" id="stdidtype" class="form-control btnrqd">
+                                                <option value="">National ID Type</option>
+                                                <option value="Ghana Card">Ghana Card</option>
+                                                <option value="National ID">National ID</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Social Security">Social Security</option>
+                                                <option value="Voter ID">Voter's ID</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stdidnum" class="form-control btnrqd" placeholder="ID Number" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdcountry" data-placeholder="Nationality" class="select">
+                                                <option></option>
+                                                <option value="Ghanaian">Ghanaian</option>
+                                                <?php
+                                                $countryCount = count($nationalityJSON);
+                                                for($i=0; $i < $countryCount; $i++){
+                                                    ?>
+                                                    <option value="<?php echo $nationalityJSON[$i]; ?>"><?php echo $nationalityJSON[$i]; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdbirth" data-placeholder="Birth Country" class="select">
+                                                <option></option>
+                                                <option value="Ghana">Ghana</option>
+                                                <?php
+                                                $countryCount = count($countryJson);
+                                                for($i=0; $i < $countryCount; $i++){
+                                                    ?>
+                                                    <option value="<?php echo $countryJson[$i]; ?>"><?php echo $countryJson[$i]; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select name="gender" id="stdreligion" class="select btnrqd" data-placeholder="Select Religion">
+                                                <option></option>
+                                                <option value="African Traditional Religion">African Traditional Religion</option>
+                                                <option value="Christianity">Christianity</option>
+                                                <option value="Islam">Islam</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stdtown" class="form-control btnrqd" placeholder="Home town" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdregion" data-placeholder="Hometown Region" class="select">
+                                                <option></option>
+                                                <?php
+                                                $countryCount = count($regions);
+                                                for($i=0; $i < $countryCount; $i++){
+                                                    ?>
+                                                    <option value="<?php echo $regions[$i]; ?>"><?php echo $regions[$i]; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdshs" data-placeholder="Senior High School" class="select">
+                                                <option></option>
+                                                <?php
+                                                $shsCount = count($shs);
+                                                for($i=0; $i < $shsCount; $i++){
+                                                    ?>
+                                                    <option value="<?php echo $shs[$i]; ?>"><?php echo $shs[$i]; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdshsprog" data-placeholder="SHS Program" class="select">
+                                                <option></option>
+                                                <?php
+                                                $shsprogCount = count($shsprog);
+                                                for($i=0; $i < $shsprogCount; $i++){
+                                                    ?>
+                                                    <option value="<?php echo $shsprog[$i]; ?>"><?php echo $shsprog[$i]; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stddisable" data-placeholder="Select Disability Status" class="select">
+                                                <option></option>
+                                                <option value="No">No</option>
+                                                <option value="Yes">Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stddisabletype" class="form-control btnrqd" placeholder="Specific Disability" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset title="2">
+                                <legend class="text-semibold">Admission Details</legend>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="stdid" class="form-control btnrqd" placeholder="Student ID" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select name="institution" id="stdinstitution" data-placeholder="Institution" class="select" onchange="getProgrammes(this.value,'stdprog','stdprogoff')">
+                                                <option></option>
+                                                <?php
+                                                if($actype == "GTEC"){
+                                                    $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    while($row = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                                    <?php }}else{ ?>
+                                                    <option value="<?php echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdapptype" data-placeholder="Application Type" class="select">
+                                                <option></option>
+                                                <option value="Undergraduate">Undergraduate</option>
+                                                <option value="Postgraduate">Postgraduate</option>
+                                                <option value="International">Scholarship</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 hidden">
+                                        <div class="form-group">
+                                            <select id="stdprog" data-placeholder="Program Applied" class="select">
+                                                <option></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdprogoff" data-placeholder="Program Offered" class="select">
+                                                <option></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdacadyear" data-placeholder="Year of Admission" class="select">
+                                                <option></option>
+                                                <?php
+                                                $curryear = date("Y");
+                                                for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                    ?>
+                                                    <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select name="institution" id="stdprogtype" data-placeholder="Programme Type" class="select">
+                                                <option></option>
+                                                <option value="distance">distance</option>
+                                                <option value="evening">evening</option>
+                                                <option value="regular">regular</option>
+                                                <option value="weekend">weekend</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdproglevel" data-placeholder="Level Admitted To" class="select">
+                                                <option></option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select id="stdfeepay" data-placeholder="Fee Payment Type" class="select">
+                                                <option></option>
+                                                <option value="Full Fee-Paying">Full Fee-Paying</option>
+                                                <option value="Government Subsidized">Government Subsidized</option>
+                                                <option value="Scholarship">Scholarship</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12" align="center" style="margin-bottom: 20px">
+                                        <button class="btn btn-sm btn-primary" type="button" onclick="createNewStudentRecord()"><span class="icon icon-add-to-list"></span> Add New Student  </button>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /content area -->
+
+            </div>
             <?php $conn->close($dbcon);}elseif(isset($_GET['student_admissions'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
@@ -2369,6 +3352,167 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <option value="Government Subsidized">Government Subsidized</option>
                                             <option value="Scholarship">Scholarship</option>
                                         </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getStudentDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Students List</h6>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div align="right">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
+                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
+                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
+                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['isced_report'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Analytics Report </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">ISCED Report</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Select Criteria</h6>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Admission Year</label>
+                                    <div class="form-group">
+                                        <label>Basic example</label>
+                                        <input type="text" class="form-control tokenfield" value="These,are,tokens">
+                                    </div>
+                                    <select name="institution" id="studentyear1" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Institution</label>
+                                    <select name="institution" id="studentinst1" class="form-control">
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Programme</label>
+                                    <select name="institution" id="studentprog1" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $sel = "SELECT prog_code, programme FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
+                                        $selrun = $conn->query($dbcon,$sel);
+                                        while($row = $conn->fetch($selrun)){
+                                            ?>
+                                            <option value="<?php echo $row['prog_code']; ?>"><?php echo $row['programme']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Application Type</label>
+                                    <select id="studentapptype" data-placeholder="Application Type" class="select">
+                                        <option value="All">All</option>
+                                        <option value="Undergraduate">Undergraduate</option>
+                                        <option value="Postgraduate">Postgraduate</option>
+                                        <option value="International">Scholarship</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Programme Type</label>
+                                    <select name="institution" id="studentprogtype" data-placeholder="Programme Type" class="select">
+                                        <option value="All">All</option>
+                                        <option value="distance">distance</option>
+                                        <option value="evening">evening</option>
+                                        <option value="regular">regular</option>
+                                        <option value="weekend">weekend</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Student Level</label>
+                                    <select id="studentproglevel" data-placeholder="Level Admitted To" class="select">
+                                        <option value="All">All</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Fee Payment Type</label>
+                                    <select id="studentfeepay" data-placeholder="Fee Payment Type" class="select">
+                                        <option value="All">All</option>
+                                        <option value="Full Fee-Paying">Full Fee-Paying</option>
+                                        <option value="Government Subsidized">Government Subsidized</option>
+                                        <option value="Scholarship">Scholarship</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row" style="margin: 20px">
@@ -5495,7 +6639,11 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 </ul>
                                             </div>
 
-                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php echo getAccreditationCount(); ?></h3>
+                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large">
+                                            <?php 
+                                            echo Dashboard::getAccreditationCount();
+                                            ?>
+                                            </h3>
                                             <div class="dashboard-stats">Accreditations</div>
                                         </div>
                                     </div>
@@ -5508,12 +6656,16 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <div class="heading-elements">
                                                 <ul class="icons-list">
                                                     <li class="dropdown">
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-graduation2" style="font-size: xx-large;"></i></a>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-users4" style="font-size: xx-large;"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
 
-                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php echo getApplicantCount('Graduated'); ?></h3>
+                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large">
+                                            <?php 
+                                            echo Dashboard::getStaffCount();
+                                            ?>
+                                            </h3>
                                             <div  class="dashboard-stats">Staff</div>
                                         </div>
                                     </div>
@@ -5531,7 +6683,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 </ul>
                                             </div>
 
-                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php echo getInstitutionCount(); ?></h3>
+                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php 
+                                            echo Dashboard::getInstitutionCount();
+                                            ?></h3>
                                             <div  class="dashboard-stats">Institutions</div>
                                         </div>
                                     </div>
@@ -5544,12 +6698,14 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <div class="heading-elements">
                                                 <ul class="icons-list">
                                                     <li class="dropdown">
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-books" style="font-size: xx-large;"></i></a>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user-tie" style="font-size: xx-large;"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
 
-                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php echo getApplicantCount('Enrolled'); ?></h3>
+                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php 
+                                            echo Dashboard::getUsersCount();
+                                            ?></h3>
                                             <div  class="dashboard-stats">System Users</div>
                                         </div>
                                     </div>
@@ -5566,14 +6722,14 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
 
                                         <div class="container-fluid">
                                             <div class="row">
-                                                <div class="col-lg-4">
+                                                <div class="col-lg-6">
                                                     <ul class="list-inline text-center">
                                                         <li>
                                                             <a href="#" class="btn border-teal text-teal btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-markup"></i></a>
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Qualified</div>
-                                                            <div class="text-muted">2,349 avg</div>
+                                                            <div class="text-muted"><?php echo Dashboard::getApplicantCount('Qualified'); ?></div>
                                                         </li>
                                                     </ul>
 
@@ -5582,35 +6738,19 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                     </div>
                                                 </div>
 
-                                                <div class="col-lg-4">
+                                                <div class="col-lg-6">
                                                     <ul class="list-inline text-center">
                                                         <li>
                                                             <a href="#" class="btn border-warning-400 text-warning-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-bookmarks"></i></a>
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Admitted</div>
-                                                            <div class="text-muted">08:20 avg</div>
+                                                            <div class="text-muted"><?php echo Dashboard::getApplicantCount('Offered'); ?></div>
                                                         </li>
                                                     </ul>
 
                                                     <div class="col-lg-10 col-lg-offset-1">
                                                         <div class="content-group" id="new-sessions"></div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-4">
-                                                    <ul class="list-inline text-center">
-                                                        <li>
-                                                            <a href="#" class="btn border-indigo-400 text-indigo-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom"><i class="icon-users4"></i></a>
-                                                        </li>
-                                                        <li class="text-left">
-                                                            <div class="text-semibold">Enrolled</div>
-                                                            <div class="text-muted"><span class="status-mark border-success position-left"></span> 5,378 avg</div>
-                                                        </li>
-                                                    </ul>
-
-                                                    <div class="col-lg-10 col-lg-offset-1">
-                                                        <div class="content-group" id="total-online"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -5636,7 +6776,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Students</div>
-                                                            <div class="text-muted">2,349 avg</div>
+                                                            <div class="text-muted"><?php echo Dashboard::getStudentsCount(); ?></div>
                                                         </li>
                                                     </ul>
 
@@ -5652,7 +6792,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Graduates</div>
-                                                            <div class="text-muted">08:20 avg</div>
+                                                            <div class="text-muted"><?php echo Dashboard::getGraduatesCount(); ?></div>
                                                         </li>
                                                     </ul>
 

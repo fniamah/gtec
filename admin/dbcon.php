@@ -224,34 +224,29 @@ function getProgram($id){
     return $response;
 }
 
-function getAccreditationCount(){
+function getGPIDetails($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $sel="SELECT COUNT(institution) AS totalCount FROM acc_programmes";
-    $selrun = $conn->query($dbcon,$sel);
-    $data = $conn->fetch($selrun);
-    $response = $data['totalCount'];
-    return $response;
-}
+    $selMale = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year' AND gender='Male'";
+    $selrunMale = $conn->query($dbcon,$selMale);
+    $seldataMale = $conn->fetch($selrunMale);
+    $male = $seldataMale['TotalCount'];
 
-function getApplicantCount($status){
-    $conn=new Db_connect;
-    $dbcon=$conn->conn();
-    $sel="SELECT COUNT(first_name) AS totalCount FROM appadmissions WHERE status='$status'";
-    $selrun = $conn->query($dbcon,$sel);
-    $data = $conn->fetch($selrun);
-    $response = $data['totalCount'];
-    return $response;
-}
+    $selFemale = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year' AND gender='Female'";
+    $selrunFemale = $conn->query($dbcon,$selFemale);
+    $seldataFemale = $conn->fetch($selrunFemale);
+    $female = $seldataFemale['TotalCount'];
 
-function getInstitutionCount(){
-    $conn=new Db_connect;
-    $dbcon=$conn->conn();
-    $sel="SELECT COUNT(name) AS totalCount FROM institutes WHERE status='Active'";
-    $selrun = $conn->query($dbcon,$sel);
-    $data = $conn->fetch($selrun);
-    $response = $data['totalCount'];
-    return $response;
+    $gpi = 0;
+    if($male != 0){
+        $gpi = $female / $male;
+    }
+    $resp['male'] = $male;
+    $resp['female'] = $female;
+    $resp['gpi'] = $gpi;
+
+    return json_encode($resp);
+    $conn->close($dbcon);
 }
 
 function getEnrollmentByYear($year){
