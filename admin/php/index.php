@@ -289,13 +289,15 @@ if(isset($_POST['addIsced'])){
     $title = mysqli_real_escape_string($dbcon,$_POST['title']);
     $code = mysqli_real_escape_string($dbcon,$_POST['code']);
     $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $class = mysqli_real_escape_string($dbcon,$_POST['classify']);
+    $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
     $chkuname = "SELECT name FROM isceds WHERE code = '$code'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO isceds(name, code, description) VALUES('$title','$code','$description')";
+        $user = "INSERT INTO isceds(name, code, description, classify, target) VALUES('$title','$code','$description','$class',$target)";
         $conn->query($dbcon,$user);
 
         $response['errorCode'] = "0";
@@ -318,9 +320,11 @@ if(isset($_POST['updateIsced'])){
     $title = mysqli_real_escape_string($dbcon,$_POST['title']);
     $code = mysqli_real_escape_string($dbcon,$_POST['code']);
     $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $classify = mysqli_real_escape_string($dbcon,$_POST['classify']);
+    $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //UPDATE
-    $upd = "UPDATE isceds SET name = '$title', description = '$description' WHERE code ='$code'";
+    $upd = "UPDATE isceds SET name = '$title', description = '$description', classify = '$classify', target=$target WHERE code ='$code'";
     $conn->query($dbcon,$upd);
 
     $response['errorCode'] = "0";
@@ -536,7 +540,7 @@ if(isset($_POST['addStaffCategory'])){
     $rank = $_POST['rank'];
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
-    $chkuname = "SELECT id FROM staffcategory WHERE staff_type = '$name'";
+    $chkuname = "SELECT id,staff_type FROM staffcategory WHERE staff_type = '$name'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
@@ -548,7 +552,7 @@ if(isset($_POST['addStaffCategory'])){
 
     }else{
         $row = $conn->fetch($chkunamerun);
-        $name = $row['name'];
+        $name = $row['staff_type'];
         $response['errorCode'] = "1";
         $response['errorMsg'] = "Staff Category, $name, Already Exists.";
     }
@@ -879,7 +883,7 @@ if(isset($_GET['getIsced'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT name, code,description, status FROM isceds WHERE id = $id";
+    $sel = "SELECT name, code,description, status, classify, target FROM isceds WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -898,7 +902,7 @@ if(isset($_GET['getIsced'])){
                 <legend class='text-semibold'>ISCED Details</legend>
 
                 <div class='row'>
-                    <div class='col-md-4' align='right'><label>ISCED Code:</label></div>
+                    <div class='col-md-4' align='right'><label>Code:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <input type='text' id='icodeedit' readonly value='".$rows['code']."' class='form-control' placeholder='ISCED Title' />
@@ -906,7 +910,7 @@ if(isset($_GET['getIsced'])){
                     </div>
                 </div>
                 <div class='row' align='center'>
-                    <div class='col-md-4' align='right'><label>ISCED Name:</label></div>
+                    <div class='col-md-4' align='right'><label>Name:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <input type='text' id='ititleedit' value='".$rows['name']."' class='form-control' placeholder='ISCED CODE' />
@@ -914,10 +918,31 @@ if(isset($_GET['getIsced'])){
                     </div>
                 </div>
                 <div class='row'>
-                    <div class='col-md-4' align='right'><label>ISCED Description:</label></div>
+                    <div class='col-md-4' align='right'><label>Description:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <textarea id='idescriptedit' placeholder='ISCED DESCRIPTION' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row' align='center'>
+                    <div class='col-md-4' align='right'><label>STR Target:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='itargetedit' value='".$rows['target']."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Classification:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select  id='iclassedit'  data-placeholder='Select Classififcation' class='form-control'>
+                                <option value='".$rows['classify']."'>".$rows['classify']."</option>
+                                <option value='Engineering'>Engineering</option>
+                                <option value='Humanities'>Humanities</option>
+                                <option value='Sciences'>Sciences</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1167,169 +1192,6 @@ if(isset($_GET['sortDataTableConference'])){
     $conn->close($dbcon);
 
 }
-
-if(isset($_GET['sortDataTableStaff'])){
-    $conn=new Db_connect;
-    $dbcon=$conn->conn();
-    $year = $_GET['year'];
-    $inst = $_GET['inst'];
-    $gender = $_GET['gender'];
-    $qualify = $_GET['qualify'];
-    $rank = $_GET['rank'];
-    $cat = $_GET['cat'];
-
-    $clause = "";
-    if($year != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE year = '$year'";
-        }else{
-            $clause = $clause."AND year = '$year'";
-        }
-    }
-    if($inst != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE institution = '$inst'";
-        }else{
-            $clause = $clause."AND institution = '$inst'";
-        }
-    }
-    if($gender != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE gender = '$gender'";
-        }else{
-            $clause = $clause."AND gender = '$gender'";
-        }
-    }
-    if($qualify != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE qualification = '$qualify'";
-        }else{
-            $clause = $clause."AND qualification = '$qualify'";
-        }
-    }
-    if($rank != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE rank = '$rank'";
-        }else{
-            $clause = $clause."AND rank = '$rank'";
-        }
-    }
-    if($cat != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE staff_type = '$cat'";
-        }else{
-            $clause = $clause."AND staff_type = '$cat'";
-        }
-    }
-
-
-    echo $qry = "SELECT * FROM staff $clause";
-    $qryrun = $conn->query($dbcon,$qry);
-    $data ="";
-    while($row = $conn->fetch($qryrun)){
-        $id = $row['id'];
-        $data = $data."<tr>
-                        <td>".$row['staff_id']."</td>
-                        <td>".$row['title'].' '.$row['first_name'].' '.$row['surname'].' '.$row['other_names']."</td>
-                        <td>".getInstitution($row['institution'])."</td>
-                        <td>".$row['qualification']."</td>
-                        <td>".getStaffCategory($row['staff_type'])."</td>
-                        <td>".getStaffRank($row['rank'])."</td>
-                        <td>".$row['employment_type']."</td>
-                        <td>".$row['nationality']."</td>
-                        <td>".$row['gender']."</td>
-                        </tr>";
-}
-
-    if($data == ""){
-        print("<tr><td colspan='9'>No Records Found</td></tr>");
-    }else{
-        print $data;
-    }
-
-    $conn->close($dbcon);
-
-}
-
-if(isset($_GET['sortDataTableApplicants'])){
-    $conn=new Db_connect;
-    $dbcon=$conn->conn();
-    $year = $_GET['year'];
-    $inst = $_GET['inst'];
-    $prog = $_GET['prog'];
-    $qualify = $_GET['qualify'];
-
-    $clause = "";
-    if($year != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE year = '$year'";
-        }else{
-            $clause = $clause."AND year = '$year'";
-        }
-    }
-    if($inst != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE institution = '$inst'";
-        }else{
-            $clause = $clause."AND institution = '$inst'";
-        }
-    }
-    if($prog != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
-        }else{
-            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
-        }
-    }
-    if($qualify != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE status = '$qualify'";
-        }else{
-            $clause = $clause."AND status = '$qualify'";
-        }
-    }
-
-
-    $qry = "SELECT * FROM appadmissions $clause";
-    $qryrun = $conn->query($dbcon,$qry);
-    $data ="";
-    while($row = $conn->fetch($qryrun)){
-        $id = $row['id'];
-        $data = $data."<tr>
-                            <td>".$row['applicant_id']."</td>
-                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
-                            <td>".$row['gender']."</td>
-                            <td>".$row['birth_date']."</td>
-                            <td>".$row['birth_country']."</td>
-                            <td>".$row['nationality']."</td>
-                            <td>".$row['religion']."</td>
-                            <td>".$row['home_town']."</td>
-                            <td>".$row['home_region']."</td>
-                            <td>".getInstitution($row['institution'])."</td>
-                            <td>".$row['year']."</td>
-                            <td>".$row['applicant_id_type']."</td>
-                            <td>".$row['applicant_national_id']."</td>
-                            <td>".$row['high_school']."</td>
-                            <td>".$row['high_school_program']."</td>
-                            <td>".getProgram($row['programme_applied'])."</td>
-                            <td>".$row['programme_type']."</td>
-                            <td>".$row['fee_type']."</td>
-                            <td>".$row['disability']."</td>
-                            <td>".$row['disability_type']."</td>
-                            <td>".$row['status']."</td>
-                        </tr>";
-}
-
-    if($data == ""){
-        print("<tr><td colspan='9'>No Records Found</td></tr>");
-    }else{
-        print $data;
-    }
-
-    $conn->close($dbcon);
-
-}
-
 if(isset($_GET['sortDataTableStudents'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1450,7 +1312,7 @@ if(isset($_GET['sortDataTableStudents'])){
                             <td>".$row['disability_type']."</td>
                             <td>".$row['status']."</td>
                         </tr>";
-}
+    }
 
     if($data == ""){
         print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
@@ -1461,6 +1323,183 @@ if(isset($_GET['sortDataTableStudents'])){
     $conn->close($dbcon);
 
 }
+
+if(isset($_GET['sortDataTableStaff'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $gender = $_GET['gender'];
+    $qualify = $_GET['qualify'];
+    $rank = $_GET['rank'];
+    $cat = $_GET['category'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($gender != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE gender = '$gender'";
+        }else{
+            $clause = $clause."AND gender = '$gender'";
+        }
+    }
+    if($qualify != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE qualification = '$qualify'";
+        }else{
+            $clause = $clause."AND qualification = '$qualify'";
+        }
+    }
+    if($rank != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE rank = '$rank'";
+        }else{
+            $clause = $clause."AND rank = '$rank'";
+        }
+    }
+    if($cat != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE staff_type = '$cat'";
+        }else{
+            $clause = $clause."AND staff_type = '$cat'";
+        }
+    }
+
+    $qry = "SELECT * FROM staff $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-hover datatable-basic'>
+                                        <thead>
+                                        <tr>
+                                            <th>Staff ID</th>
+                                            <th>Name</th>
+                                            <th>Institution</th>
+                                            <th>Qualification</th>
+                                            <th>Staff Category</th>
+                                            <th>Rank</th>
+                                            <th>Employment Type</th>
+                                            <th>Nationality</th>
+                                            <th>Gender</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                        <td><a href='dashboard.php?view_staff=".$id."'>".$row['staff_id']."</a></td>
+                        <td>".$row['title'].' '.$row['first_name'].' '.$row['surname'].' '.$row['other_names']."</td>
+                        <td>".getInstitution($row['institution'])."</td>
+                        <td>".$row['qualification']."</td>
+                        <td>".getStaffCategory($row['staff_type'])."</td>
+                        <td>".getStaffRank($row['rank'])."</td>
+                        <td>".$row['employment_type']."</td>
+                        <td>".$row['nationality']."</td>
+                        <td>".$row['gender']."</td>
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
+
+if(isset($_GET['sortDataTableApplicants'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $prog = $_GET['prog'];
+    $qualify = $_GET['qualify'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($prog != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }else{
+            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }
+    }
+    if($qualify != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE status = '$qualify'";
+        }else{
+            $clause = $clause."AND status = '$qualify'";
+        }
+    }
+
+
+    $qry = "SELECT * FROM appadmissions $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td>".$row['applicant_id']."</td>
+                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
+                            <td>".$row['gender']."</td>
+                            <td>".$row['birth_date']."</td>
+                            <td>".$row['birth_country']."</td>
+                            <td>".$row['nationality']."</td>
+                            <td>".$row['religion']."</td>
+                            <td>".$row['home_town']."</td>
+                            <td>".$row['home_region']."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['year']."</td>
+                            <td>".$row['applicant_id_type']."</td>
+                            <td>".$row['applicant_national_id']."</td>
+                            <td>".$row['high_school']."</td>
+                            <td>".$row['high_school_program']."</td>
+                            <td>".getProgram($row['programme_applied'])."</td>
+                            <td>".$row['programme_type']."</td>
+                            <td>".$row['fee_type']."</td>
+                            <td>".$row['disability']."</td>
+                            <td>".$row['disability_type']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+}
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr>");
+    }else{
+        print $data;
+    }
+
+    $conn->close($dbcon);
+
+}
+
+
 
 if(isset($_GET['getStaffRank'])){
     $conn=new Db_connect;
@@ -1668,7 +1707,7 @@ if(isset($_POST['addNewStaff'])){
     if($conn->sqlnum($chkrun) == 0){
         $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
 birth_date, gender, nationality, qualification, designation, rank, staff_type, college, department, faculty, employment_type, disability, 
-disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname',$dob,'$sex','$nat','$edu','$desig','$rank','$stftype','$college'
+disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
 ,'$dept','$faculty','$emptype','$disable','$distype')";
         $insrun = $conn->query($dbcon,$ins);
         if($insrun){
@@ -1682,6 +1721,50 @@ disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$
         $response['errorCode'] = "1";
         $response['errorMsg'] = "Staff With Staff ID, $stfid, Exists.";
     }
+
+
+    print json_encode($response);
+}
+
+if(isset($_POST['updateStaff'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $stfid=mysqli_real_escape_string($dbcon,$_POST['updateStaff']);
+    $title=mysqli_real_escape_string($dbcon,$_POST['title']);
+    $fname=mysqli_real_escape_string($dbcon,$_POST['fname']);
+    $lname=mysqli_real_escape_string($dbcon,$_POST['lname']);
+    $oname=mysqli_real_escape_string($dbcon,$_POST['oname']);
+    $dob=mysqli_real_escape_string($dbcon,$_POST['dob']);
+    $sex=mysqli_real_escape_string($dbcon,$_POST['sex']);
+    $idtype=mysqli_real_escape_string($dbcon,$_POST['idtype']);
+    $idnum=mysqli_real_escape_string($dbcon,$_POST['idnum']);
+    $edu=mysqli_real_escape_string($dbcon,$_POST['edu']);
+    $nat=mysqli_real_escape_string($dbcon,$_POST['nat']);
+    $disable=mysqli_real_escape_string($dbcon,$_POST['disable']);
+    $distype=mysqli_real_escape_string($dbcon,$_POST['distype']);
+    $inst=mysqli_real_escape_string($dbcon,$_POST['inst']);
+    $acad=mysqli_real_escape_string($dbcon,$_POST['acad']);
+    $emptype=mysqli_real_escape_string($dbcon,$_POST['emptype']);
+    $stftype=mysqli_real_escape_string($dbcon,$_POST['stftype']);
+    $rank=mysqli_real_escape_string($dbcon,$_POST['rank']);
+    $desig=mysqli_real_escape_string($dbcon,$_POST['desig']);
+    $college=mysqli_real_escape_string($dbcon,$_POST['college']);
+    $faculty=mysqli_real_escape_string($dbcon,$_POST['faculty']);
+    $dept=mysqli_real_escape_string($dbcon,$_POST['dept']);
+
+        $ins = "UPDATE staff SET year='$acad', title='$title', national_id_type='$idtype', national_id_number='$idnum', institution='$inst',
+ first_name='$fname', surname='$lname', other_names='$oname', birth_date='$dob', gender='$sex', nationality='$nat',
+  qualification='$edu', designation='$desig', rank='$rank', staff_type='$stftype', college='$college', department='$dept', faculty='$faculty',
+   employment_type='$emptype', disability='$disable', disability_type = '$distype' WHERE staff_id = '$stfid'";
+        $insrun = $conn->query($dbcon,$ins);
+        if($insrun){
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Staff Details Updated Successfully";
+        }else{
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Staff Details Could Not Be Updated. Please Try Again";
+        }
 
 
     print json_encode($response);

@@ -249,6 +249,141 @@ function getGPIDetails($year){
     $conn->close($dbcon);
 }
 
+function getPartToFullTimeStaff($year){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selPart = "SELECT COUNT(staff_id) AS TotalCount FROM staff WHERE employment_type = 'Part-Time' AND status = 'Active' AND year = '$year'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $parttime = $selPartData['TotalCount'];
+
+    $selFull = "SELECT COUNT(staff_id) AS TotalCount FROM staff WHERE employment_type = 'Full-Time' AND status = 'Active' AND year = '$year'";
+    $selFullRun = $conn->query($dbcon,$selFull);
+    $selFullData = $conn->fetch($selFullRun);
+    $fulltime = $selFullData['TotalCount'];
+
+    $CalculateTotal = ($parttime/3)+$fulltime;
+
+    $resp['parttime'] = $parttime;
+    $resp['fulltime'] = $fulltime;
+    $resp['epfs'] = $CalculateTotal;
+
+    return json_encode($resp);
+    $conn->close($dbcon);
+}
+
+function getSTR1Details($year){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $students = $selPartData['TotalCount'];
+
+    $selFull = "SELECT COUNT(staff_id) AS TotalCount FROM staff WHERE status = 'Active' AND year = '$year'";
+    $selFullRun = $conn->query($dbcon,$selFull);
+    $selFullData = $conn->fetch($selFullRun);
+    $staff = $selFullData['TotalCount'];
+
+    $CalculateRatio = 0;
+    if($staff != 0){
+        $CalculateRatio = $students / $staff;
+    }
+
+    $resp['students'] = $students;
+    $resp['staff'] = $staff;
+    $resp['str1'] = $CalculateRatio;
+
+    return json_encode($resp);
+    $conn->close($dbcon);
+}
+
+function getEnrollmentQuota($year){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year' AND application_type='postgraduate'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $postgraduate = $selPartData['TotalCount'];
+
+    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year' AND nationality !='Ghanaian'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $international = $selPartData['TotalCount'];
+
+    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year' AND fee_type='Full-Fee Paying'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $feepaying = $selPartData['TotalCount'];
+
+    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $totalstudents = $selPartData['TotalCount'];
+
+
+    $resp['postgraduates'] = $totalstudents != 0 ? number_format(($postgraduate / $totalstudents)*100,2) : 0;
+    $resp['international'] = $totalstudents != 0 ? number_format(($international / $totalstudents)*100,2) : 0;
+    $resp['feepaying'] = $totalstudents != 0 ? number_format(($feepaying / $totalstudents)*100,2) : 0;
+
+    return json_encode($resp);
+    $conn->close($dbcon);
+}
+
+function getSTR2Details($code,$target){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $students = $selPartData['TotalCount'];
+
+    $selFull = "SELECT COUNT(staff_id) AS TotalCount FROM staff WHERE status = 'Active' AND year = '$year'";
+    $selFullRun = $conn->query($dbcon,$selFull);
+    $selFullData = $conn->fetch($selFullRun);
+    $staff = $selFullData['TotalCount'];
+
+    $CalculateRatio = 0;
+    if($staff != 0){
+        $CalculateRatio = $students / $staff;
+    }
+
+    $resp['students'] = $students;
+    $resp['staff'] = $staff;
+    $resp['str1'] = $CalculateRatio;
+
+    return json_encode($resp);
+    $conn->close($dbcon);
+}
+
+function getScienceToHumanitiesRatio($year){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selHumanities = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON p.prog_code = e.programme_offered INNER JOIN isceds i ON p.prog_isced = i.code  WHERE i.classify='Humanities' AND e.status = 'Active' AND e.year = '$year'";
+    $selHumanitiesRun = $conn->query($dbcon,$selHumanities);
+    $selHumanitiesdata = $conn->fetch($selHumanitiesRun);
+    $humanities = $selHumanitiesdata['TotalCount'];
+
+    $selSciences = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON p.prog_code = e.programme_offered INNER JOIN isceds i ON p.prog_isced = i.code  WHERE i.classify='Sciences' AND e.status = 'Active' AND e.year = '$year'";
+    $selSciencesRun = $conn->query($dbcon,$selSciences);
+    $selSciencesdata = $conn->fetch($selSciencesRun);
+    $sciences = $selSciencesdata['TotalCount'];
+
+    $str1 = 0;
+    if(($humanities + $sciences) != 0){
+        $str1 = ceil(100 * ($sciences / ($sciences + $humanities)))." : ".ceil(100 * ($humanities / ($sciences + $humanities)));
+    }
+
+
+
+    $resp['sciences'] = $sciences;
+    $resp['humanities'] = $humanities;
+    $resp['str1'] = $str1;
+
+    return json_encode($resp);
+    $conn->close($dbcon);
+}
+
 function getEnrollmentByYear($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();

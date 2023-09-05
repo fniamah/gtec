@@ -370,7 +370,23 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <td>
                                             <?php
                                                 $permissions= $row['permissions'];
-                                                echo $permissions;
+                                                $obj = explode(",",$permissions);
+                                                for($i=0;$i < count($obj); $i++){
+                                                    if($obj[$i] == "CREATE"){
+                                                        $border="border-success";
+                                                        $text="text-success-600";
+                                                    }elseif($obj[$i] == "READ"){
+                                                        $border="border-info";
+                                                        $text="text-info-600";
+                                                    }elseif($obj[$i] == "UPDATE"){
+                                                        $border="border-warning";
+                                                        $text="text-warning-600";
+                                                    }else{
+                                                        $border="border-danger";
+                                                        $text="text-danger-600";
+                                                    }
+                                                    echo "<span class='label label-flat label-rounded $border $text'>".$obj[$i]."</span>&nbsp;&nbsp;";
+                                                }
                                             ?>
                                         </td>
                                         <td align="right"><a class="btn" onclick="updateRole(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td>
@@ -423,31 +439,36 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                 <legend class="text-semibold">ISCED Details</legend>
 
                                 <div class="row">
-                                    <div class="col-md-4">&nbsp;</div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <input type="text" id="ititle" class="form-control" placeholder="ISCED Title" />
                                         </div>
                                     </div>
-                                    <div class="col-md-4">&nbsp;</div>
-                                </div>
-                                <div class="row" align="center">
-                                    <div class="col-md-4">&nbsp;</div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <input type="text" id="icode" class="form-control" placeholder="ISCED CODE" />
                                         </div>
                                     </div>
-                                    <div class="col-md-4">&nbsp;</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">&nbsp;</div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select  id="iclass"  data-placeholder="Select Classififcation" class="select btnrqd">
+                                                <option></option>
+                                                <option value="Engineering">Engineering</option>
+                                                <option value="Humanities">Humanities</option>
+                                                <option value="Sciences">Sciences</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="number" id="itarget" class="form-control" placeholder="Student-Teacher Ratio Target" />
+                                        </div>
+                                    </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <textarea id="idescript" placeholder="ISCED DESCRIPTION" class="form-control" maxlength="1000" rows="5"></textarea>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">&nbsp;</div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12" align="center">
@@ -481,6 +502,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <th>ISCED</th>
                                             <th>ISCED Code</th>
                                             <th>ISCED Description</th>
+                                            <th>Classification</th>
+                                            <th>STR Target</th>
                                             <th>&nbsp;</th>
                                             <th>&nbsp;</th>
                                         </tr>
@@ -488,7 +511,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <tbody>
                                         <?php
                                         $count= 0;
-                                        $sel = "SELECT id, name, code, description, status FROM isceds WHERE status='Active' ORDER BY code ASC";
+                                        $sel = "SELECT id, name, code, description, status, classify,target FROM isceds WHERE status='Active' ORDER BY code ASC";
                                         $selrun = $conn->query($dbcon,$sel);
                                         while($row = $conn->fetch($selrun)){
                                             $count++;
@@ -504,6 +527,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['code']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
+                                                <td><?php echo $row['classify']; ?></td>
+                                                <td><?php echo $row['target']; ?></td>
                                                 <td align="right"><a class="btn" onclick="getIsced(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td>
                                                 <td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'isceds')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
                                                 </td>
@@ -1489,6 +1514,348 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- /content area -->
 
             </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['view_staff'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $id=$_GET['view_staff'];
+
+            $sel = "SELECT * FROM staff WHERE id = $id";
+            $selrun = $conn->query($dbcon,$sel);
+
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Staff. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li><a href="dashboard.php?staff_records">Staff Records</a></li>
+                            <li class="active">View</li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <?php if($conn->sqlnum($selrun) == 0){ ?>
+                        <div class="panel panel-white">
+                            <div class="row">
+
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
+                                    No Staff Details Found
+                                </div>
+                            </div>
+                        </div>
+                    <?php }else{
+                        $rows = $conn->fetch($selrun);
+                        ?>
+                        <div class="panel panel-white" id="view_student_record">
+                            <div class="panel-heading" align="right">
+                                <h6 class="panel-title"><a onclick="updateStudentView()"><span class="icon icon-pencil7"></span></a></h6>
+                            </div>
+                            <div class="row" style="margin: 10px;">
+
+                                <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
+                                    <span class="text-muted"><h5>Personal Details:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <li><span style="font-weight: bold;">Name</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['title']." ".$rows['first_name']." ".$rows['surname']." ".$rows['other_names']; ?></li>
+                                        <li><span style="font-weight: bold;">Date Of Birth</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['birth_date']; ?></li>
+                                        <li><span style="font-weight: bold;">Gender</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['gender']; ?></li>
+                                        <li><span style="font-weight: bold;">ID Type</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['national_id_type']; ?></li>
+                                        <li><span style="font-weight: bold;">ID Number</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['national_id_number']; ?></li>
+                                        <li><span style="font-weight: bold;">Highest Educational Level</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['qualification']; ?></li>
+                                        <li><span style="font-weight: bold;">Nationality</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['nationality']; ?></li>
+                                        <li><span style="font-weight: bold;">Disability Status</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['disability']; ?></li>
+                                        <li><span style="font-weight: bold;">Disability Type</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['disability_type']; ?></li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
+                                    <span class="text-muted"><h5>Employment Details:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <li><span style="font-weight: bold;">Staff ID</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['staff_id']; ?></li>
+                                        <li><span style="font-weight: bold;">Institution</span>:&nbsp;&nbsp;&nbsp;  <?php echo getInstitution($rows['institution']); ?></li>
+                                        <li><span style="font-weight: bold;">Academic Year</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['year']; ?></li></li>
+                                        <li><span style="font-weight: bold;">Employment Type</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['employment_type']; ?></li></li>
+                                        <li><span style="font-weight: bold;">Staff Type</span>:&nbsp;&nbsp;&nbsp; <?php echo getCategory($rows['staff_type']); ?></li></li>
+                                        <li><span style="font-weight: bold;">Staff Rank</span>:&nbsp;&nbsp;&nbsp; <?php echo getRank($rows['rank']); ?></li></li>
+                                        <li><span style="font-weight: bold;">Designation</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['designation']; ?></li></li>
+                                        <li><span style="font-weight: bold;">College</span>:&nbsp;&nbsp;&nbsp; <?php echo getCollege($rows['college']); ?></li></li>
+                                        <li><span style="font-weight: bold;">Faculty</span>:&nbsp;&nbsp;&nbsp; <?php echo getFaculty($rows['faculty']); ?></li></li>
+                                        <li><span style="font-weight: bold;">Department</span>:&nbsp;&nbsp;&nbsp; <?php echo getDepartment($rows['department']); ?></li></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="panel panel-white hidden" id="edit_student_record">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-md-6"><h6 class="panel-title">Update Staff Details</h6></div>
+                                    <div class="col-md-6"></div>
+                                </div>
+
+                            </div>
+
+                            <form class="stepy-clickable">
+                                <fieldset title="1">
+                                    <legend class="text-semibold">Personal Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stftitle" class="form-control" value="<?php echo $rows['title']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stffname" class="form-control btnrqd"  value="<?php echo $rows['first_name']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stflname" class="form-control btnrqd"  value="<?php echo $rows['surname']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stfoname" class="form-control"  value="<?php echo $rows['other_names']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text"  id="stfdob" class="form-control btnrqd"  value="<?php echo $rows['birth_date']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="gender" id="stfsex" class="form-control btnrqd">
+                                                    <option  value="<?php echo $rows['gender']; ?>"><?php echo $rows['gender']; ?></option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Male">Male</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="gender" id="stfidtype" class="form-control btnrqd">
+                                                    <option  value="<?php echo $rows['national_id_type']; ?>"><?php echo $rows['national_id_type']; ?></option>
+                                                    <option value="Ghana Card">Ghana Card</option>
+                                                    <option value="National ID">National ID</option>
+                                                    <option value="Passport">Passport</option>
+                                                    <option value="Social Security">Social Security</option>
+                                                    <option value="Voter ID">Voter's ID</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stfidnum" class="form-control btnrqd"  value="<?php echo $rows['national_id_number']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stfedu" data-placeholder="Highest Educational Qualification" class="select">
+                                                    <option value="<?php echo $rows['qualification']; ?>"><?php echo $rows['qualification']; ?></option>
+                                                    <option value="BA">BA</option>
+                                                    <option value="BBA">BBA</option>
+                                                    <option value="BEd">BEd</option>
+                                                    <option value="BSc">BSc</option>
+                                                    <option value="BTech">BTech</option>
+                                                    <option value="Diploma">Diploma</option>
+                                                    <option value="HND">HND</option>
+                                                    <option value="LLB">LLB</option>
+                                                    <option value="MA">MA</option>
+                                                    <option value="MBA">MBA</option>
+                                                    <option value="MED">MED</option>
+                                                    <option value="MSc">MSc</option>
+                                                    <option value="PhD">PhD</option>
+                                                    <option value="Phil">Phil</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stfnationality" data-placeholder="Nationality" class="select">
+                                                    <option value="<?php echo $rows['nationality']; ?>"><?php echo $rows['nationality']; ?></option>
+                                                    <option value="Ghanaian">Ghanaian</option>
+                                                    <?php
+                                                    $countryCount = count($nationalityJSON);
+                                                    for($i=0; $i < $countryCount; $i++){
+                                                        ?>
+                                                        <option value="<?php echo $nationalityJSON[$i]; ?>"><?php echo $nationalityJSON[$i]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stfdisable" data-placeholder="Select Disability Status" class="select" onchange="disabilityStatus(this.value)">
+                                                    <option value="<?php echo $rows['disability']; ?>"><?php echo $rows['disability']; ?></option>
+                                                    <option value="No">No</option>
+                                                    <option value="Yes">Yes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" id="disability_details">
+                                            <div class="form-group">
+                                                <input type="text" id="stfdisabletype" class="form-control btnrqd"  value="<?php echo $rows['disability_type']; ?>" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset title="2">
+                                    <legend class="text-semibold">Employment Details</legend>
+
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stfid" class="form-control btnrqd"  value="<?php echo $rows['staff_id']; ?>" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stfinstitution" data-placeholder="Select Institution" class="select">
+                                                    <option value="<?php echo $rows['institution']; ?>"><?php echo getInstitution($rows['institution']); ?></option>
+                                                    <?php
+                                                    if($actype == "GTEC"){
+                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        while($row = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                                        <?php }}else{?>
+                                                        <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stfacadyear" data-placeholder="Select Academic Year" class="select">
+                                                    <option value="<?php echo $rows['year']; ?>"><?php echo $rows['year']; ?></option>
+                                                    <?php
+                                                    $curryear = date("Y");
+                                                    for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                        ?>
+                                                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stfemptype" data-placeholder="Employment Type" class="select">
+                                                    <option value="<?php echo $rows['employment_type']; ?>"><?php echo $rows['employment_type']; ?></option>
+                                                    <option value="Full-time">Full-time</option>
+                                                    <option value="Part-time">Part-time</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="institution" id="stftype" data-placeholder="Select Staff Type" class="select" onchange="getRankDetails(this.value)">
+                                                    <option value="<?php echo $rows['staff_type']; ?>"><?php echo getStaffCategory($rows['staff_type']); ?></option>
+                                                    <?php
+                                                    $sel = "SELECT staff_type, id FROM staffcategory WHERE status = 'Active' ORDER BY staff_type ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    while($row = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $row['id']; ?>"><?php echo $row['staff_type']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 hidden" align="left">
+                                            <div id="rankdetailsloader"><img src="assets/images/spinner.gif" style="width: 30px; height: 30px" /></div>
+                                        </div>
+                                        <div class="col-md-4" id="ranklisthide">
+                                            <div class="form-group">
+                                                <select name="institution" id="ranklist" data-placeholder="Select Rank" class="select">
+                                                    <option value="<?php echo $rows['rank']; ?>"><?php echo getRank($rows['rank']); ?></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="text" id="stfdesig" class="form-control"  value="<?php echo $rows['designation']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stfcollege" data-placeholder="Select College" class="select btnrqd">
+                                                    <option value="<?php echo $rows['college']; ?>"><?php echo getCollege($rows['college']); ?></option>
+                                                    <?php
+                                                    $sel = "SELECT id, name FROM institute_colleges WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    if($conn->sqlnum($selrun) == 0){
+                                                        ?>
+                                                        <option value="">No Records Found</option>
+                                                    <?php }else{
+                                                        while($data = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $data['id'] ?>"><?php echo $data['name']; ?></option>
+                                                        <?php }} ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stffaculty" data-placeholder="Select Faculty" class="select btnrqd">
+                                                    <option value="<?php echo $rows['faculty']; ?>"><?php echo getFaculty($rows['faculty']); ?></option>
+                                                    <?php
+                                                    $sel = "SELECT id, name FROM institute_faculties WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    if($conn->sqlnum($selrun) == 0){
+                                                        ?>
+                                                        <option value="">No Records Found</option>
+                                                    <?php }else{
+                                                        while($data = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $data['id'] ?>"><?php echo $data['name']; ?></option>
+                                                        <?php }} ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select id="stfdept" data-placeholder="Select Department" class="select btnrqd">
+                                                    <option value="<?php echo $rows['department']; ?>"> <?php echo getDepartment($rows['department']); ?></option>
+                                                    <?php
+                                                    $sel = "SELECT id, name FROM institute_departments WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    if($conn->sqlnum($selrun) == 0){
+                                                        ?>
+                                                        <option value="">No Records Found</option>
+                                                    <?php }else{
+                                                        while($data = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $data['id'] ?>"><?php echo $data['name']; ?></option>
+                                                        <?php }} ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12" align="center" style="margin-bottom: 20px">
+                                            <button class="btn btn-sm btn-primary" type="button" onclick="updateStaffRecord()">Update Staff  </button>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                                <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
+                            </form>
+                        </div>
+                    <?php } ?>
+                </div>
+                <!-- /content area -->
+
+            </div>
             <?php $conn->close($dbcon);}elseif(isset($_GET['summary_report'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
@@ -1584,11 +1951,11 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     </div>
                     <div class="panel panel-white">
                         <div class="panel-heading">
-                            <h5 class="panel-title">Student Teacher Ratio (STR1)<br/><small id="small">GPI= [Total Female Student Enrolment in Tertiary Education] ÷ [Total Male Enrolment in Tertiary Education</small></h5>
+                            <h5 class="panel-title">Science To Humanitites Ratio<br/><small id="small">Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
                             <?php
-                            $sel = "SELECT DISTINCT year FROM enrollments WHERE status = 'Active'";
+                            $sel = "SELECT DISTINCT year FROM enrollments";
                             $selrun = $conn->query($dbcon,$sel);
                             if($conn->sqlnum($selrun) == 0){
                             ?>
@@ -1601,23 +1968,25 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     <thead>
                                         <tr>
                                             <th>Year</th>
-                                            <th>Total Male Enrollments</th>
-                                            <th>Total Female Enrollments</th>
-                                            <th>G.P.I</th>
+                                            <th>Humanities Enrollments</th>
+                                            <th>Science Enrollments</th>
+                                            <th>Total Enrollments</th>
+                                            <th>S.T.R.1</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                 <?php
                                     while($data = $conn->fetch($selrun)){
                                         $yr = $data['year'];
-                                        $response = getGPIDetails($yr);
+                                        $response = getScienceToHumanitiesRatio($yr);
                                         $obj = json_decode($response);
                                     ?>
                                     <tr>
                                         <td><?php echo $data['year']; ?></td>
-                                        <td><?php echo $obj->male ?></td>
-                                        <td><?php echo $obj->female; ?></td>
-                                        <td><?php echo $obj->gpi; ?></td>
+                                        <td><?php echo $obj->sciences ?></td>
+                                        <td><?php echo $obj->humanities; ?></td>
+                                        <td><?php echo ($obj->humanities + $obj->sciences); ?></td>
+                                        <td><?php echo $obj->str1; ?></td>
                                     </tr>
                                 <?php } ?>
                                     </tbody>
@@ -1625,6 +1994,170 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                             </div>
                                 <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
                             <?php } ?>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Equivalence Of Part and Full-Time Staff (EPFS)<br/>
+                            <small id="small">Total number of teaching staff = (number of part-staff/3) +Number of full time staff</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <?php
+                            $sel = "SELECT DISTINCT year FROM staff";
+                            $selrun = $conn->query($dbcon,$sel);
+                            if($conn->sqlnum($selrun) == 0){
+                            ?>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                    No records Found
+                                </div>
+                            <?php }else{ ?>
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Part Time Staff</th>
+                                            <th>Full Time Staff</th>
+                                            <th>Total Staff</th>
+                                            <th>EPFS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                <?php
+                                    while($data = $conn->fetch($selrun)){
+                                        $yr = $data['year'];
+                                        $response = getPartToFullTimeStaff($yr);
+                                        $obj = json_decode($response);
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $data['year']; ?></td>
+                                        <td><?php echo $obj->parttime; ?></td>
+                                        <td><?php echo $obj->fulltime; ?></td>
+                                        <td><?php echo ($obj->parttime + $obj->fulltime); ?></td>
+                                        <td><?php echo floor($obj->epfs); ?></td>
+                                    </tr>
+                                <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
+                            <?php } ?>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Student-Teacher Ratio 1<br/>
+                            <small id="small">STR1= Number of students/number of staff</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Total Students</th>
+                                        <th>Total Staff</th>
+                                        <th>STR 1</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $curryear = date("Y");
+                                    for($i=$curryear; $i >= ($curryear - 9); $i--){
+                                        $str1 = getSTR1Details($i);
+                                        $obj = json_decode($str1);
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $i; ?></td>
+                                        <td><?php echo $obj->students; ?></td>
+                                        <td><?php echo $obj->staff; ?></td>
+                                        <td><?php echo $obj->str1; ?></td>
+                                    </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Student-Teacher Ratio 2<br/>
+                            <small id="small">Formula: STR for a field of Subject = [Total Number of Students in the Field of Subject ÷ Total
+                                Number of Teaching Staff/Lecturer] : [Total Number of Teaching Staff/Lecturer÷ Total Number of Teaching Staff/Lecturer]</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Target</th>
+                                        <th>Actual</th>
+                                        <th>Deficit</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT name, code, target FROM isceds WHERE status='Active'";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['code'];
+                                        $target = $data['target'];
+                                        /*$str1 = getSTR2Details($code,$target);
+                                        $obj = json_decode($str1);*/
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $name; ?></td>
+                                        <td><?php echo $target." : 1"; ?></td>
+                                        <td><?php echo ""; ?></td>
+                                        <td><?php echo ""; ?></td>
+                                    </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">Enrollment Quota<br/>
+                                <small id="small"> Quota of Postgraduate Enrolment = 100 x [Total number of Postgraduate Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small><br/>
+                                <small id="small"> Quota of International students = 100 x [Total number of International Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small><br/>
+                                <small id="small"> Quota of Fee-Paying students = 100 x [Total number of Fee-paying Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small>
+                            </h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead style="background-color: #000; color: #ffffff; font-weight: bold;">
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Postgraduate Enrolment <br/><small style="color: rgba(243,149,3,0.98);">Target is 25% of total enrolment.</small></th>
+                                        <th>International Students <br/><small style="color: rgba(243,149,3,0.98);">Target is 10% of total enrolment.</small></th>
+                                        <th>Fee-Paying Students <br/><small style="color: rgba(243,149,3,0.98);">Target is 5% of total enrolment.</small></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $curryear = date("Y");
+                                    for($i=$curryear; $i >= ($curryear - 9); $i--){
+                                        $str1 = getEnrollmentQuota($i);
+                                        $obj = json_decode($str1);
+
+                                        ?>
+                                        <tr>
+                                            <td><?php echo $i; ?></td>
+                                            <td><?php echo $obj->postgraduates; ?> %</td>
+                                            <td><?php echo $obj->international; ?> %</td>
+                                            <td><?php echo $obj->feepaying; ?> %</td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1653,9 +2186,13 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_staff">
+                    <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Create Staff</h6>
+
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Create Staff</h6></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                            </div>
                         </div>
 
                         <form class="stepy-clickable">
@@ -1743,12 +2280,22 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="stfnationality" class="form-control btnrqd" placeholder="Nationality" />
+                                            <select id="stfnationality" data-placeholder="Nationality" class="select">
+                                                <option></option>
+                                                <option value="Ghanaian">Ghanaian</option>
+                                                <?php
+                                                $countryCount = count($nationalityJSON);
+                                                for($i=0; $i < $countryCount; $i++){
+                                                    ?>
+                                                    <option value="<?php echo $nationalityJSON[$i]; ?>"><?php echo $nationalityJSON[$i]; ?></option>
+                                                <?php } ?>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select name="institution" id="stfdisable" data-placeholder="Select Disability Status" class="select" onchange="disabilityStatus(this.value)">
+                                            <select id="stfdisable" data-placeholder="Select Disability Status" class="select" onchange="disabilityStatus(this.value)">
+                                                <option></option>
                                                 <option value="No">No</option>
                                                 <option value="Yes">Yes</option>
                                             </select>
@@ -1768,17 +2315,17 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <select name="institution" id="stfinstitution" data-placeholder="Select User Institution" class="select">
+                                            <select name="institution" id="stfinstitution" data-placeholder="Select Institution" class="select">
                                                 <option></option>
                                                 <?php
                                                 if($actype == "GTEC"){
-                                                $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                $selrun = $conn->query($dbcon,$sel);
-                                                while($row = $conn->fetch($selrun)){
-                                                    ?>
-                                                    <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                                <?php }}else{?>
-                                                <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                                    $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    while($row = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                                    <?php }}else{?>
+                                                    <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
                                                 <?php } ?>
                                             </select>
                                         </div>
@@ -1836,17 +2383,56 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="stfcollege" class="form-control" placeholder="College" />
+                                            <select id="stfcollege" data-placeholder="Select College" class="select btnrqd">
+                                                <option></option>
+                                                <?php
+                                                $sel = "SELECT id, name FROM institute_colleges WHERE status = 'Active' ORDER BY name ASC";
+                                                $selrun = $conn->query($dbcon,$sel);
+                                                if($conn->sqlnum($selrun) == 0){
+                                                    ?>
+                                                    <option value="">No Records Found</option>
+                                                <?php }else{
+                                                    while($data = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $data['id'] ?>"><?php echo $data['name']; ?></option>
+                                                    <?php }} ?>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="stffaculty" class="form-control" placeholder="Faculty/School" />
+                                            <select id="stffaculty" data-placeholder="Select Faculty" class="select btnrqd">
+                                                <option></option>
+                                                <?php
+                                                $sel = "SELECT id, name FROM institute_faculties WHERE status = 'Active' ORDER BY name ASC";
+                                                $selrun = $conn->query($dbcon,$sel);
+                                                if($conn->sqlnum($selrun) == 0){
+                                                    ?>
+                                                    <option value="">No Records Found</option>
+                                                <?php }else{
+                                                    while($data = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $data['id'] ?>"><?php echo $data['name']; ?></option>
+                                                    <?php }} ?>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="stfdept" class="form-control" placeholder="Department" />
+                                            <select id="stfdept" data-placeholder="Select Department" class="select btnrqd">
+                                                <option></option>
+                                                <?php
+                                                $sel = "SELECT id, name FROM institute_departments WHERE status = 'Active' ORDER BY name ASC";
+                                                $selrun = $conn->query($dbcon,$sel);
+                                                if($conn->sqlnum($selrun) == 0){
+                                                    ?>
+                                                    <option value="">No Records Found</option>
+                                                <?php }else{
+                                                    while($data = $conn->fetch($selrun)){
+                                                        ?>
+                                                        <option value="<?php echo $data['id'] ?>"><?php echo $data['name']; ?></option>
+                                                    <?php }} ?>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -1859,182 +2445,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                             </fieldset>
                             <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
                         </form>
-                    </div>
-                    <!-- /clickable title -->
-
-                    <!-- Clickable title -->
-                    <div class="panel panel-white" id="view_staff">
-                        <div class="panel-heading">
-                            <h6 class="panel-title">Staff</h6>
-                        </div>
-                        <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_staff','view_staff')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add Staff</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="panel panel-flat" style="margin: 10px;">
-                                    <table class="table table-hover datatable-basic">
-                                        <thead>
-                                        <tr style="background-color: #ffffff">
-                                            <th colspan="10">
-                                                <div class="row">
-                                                    <div class="col-md-2">
-                                                        <label>Year</label>
-                                                        <select name="institution" id="staffyear" class="form-control" onchange="sortDataTableStaff()">
-                                                            <option value="All">All</option>
-                                                            <?php
-                                                            $curryear = date("Y");
-                                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                                                ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label>Institution</label>
-                                                        <select name="institution" id="staffinst" class="form-control" onchange="sortDataTableStaff()">
-                                                            <option></option>
-                                                            <?php
-                                                            if($actype == "GTEC"){
-                                                                $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                                $selrun = $conn->query($dbcon,$sel);
-                                                                while($row = $conn->fetch($selrun)){
-                                                                    ?>
-                                                                    <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                                                <?php }?>
-                                                                <option selected value="All">All</option>
-                                                            <?php }else{?>
-                                                                <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label>Gender</label>
-                                                        <select name="institution" id="staffgender" class="form-control" onchange="sortDataTableStaff()">
-                                                            <option value="All">All</option>
-                                                            <option value="Male">Male</option>
-                                                            <option value="Female">Female</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label>Qualification</label>
-                                                        <select name="institution" id="staffqualify" class="form-control" onchange="sortDataTableStaff()">
-                                                            <option value="All">All</option>
-                                                            <option value="BA">BA</option>
-                                                            <option value="BBA">BBA</option>
-                                                            <option value="BEd">BEd</option>
-                                                            <option value="BSc">BSc</option>
-                                                            <option value="BTech">BTech</option>
-                                                            <option value="Diploma">Diploma</option>
-                                                            <option value="HND">HND</option>
-                                                            <option value="LLB">LLB</option>
-                                                            <option value="MA">MA</option>
-                                                            <option value="MBA">MBA</option>
-                                                            <option value="MED">MED</option>
-                                                            <option value="MSc">MSc</option>
-                                                            <option value="PhD">PhD</option>
-                                                            <option value="Phil">Phil</option>
-                                                            <option value="Other">Other</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label>Rank</label>
-                                                        <select name="institution" id="staffrank" class="form-control" onchange="sortDataTableStaff()">
-                                                            <option value="All">All</option>
-                                                            <?php
-                                                            $sel = "SELECT id, rank FROM staffranks WHERE status = 'Active' ORDER BY rank ASC";
-                                                            $selrun = $conn->query($dbcon,$sel);
-                                                            while($row = $conn->fetch($selrun)){
-                                                                ?>
-                                                                <option value="<?php echo $row['id']; ?>"><?php echo $row['rank']; ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label>Staff Category</label>
-                                                        <select name="institution" id="staffcategory" class="form-control" onchange="sortDataTableStaff()">
-                                                            <option value="All">All</option>
-                                                            <?php
-                                                            $sel = "SELECT id, staff_type FROM staffcategory WHERE status = 'Active' ORDER BY staff_type ASC";
-                                                            $selrun = $conn->query($dbcon,$sel);
-                                                            while($row = $conn->fetch($selrun)){
-                                                                ?>
-                                                                <option value="<?php echo $row['id']; ?>"><?php echo $row['staff_type']; ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th>Staff ID</th>
-                                            <th>Name</th>
-                                            <th>Institution</th>
-                                            <th>Qualification</th>
-                                            <th>Staff Category</th>
-                                            <th>Rank</th>
-                                            <th>Employment Type</th>
-                                            <th>Nationality</th>
-                                            <th>Gender</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        $count= 0;
-                                        $sel = "";
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT status, id, staff_id, title, institution, first_name, surname, other_names, gender, nationality, qualification, rank, staff_type, employment_type FROM staff ORDER BY first_name ASC";
-                                        }else{
-                                            $sel = "SELECT status, id, staff_id, title, institution, first_name, surname, other_names, gender, nationality, qualification, rank, staff_type, employment_type FROM staff WHERE institution = '$institution' ORDER BY first_name ASC";
-                                        }
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            $count++;
-                                            $id = $row['id'];
-                                            $status = $row['status'];
-                                            $color = "#000000";
-                                            if($status == "Inactive"){
-                                                $color = "#6B8139";
-                                            }
-                                            ?>
-                                            <tr style="color: <?php echo $color; ?>">
-                                                <td><?php echo $row['staff_id']; ?></td>
-                                                <td><?php echo $row['title']." ".$row['first_name']." ".$row['surname']." ".$row['other_names']; ?></td>
-                                                <td><?php echo getInstitution($row['institution']); ?></td>
-                                                <td><?php echo $row['qualification']; ?></td>
-                                                <td><?php echo getStaffCategory($row['staff_type']); ?></td>
-                                                <td><?php echo getStaffRank($row['rank']); ?></td>
-                                                <td><?php echo $row['employment_type']; ?></td>
-                                                <td><?php echo $row['nationality']; ?></td>
-                                                <td><?php echo $row['gender']; ?></td>
-                                                <td>
-                                                    <?php if($status == "Active"){ ?><a class="btn btn-danger" onclick="deleteModal(<?php echo $id; ?>,'staff')"><span class="icon icon-trash"></span></a><?php } ?>
-                                                    &nbsp;<br/><br/><a class="btn btn-primary" onclick="updateRole(<?php echo $id; ?>)"><span class="icon icon-database-edit2"></span></a></td>
-                                            </tr>
-                                        <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <!-- /clickable title -->
                 </div>
@@ -2053,7 +2463,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_application">Applications</a></li>
+                            <li class="active"><a href="dashboard.php?student_application">Add Applications</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -2063,9 +2473,15 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_staff">
+                    <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Add New Applicant</h6>
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Add New Applicant</h6></div>
+                                <div class="col-md-6" align="right">
+                                    <a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a>
+                                </div>
+                            </div>
+
                         </div>
 
                         <form class="stepy-clickable">
@@ -2341,6 +2757,32 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         </form>
                     </div>
                     <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['view_application_data'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li>View Data</li>
+                            <li class="active"><a href="dashboard.php?view_application_data">Applications Data</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
 
                     <!-- Clickable title -->
                     <div class="panel panel-white" id="view_staff">
@@ -2348,10 +2790,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                             <h6 class="panel-title">Qualified Applicants</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_staff','view_staff')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add New Applicant</a></div>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div align="right">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
@@ -2365,7 +2804,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" style="margin: 10px;">
                             <div class="col-md-3">
                                 <label>Year</label>
                                 <select name="institution" id="studentyear" class="form-control" onchange="sortDatTableApplicants()">
@@ -2520,7 +2959,10 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <!-- Clickable title -->
                     <div class="panel panel-white">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Add New Student</h6>
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Add New Student</h6></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                            </div>
                         </div>
 
                         <form class="stepy-clickable">
@@ -2797,9 +3239,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <div class="page-header" style="margin: 20px;">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Students </li>
+                            <li style="font-weight: bold; font-size: x-large">Application Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_admissions">Admissions</a></li>
+                            <li class="active"><a href="dashboard.php?student_admissions">Admit Student</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -2809,9 +3251,13 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_staff">
+                    <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Admit New Applicant(s)</h6>
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Admit New Applicant(s)</h6></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                            </div>
+
                         </div>
 
                         <form class="stepy-clickable">
@@ -2858,17 +3304,39 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         </form>
                     </div>
                     <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
 
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['view_admissions_data'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Students </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li>View Data</li>
+                            <li class="active"><a href="dashboard.php?student_admissions">Admissions Data</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
                     <!-- Clickable title -->
                     <div class="panel panel-white" id="view_staff">
                         <div class="panel-heading">
                             <h6 class="panel-title">Qualified Applicants</h6>
                         </div>
-                        <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_staff','view_staff')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Admit New Applicant</a></div>
-                            </div>
-                            <div class="col-md-6">
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12">
                                 <div align="right">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
@@ -2882,7 +3350,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" style="margin: 10px;">
                             <div class="col-md-3">
                                 <label>Year</label>
                                 <select name="institution" id="studentyear" class="form-control" onchange="sortDatTableApplicants()">
@@ -3025,9 +3493,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <div class="page-header" style="margin: 20px;">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
+                            <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">Students Enrollment</a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">Enroll Student</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -3039,7 +3507,10 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <!-- Clickable title -->
                     <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Enroll New Students(s)</h6>
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Enroll New Student(s)</h6></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                            </div>
                         </div>
 
                         <form class="stepy-clickable">
@@ -3357,6 +3828,165 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                             <div class="row" style="margin: 20px">
                                 <div class="col-md-12" align="center">
                                     <button class="btn btn-lg btn-success" onclick="getStudentDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Students List</h6>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div align="right">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
+                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
+                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
+                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['staff_records'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Staff </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">Staff Records</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Select Criteria</h6>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Year</label>
+                                    <select name="institution" id="staffyear" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Institution</label>
+                                    <select name="institution" id="staffinst" class="form-control">
+                                        <option></option>
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Gender</label>
+                                    <select name="institution" id="staffgender" class="form-control">
+                                        <option value="All">All</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Qualification</label>
+                                    <select name="institution" id="staffqualify" class="form-control">
+                                        <option value="All">All</option>
+                                        <option value="BA">BA</option>
+                                        <option value="BBA">BBA</option>
+                                        <option value="BEd">BEd</option>
+                                        <option value="BSc">BSc</option>
+                                        <option value="BTech">BTech</option>
+                                        <option value="Diploma">Diploma</option>
+                                        <option value="HND">HND</option>
+                                        <option value="LLB">LLB</option>
+                                        <option value="MA">MA</option>
+                                        <option value="MBA">MBA</option>
+                                        <option value="MED">MED</option>
+                                        <option value="MSc">MSc</option>
+                                        <option value="PhD">PhD</option>
+                                        <option value="Phil">Phil</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Rank</label>
+                                    <select name="institution" id="staffrank" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $sel = "SELECT id, rank FROM staffranks WHERE status = 'Active' ORDER BY rank ASC";
+                                        $selrun = $conn->query($dbcon,$sel);
+                                        while($row = $conn->fetch($selrun)){
+                                            ?>
+                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['rank']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Staff Category</label>
+                                    <select name="institution" id="staffcategory" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $sel = "SELECT id, staff_type FROM staffcategory WHERE status = 'Active' ORDER BY staff_type ASC";
+                                        $selrun = $conn->query($dbcon,$sel);
+                                        while($row = $conn->fetch($selrun)){
+                                            ?>
+                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['staff_type']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getStaffDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -5803,44 +6433,47 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <form class="stepy-clickable">
                             <fieldset title="1">
                                 <legend class="text-semibold">Category Details</legend>
-
                                 <div class="row">
-                                    <div class="col-md-4">&nbsp;</div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <input type="text" id="stcatname" class="form-control" placeholder="Staff Category Name" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">&nbsp;</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">&nbsp;</div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <select id="strankname"  data-placeholder="Select Rank" class="select btnrqd">
-                                                <option value=""></option>
-                                                <?php
-                                                $sel = "SELECT rank, id FROM staffranks ORDER BY rank ASC";
-                                                $selrun = $conn->query($dbcon,$sel);
-                                                while($row = $conn->fetch($selrun)){
-                                                    ?>
-                                                    <option value="<?php echo $row['id']."*".$row['rank']; ?>"><?php echo $row['rank']; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" align="left"><button type="button" onclick="addRank()" class="btn" style="background-color: rgba(2,47,173,0.98); color: #ffffff;">Add</button></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">&nbsp;</div>
                                     <div class="col-md-4" id="catrank"></div>
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <select class="form-control" id="stcatname">
+                                                        <option value="">Select Category</option>
+                                                        <option value="Non-Teaching">Non-Teaching Staff</option>
+                                                        <option value="Research">Research Staff</option>
+                                                        <option value="Teaching">Teaching Staff</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-10">
+                                                <div class="form-group">
+                                                    <select id="strankname"  data-placeholder="Select Rank" class="select btnrqd">
+                                                        <option value=""></option>
+                                                        <?php
+                                                        $sel = "SELECT rank, id FROM staffranks ORDER BY rank ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        while($row = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $row['id']."*".$row['rank']; ?>"><?php echo $row['rank']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2" align="left"><button type="button" onclick="addRank()" class="btn" style="background-color: rgba(2,47,173,0.98); color: #ffffff;">Add</button></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12" align="center">
+                                                <button class="btn btn-sm btn-primary" type="button" onclick="createStaffCat()">Submit  </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-md-4">&nbsp;</div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-12" align="center">
-                                        <button class="btn btn-sm btn-primary" type="button" onclick="createStaffCat()">Submit  </button>
-                                    </div>
-                                </div>
+
                             </fieldset>
                             <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
                         </form>
@@ -6132,12 +6765,132 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     </div>
                     <!-- /user profile -->
 
+                </div>
+                <!-- /content area -->
 
-                    <!-- Footer -->
-                    <div class="footer text-muted">
-                        &copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov" target="_blank">Eugene Kopyov</a>
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['archive'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">System </li>
+                            <li class="active"><a>Archive</a></li>
+                        </ul>
                     </div>
-                    <!-- /footer -->
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+
+                    <!-- User profile -->
+                    <div class="row">
+                        <div class="col-lg-10">
+                            <div class="tabbable">
+                                <div class="tab-content">
+                                    <div class="tab-pane fade in active" id="archive">
+                                        <!-- Timeline -->
+                                        <div class="timeline timeline-left content-group">
+                                            <div class="timeline-container">
+                                                <!-- Invoices -->
+                                                <div class="timeline-row">
+                                                    <div class="timeline-icon">
+                                                        <div class="bg-primary-400">
+                                                            <i class="icon-archive"></i>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-lg-8">
+                                                            <div class="panel border-left-lg border-left-danger invoice-grid timeline-content">
+                                                                <div class="panel-body">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <h6 class="text-semibold no-margin-top">Archive Data</h6>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <label for="uname">E-mail</label>
+                                                                            <input id="unamechg" placeholder="E-mail to send archive" type="text" class="form-control" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="panel-footer" style="padding: 20px;">
+
+                                                                    <button class="btn btn-primary btn-sm" type="button" onclick="updatePassword()">Archive</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /invoices -->
+
+
+
+                                            </div>
+                                        </div>
+                                        <!-- /timeline -->
+
+                                    </div>
+                                    <div class="tab-pane fade in active" id="restore">
+                                        <!-- Timeline -->
+                                        <div class="timeline timeline-left content-group">
+                                            <div class="timeline-container">
+                                                <!-- Invoices -->
+                                                <div class="timeline-row">
+                                                    <div class="timeline-icon">
+                                                        <div class="bg-warning-400">
+                                                            <i class="icon-import"></i>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-lg-8">
+                                                            <div class="panel border-left-lg border-left-danger invoice-grid timeline-content">
+                                                                <div class="panel-body">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6">
+                                                                            <h6 class="text-semibold no-margin-top">Restore Data</h6>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12" align="center">
+                                                                            <label>
+                                                                                <input type="file" class="form-control" style="display:none" name="stfimg"/>
+                                                                                <span><img id="stfimg" src="assets/images/restore.png" width="50" height="50" class="img-responsive img-rounded" /><br/>Click To Restore Archive</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="panel-footer" style="padding: 20px;">
+
+                                                                    <button class="btn btn-primary btn-sm" type="button" onclick="updatePassword()">Restore Archive</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /invoices -->
+
+
+
+                                            </div>
+                                        </div>
+                                        <!-- /timeline -->
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /user profile -->
 
                 </div>
                 <!-- /content area -->

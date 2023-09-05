@@ -59,7 +59,8 @@
                         <ul>
                             <?php if(str_contains($access,'Staff Category') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?staff_category" id="layout1"><i class="icon-make-group"></i><span>Category</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Staff Category') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?staff_ranks" id="layout1"><i class="icon-make-group"></i><span>Ranks</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff" id="layout2"><i class="icon-users4"></i><span>Staff</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff" id="layout2"><i class="icon-users4"></i><span>Add Staff</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff_records" id="layout2"><i class="icon-users4"></i><span>View Staff</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?publication" id="layout3"><i class="icon-newspaper2"></i><span>Publications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?conferences_and_workshops" id="layout4"><i class="icon-hammer2"></i><span>Conferences & Workshops</span></a></li><?php } ?>
                         </ul>
@@ -68,9 +69,17 @@
                     <li>
                         <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Application Mgt</span></a>
                         <ul>
-                            <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_application"><i class="icon-pen6"></i><span>Applications</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_admissions"><i class="icon-graduation"></i><span>Admissions</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?student_enrollments"><i class="icon-user-plus"></i><span>Enrollments</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_application"><i class="icon-pen6"></i><span>Add Applications</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_admissions"><i class="icon-graduation"></i><span>Admit Student</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?student_enrollments"><i class="icon-user-plus"></i><span>Enroll Student</span></a></li><?php } ?>
+
+                            <li>
+                                <a href="#"><i class="icon-pie-chart5"></i> <span>View Data</span></a>
+                                <ul>
+                                    <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?view_application_data">Applications Data</a></li><?php }?>
+                                    <?php if(str_contains($access,'Applications')){ ?><li><a href="../admin/dashboard.php?view_admissions_data">Admissions Data</a></li><?php } ?>
+                                </ul>
+                            </li>
 
                         </ul>
                     </li>
@@ -125,7 +134,7 @@
                             <?php if(str_contains($access,'User Roles')){?><li><a href="../admin/dashboard.php?user_roles"><i class="icon-user-check"></i><span>User Roles</span></a></li><?php } ?>
                         </ul>
                     </li>
-                    <?php } if((str_contains($access,'Archive')) && $actype == "GTEC"){?><li class="menu-item"><a href="index.html"><i class="icon-archive"></i> <span>Archive</span></a></li><?php } ?>
+                    <?php } if((str_contains($access,'Archive')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?archive"><i class="icon-archive"></i> <span>Archive</span></a></li><?php } ?>
                     <?php if((str_contains($access,'Logs')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?logs"><i class="icon-newspaper2"></i> <span>Logs</span></a></li><?php } ?>
 
 
