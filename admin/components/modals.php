@@ -161,6 +161,35 @@
     </div>
 </div>
 
+<div id="bulk_upload" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong id="uploadtitle"></strong>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-12" align="left" style="font-style: italic; font-size: small; ">Click on the link below to download the template, fill and upload using the form below</div>
+                        <div class="col-md-12" align="left" id="filedownload"></div>
+                    </div>
+                    <div class="row" style="margin: 20px;">
+                        <div class="col-md-4" align="right">Upload File</div>
+                        <div class="col-md-8" align="left">
+                            <input type="file" class="form-control" id="uploadFile" onchange="validateFile()"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" align="center">
+                            <img src="../admin/assets/images/loader.gif" style="width: 200px; height: 100px;" class="img-responsive" /><br/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="success_modal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">

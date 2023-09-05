@@ -289,13 +289,15 @@ if(isset($_POST['addIsced'])){
     $title = mysqli_real_escape_string($dbcon,$_POST['title']);
     $code = mysqli_real_escape_string($dbcon,$_POST['code']);
     $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $class = mysqli_real_escape_string($dbcon,$_POST['classify']);
+    $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
     $chkuname = "SELECT name FROM isceds WHERE code = '$code'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO isceds(name, code, description) VALUES('$title','$code','$description')";
+        $user = "INSERT INTO isceds(name, code, description, classify, target) VALUES('$title','$code','$description','$class',$target)";
         $conn->query($dbcon,$user);
 
         $response['errorCode'] = "0";
@@ -318,9 +320,11 @@ if(isset($_POST['updateIsced'])){
     $title = mysqli_real_escape_string($dbcon,$_POST['title']);
     $code = mysqli_real_escape_string($dbcon,$_POST['code']);
     $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $classify = mysqli_real_escape_string($dbcon,$_POST['classify']);
+    $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //UPDATE
-    $upd = "UPDATE isceds SET name = '$title', description = '$description' WHERE code ='$code'";
+    $upd = "UPDATE isceds SET name = '$title', description = '$description', classify = '$classify', target=$target WHERE code ='$code'";
     $conn->query($dbcon,$upd);
 
     $response['errorCode'] = "0";
@@ -334,6 +338,7 @@ if(isset($_GET['getInstitutePrograms'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $id = mysqli_real_escape_string($dbcon,$_GET['getInstitutePrograms']);
+    $flag = mysqli_real_escape_string($dbcon,$_GET['flag']);
     $sel = "SELECT id, programme FROM acc_programmes WHERE institution='$id' ORDER BY programme ASC";
     $selrun = $conn->query($dbcon,$sel);
 
@@ -341,9 +346,11 @@ if(isset($_GET['getInstitutePrograms'])){
     if($conn->sqlnum($selrun) == 0){
         $response = $response."<option value=''></option>";
     }else{
-        $response = $response."<option value='All'>All</option>";
+        if($flag == "All"){
+            $response = $response."<option value='All'>All</option>";
+        }
         while($data = $conn->fetch($selrun)){
-            $response = $response."<option value='".$data['id']."'>".getProgram($data['programme'])."</option>";
+            $response = $response."<option value='".$data['programme']."'>".getProgram($data['programme'])."</option>";
         }
     }
     print $response;
@@ -533,7 +540,7 @@ if(isset($_POST['addStaffCategory'])){
     $rank = $_POST['rank'];
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
-    $chkuname = "SELECT id FROM staffcategory WHERE staff_type = '$name'";
+    $chkuname = "SELECT id,staff_type FROM staffcategory WHERE staff_type = '$name'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
@@ -545,7 +552,7 @@ if(isset($_POST['addStaffCategory'])){
 
     }else{
         $row = $conn->fetch($chkunamerun);
-        $name = $row['name'];
+        $name = $row['staff_type'];
         $response['errorCode'] = "1";
         $response['errorMsg'] = "Staff Category, $name, Already Exists.";
     }
@@ -602,31 +609,94 @@ if(isset($_POST['addInstitution'])){
     $fname = mysqli_real_escape_string($dbcon,$_POST['fname']);
     $fcont = mysqli_real_escape_string($dbcon,$_POST['fcont']);
     $fmail = mysqli_real_escape_string($dbcon,$_POST['fmail']);
+    $accredit = mysqli_real_escape_string($dbcon,$_POST['accredit']);
+    $expire = mysqli_real_escape_string($dbcon,$_POST['expire']);
 
     //CHECK IF INSTITUTION ALREADY EXISTS
     $chkCode = "SELECT short_name FROM institutes WHERE institution_code = '$code'";
     $chkcoderun = $conn->query($dbcon,$chkCode);
     if($conn->sqlnum($chkcoderun) == 0){
         $ins = "INSERT INTO institutes (short_name,institution_code,name,category_id,status,region,district,town,latitude,longitude,digital_address
-,contact_telephone,contact_email,url,description,hname, hcont, hmail, fname, fcont, fmail)VALUES('$short','$code','$name',$cat,'Active','$reg',
-'$district','$town',$lat,$longt,'$dig','$tel','$email','$url','$desc','$hname','$hcont','$hmail','$fname','$fcont','$fmail')";
-        $conn->query($dbcon,$ins);
-        //CHECK DISTRICT AND REGION
-        $chkdistrict = "SELECT id FROM reg_districts WHERE district = '$district' AND region='$reg'";
-        $chkdistrictrun = $conn->query($dbcon,$chkdistrict);
-        if($conn->sqlnum($chkdistrictrun) == 0){
-            $ins = "INSERT INTO reg_districts(region, district) VALUES ('$reg','$district')";
-            $conn->query($dbcon,$ins);
+,contact_telephone,contact_email,url,description,hname, hcont, hmail, fname, fcont, fmail,accredit,expire)VALUES('$short','$code','$name',$cat,'Active','$reg',
+'$district','$town',$lat,$longt,'$dig','$tel','$email','$url','$desc','$hname','$hcont','$hmail','$fname','$fcont','$fmail','$accredit','$expire')";
+        if($conn->query($dbcon, $ins)) {
+            //CHECK DISTRICT AND REGION
+            $chkdistrict = "SELECT id FROM reg_districts WHERE district = '$district' AND region='$reg'";
+            $chkdistrictrun = $conn->query($dbcon, $chkdistrict);
+            if ($conn->sqlnum($chkdistrictrun) == 0) {
+                $ins = "INSERT INTO reg_districts(region, district) VALUES ('$reg','$district')";
+                $conn->query($dbcon, $ins);
+            }
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Institution, $name, added successfully.";
+            print json_encode($response);
+        }else{
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Institution, $name, could not be added. Please try again.";
+            print json_encode($response);
         }
-
-        $response['errorCode'] = "0";
-        $response['errorMsg'] = "Institution, $name, Added Successfully.";
     }else{
         $response['errorCode'] = "1";
         $response['errorMsg'] = "Institution With The Code, $code, Already Exists.";
+        print json_encode($response);
     }
+    $conn->close($dbcon);
+}
 
-    print json_encode($response);
+if(isset($_POST['updateInstitution'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $name = mysqli_real_escape_string($dbcon,$_POST['updateInstitution']);
+    $short = mysqli_real_escape_string($dbcon,$_POST['short']);
+    $code = mysqli_real_escape_string($dbcon,$_POST['code']);
+    $cat = mysqli_real_escape_string($dbcon,$_POST['cat']);
+    $desc = mysqli_real_escape_string($dbcon,$_POST['desc']);
+    $tel = mysqli_real_escape_string($dbcon,$_POST['tel']);
+    $email = mysqli_real_escape_string($dbcon,$_POST['email']);
+    $url = mysqli_real_escape_string($dbcon,$_POST['url']);
+    $dig = mysqli_real_escape_string($dbcon,$_POST['dig']);
+    $reg = mysqli_real_escape_string($dbcon,$_POST['reg']);
+    $district = mysqli_real_escape_string($dbcon,$_POST['district']);
+    $town = mysqli_real_escape_string($dbcon,$_POST['town']);
+    $lat = mysqli_real_escape_string($dbcon,$_POST['lat']);
+    $longt = mysqli_real_escape_string($dbcon,$_POST['longt']);
+    $hname = mysqli_real_escape_string($dbcon,$_POST['hname']);
+    $hcont = mysqli_real_escape_string($dbcon,$_POST['hcont']);
+    $hmail = mysqli_real_escape_string($dbcon,$_POST['hmail']);
+    $fname = mysqli_real_escape_string($dbcon,$_POST['fname']);
+    $fcont = mysqli_real_escape_string($dbcon,$_POST['fcont']);
+    $fmail = mysqli_real_escape_string($dbcon,$_POST['fmail']);
+    $accredit = mysqli_real_escape_string($dbcon,$_POST['accredit']);
+    $expire = mysqli_real_escape_string($dbcon,$_POST['expire']);
+
+    //CHECK IF INSTITUTION ALREADY EXISTS
+    $chkCode = "SELECT short_name FROM institutes WHERE institution_code = '$code'";
+    $chkcoderun = $conn->query($dbcon,$chkCode);
+    if($conn->sqlnum($chkcoderun) == 1){
+        $ins = "UPDATE institutes SET short_name = '$short',name='$name',category_id='$cat',region='$reg',
+district='$district',town='$town',latitude='$lat',longitude='$longt',digital_address='$dig',contact_telephone='$dig',contact_email='$email',
+url='$url',description='$desc',hname='$hname', hcont='$hcont', hmail='$hmail', fname='$fname', fcont='$fcont', fmail='$fmail',accredit = '$accredit',expire='$expire' WHERE institution_code = '$code'";
+        if($conn->query($dbcon, $ins)) {
+            //CHECK DISTRICT AND REGION
+            $chkdistrict = "SELECT id FROM reg_districts WHERE district = '$district' AND region='$reg'";
+            $chkdistrictrun = $conn->query($dbcon, $chkdistrict);
+            if ($conn->sqlnum($chkdistrictrun) == 0) {
+                $ins = "INSERT INTO reg_districts(region, district) VALUES ('$reg','$district')";
+                $conn->query($dbcon, $ins);
+            }
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Institution, $name, Updated successfully.";
+            print json_encode($response);
+        }else{
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Institution, $name, could not be updated. Please try again.";
+            print json_encode($response);
+        }
+    }else{
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "Institution With The Code, $code, Does Not Exist.";
+        print json_encode($response);
+    }
     $conn->close($dbcon);
 }
 
@@ -721,9 +791,12 @@ if(isset($_POST['rejectRow'])){
     $insrun = $conn->query($dbcon,$ins);
 
     if($insrun){
-        //DELETE THE PROPOSED PROGRAMME
-        $del = "DELETE FROM acc_programmes_proposed WHERE id=$id";
-        $conn->query($dbcon,$del);
+        if($status == "Accepted"){
+            //DELETE THE PROPOSED PROGRAMME
+            $del = "DELETE FROM acc_programmes_proposed WHERE id=$id";
+            $conn->query($dbcon,$del);
+        }
+
 
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Proposed program, <b>$prog</b> has been $status";
@@ -810,7 +883,7 @@ if(isset($_GET['getIsced'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT name, code,description, status FROM isceds WHERE id = $id";
+    $sel = "SELECT name, code,description, status, classify, target FROM isceds WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -829,7 +902,7 @@ if(isset($_GET['getIsced'])){
                 <legend class='text-semibold'>ISCED Details</legend>
 
                 <div class='row'>
-                    <div class='col-md-4' align='right'><label>ISCED Code:</label></div>
+                    <div class='col-md-4' align='right'><label>Code:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <input type='text' id='icodeedit' readonly value='".$rows['code']."' class='form-control' placeholder='ISCED Title' />
@@ -837,7 +910,7 @@ if(isset($_GET['getIsced'])){
                     </div>
                 </div>
                 <div class='row' align='center'>
-                    <div class='col-md-4' align='right'><label>ISCED Name:</label></div>
+                    <div class='col-md-4' align='right'><label>Name:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <input type='text' id='ititleedit' value='".$rows['name']."' class='form-control' placeholder='ISCED CODE' />
@@ -845,10 +918,31 @@ if(isset($_GET['getIsced'])){
                     </div>
                 </div>
                 <div class='row'>
-                    <div class='col-md-4' align='right'><label>ISCED Description:</label></div>
+                    <div class='col-md-4' align='right'><label>Description:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <textarea id='idescriptedit' placeholder='ISCED DESCRIPTION' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row' align='center'>
+                    <div class='col-md-4' align='right'><label>STR Target:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='itargetedit' value='".$rows['target']."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Classification:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select  id='iclassedit'  data-placeholder='Select Classififcation' class='form-control'>
+                                <option value='".$rows['classify']."'>".$rows['classify']."</option>
+                                <option value='Engineering'>Engineering</option>
+                                <option value='Humanities'>Humanities</option>
+                                <option value='Sciences'>Sciences</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1098,6 +1192,137 @@ if(isset($_GET['sortDataTableConference'])){
     $conn->close($dbcon);
 
 }
+if(isset($_GET['sortDataTableStudents'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $prog = $_GET['prog'];
+    $apptype = $_GET['apptype'];
+    $progtype = $_GET['progtype'];
+    $level = $_GET['level'];
+    $feepay = $_GET['feepay'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($prog != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }else{
+            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }
+    }
+    if($apptype != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE application_type = '$apptype'";
+        }else{
+            $clause = $clause."AND application_type = '$apptype'";
+        }
+    }
+    if($level != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE admission_level = '$level'";
+        }else{
+            $clause = $clause."AND admission_level = '$level'";
+        }
+    }
+    if($progtype != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE programme_type = '$progtype'";
+        }else{
+            $clause = $clause."AND programme_type = '$progtype'";
+        }
+    }
+
+    if($feepay != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE fee_type = '$feepay'";
+        }else{
+            $clause = $clause."AND fee_type = '$feepay'";
+        }
+    }
+
+
+    $qry = "SELECT * FROM enrollments $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-hover datatable-basic'>
+                                        <thead>
+                                        <tr>
+                                            <th> Student/Reference Number </th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>Date of Birth</th>
+                                            <th>Country Of Birth</th>
+                                            <th>Nationality</th>
+                                            <th>Religion</th>
+                                            <th>Hometown</th>
+                                            <th>Home Region</th>
+                                            <th>Institution</th>
+                                            <th>Application Year </th>
+                                            <th> National ID Type</th>
+                                            <th> National ID Number</th>
+                                            <th>Senior High School Attended </th>
+                                            <th> SHS Programme Offered  </th>
+                                            <th> Name Of Programme Offered</th>
+                                            <th> Admission Level</th>
+                                            <th> Mode of Study</th>
+                                            <th> Fee Paying Status</th>
+                                            <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
+                                            <th> Indicate the Special Education Needs (e.g. Physically Challenged, Visually Impaired)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td><a href='../admin/dashboard.php?view_student=$id'>".$row['applicant_id']."</a></td>
+                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
+                            <td>".$row['gender']."</td>
+                            <td>".$row['birth_date']."</td>
+                            <td>".$row['birth_country']."</td>
+                            <td>".$row['nationality']."</td>
+                            <td>".$row['religion']."</td>
+                            <td>".$row['home_town']."</td>
+                            <td>".$row['home_region']."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['year']."</td>
+                            <td>".$row['applicant_id_type']."</td>
+                            <td>".$row['applicant_national_id']."</td>
+                            <td>".$row['high_school']."</td>
+                            <td>".$row['high_school_program']."</td>
+                            <td>".getProgram($row['programme_offered'])."</td>
+                            <td>".$row['admission_level']."</td>
+                            <td>".$row['programme_type']."</td>
+                            <td>".$row['fee_type']."</td>
+                            <td>".$row['disability']."</td>
+                            <td>".$row['disability_type']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
 
 if(isset($_GET['sortDataTableStaff'])){
     $conn=new Db_connect;
@@ -1107,7 +1332,7 @@ if(isset($_GET['sortDataTableStaff'])){
     $gender = $_GET['gender'];
     $qualify = $_GET['qualify'];
     $rank = $_GET['rank'];
-    $cat = $_GET['cat'];
+    $cat = $_GET['category'];
 
     $clause = "";
     if($year != 'All'){
@@ -1153,14 +1378,27 @@ if(isset($_GET['sortDataTableStaff'])){
         }
     }
 
-
-    echo $qry = "SELECT * FROM staff $clause";
+    $qry = "SELECT * FROM staff $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="";
+    $data ="<table class='table table-hover datatable-basic'>
+                                        <thead>
+                                        <tr>
+                                            <th>Staff ID</th>
+                                            <th>Name</th>
+                                            <th>Institution</th>
+                                            <th>Qualification</th>
+                                            <th>Staff Category</th>
+                                            <th>Rank</th>
+                                            <th>Employment Type</th>
+                                            <th>Nationality</th>
+                                            <th>Gender</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
     while($row = $conn->fetch($qryrun)){
         $id = $row['id'];
         $data = $data."<tr>
-                        <td>".$row['staff_id']."</td>
+                        <td><a href='dashboard.php?view_staff=".$id."'>".$row['staff_id']."</a></td>
                         <td>".$row['title'].' '.$row['first_name'].' '.$row['surname'].' '.$row['other_names']."</td>
                         <td>".getInstitution($row['institution'])."</td>
                         <td>".$row['qualification']."</td>
@@ -1170,12 +1408,12 @@ if(isset($_GET['sortDataTableStaff'])){
                         <td>".$row['nationality']."</td>
                         <td>".$row['gender']."</td>
                         </tr>";
-}
+    }
 
     if($data == ""){
-        print("<tr><td colspan='9'>No Records Found</td></tr>");
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
     }else{
-        print $data;
+        print $data."</tbody></table>";
     }
 
     $conn->close($dbcon);
@@ -1221,7 +1459,7 @@ if(isset($_GET['sortDataTableApplicants'])){
     }
 
 
-    echo $qry = "SELECT * FROM appadmissions $clause";
+    $qry = "SELECT * FROM appadmissions $clause";
     $qryrun = $conn->query($dbcon,$qry);
     $data ="";
     while($row = $conn->fetch($qryrun)){
@@ -1260,6 +1498,8 @@ if(isset($_GET['sortDataTableApplicants'])){
     $conn->close($dbcon);
 
 }
+
+
 
 if(isset($_GET['getStaffRank'])){
     $conn=new Db_connect;
@@ -1467,7 +1707,7 @@ if(isset($_POST['addNewStaff'])){
     if($conn->sqlnum($chkrun) == 0){
         $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
 birth_date, gender, nationality, qualification, designation, rank, staff_type, college, department, faculty, employment_type, disability, 
-disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname',$dob,'$sex','$nat','$edu','$desig','$rank','$stftype','$college'
+disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
 ,'$dept','$faculty','$emptype','$disable','$distype')";
         $insrun = $conn->query($dbcon,$ins);
         if($insrun){
@@ -1481,6 +1721,50 @@ disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$
         $response['errorCode'] = "1";
         $response['errorMsg'] = "Staff With Staff ID, $stfid, Exists.";
     }
+
+
+    print json_encode($response);
+}
+
+if(isset($_POST['updateStaff'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $stfid=mysqli_real_escape_string($dbcon,$_POST['updateStaff']);
+    $title=mysqli_real_escape_string($dbcon,$_POST['title']);
+    $fname=mysqli_real_escape_string($dbcon,$_POST['fname']);
+    $lname=mysqli_real_escape_string($dbcon,$_POST['lname']);
+    $oname=mysqli_real_escape_string($dbcon,$_POST['oname']);
+    $dob=mysqli_real_escape_string($dbcon,$_POST['dob']);
+    $sex=mysqli_real_escape_string($dbcon,$_POST['sex']);
+    $idtype=mysqli_real_escape_string($dbcon,$_POST['idtype']);
+    $idnum=mysqli_real_escape_string($dbcon,$_POST['idnum']);
+    $edu=mysqli_real_escape_string($dbcon,$_POST['edu']);
+    $nat=mysqli_real_escape_string($dbcon,$_POST['nat']);
+    $disable=mysqli_real_escape_string($dbcon,$_POST['disable']);
+    $distype=mysqli_real_escape_string($dbcon,$_POST['distype']);
+    $inst=mysqli_real_escape_string($dbcon,$_POST['inst']);
+    $acad=mysqli_real_escape_string($dbcon,$_POST['acad']);
+    $emptype=mysqli_real_escape_string($dbcon,$_POST['emptype']);
+    $stftype=mysqli_real_escape_string($dbcon,$_POST['stftype']);
+    $rank=mysqli_real_escape_string($dbcon,$_POST['rank']);
+    $desig=mysqli_real_escape_string($dbcon,$_POST['desig']);
+    $college=mysqli_real_escape_string($dbcon,$_POST['college']);
+    $faculty=mysqli_real_escape_string($dbcon,$_POST['faculty']);
+    $dept=mysqli_real_escape_string($dbcon,$_POST['dept']);
+
+        $ins = "UPDATE staff SET year='$acad', title='$title', national_id_type='$idtype', national_id_number='$idnum', institution='$inst',
+ first_name='$fname', surname='$lname', other_names='$oname', birth_date='$dob', gender='$sex', nationality='$nat',
+  qualification='$edu', designation='$desig', rank='$rank', staff_type='$stftype', college='$college', department='$dept', faculty='$faculty',
+   employment_type='$emptype', disability='$disable', disability_type = '$distype' WHERE staff_id = '$stfid'";
+        $insrun = $conn->query($dbcon,$ins);
+        if($insrun){
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Staff Details Updated Successfully";
+        }else{
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Staff Details Could Not Be Updated. Please Try Again";
+        }
 
 
     print json_encode($response);
@@ -1510,46 +1794,44 @@ if(isset($_POST['addNewStudent'])){
     $shsprog=mysqli_real_escape_string($dbcon,$_POST['shsprog']);
     $prog=mysqli_real_escape_string($dbcon,$_POST['prog']);
     $progoffered=mysqli_real_escape_string($dbcon,$_POST['progoffered']);
-    $qualify=mysqli_real_escape_string($dbcon,$_POST['qualify']);
-    $offer=mysqli_real_escape_string($dbcon,$_POST['offer']);
-    $accept=mysqli_real_escape_string($dbcon,$_POST['accept']);
+    $status=mysqli_real_escape_string($dbcon,$_POST['status']);
     $feepaying=mysqli_real_escape_string($dbcon,$_POST['feepaying']);
     $year=mysqli_real_escape_string($dbcon,$_POST['year']);
     $progtype=mysqli_real_escape_string($dbcon,$_POST['progtype']);
     $level=mysqli_real_escape_string($dbcon,$_POST['level']);
+    $apptype=mysqli_real_escape_string($dbcon,$_POST['apptype']);
 
     //CHECK IF STUDENT ID EXISTS
     $chk = "SELECT first_name FROM appadmissions WHERE applicant_id = '$stdid'";
     $chkrun = $conn->query($dbcon,$chk);
     if($conn->sqlnum($chkrun) == 0){
 
-        /*DECIDE THE CATEGORY TO PLACE STUDENT BASED ON $qualify, $offer and $accept
-            If student qualifies = yes but offer = no and accept=no, place student record into applications.
-            else if student qualifies = yes but offer = yes and accept=no, place student record into admissions.
-            else if student qualifies = yes but offer = yes and accept=yes, place student record into enrollments.
-        */
-        $status="";
-        if($qualify == "Yes" && $offer == "No" && $accept == "No"){
-            $status = "Qualified";
-        }elseif($offer == "Yes" && $accept == "No"){
-            $status="Offered";
-        }elseif($accept == "Yes"){
-            $status = "Enrolled";
-        }else{
-            $status = "Pending";
-        }
-
         //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
-        echo $ins = "INSERT INTO appadmissions(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+        $ins="";
+        if($status == "Qualified" || $status == "Offered"){
+            $ins = "INSERT INTO appadmissions(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
          other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
-          high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,programme_level) 
+          high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
           VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
-          '$region','$shs','$shsprog','$disable','$distype','$prog','$feepaying','$progtype','$progoffered','$status','$level')";
+          '$region','$shs','$shsprog','$disable','$distype','$prog','$feepaying','$progtype','$progoffered','$status','$level','$apptype')";
+        }elseif($status == "Enrolled"){
+            $ins = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+         other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+          high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+          VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
+          '$region','$shs','$shsprog','$disable','$distype','$feepaying','$progtype','$progoffered','Active','$level','$apptype')";
+        }else{
+            $ins = "INSERT INTO graduates(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+         other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+          high_school_program, disability, disability_type,programme_applied,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+          VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
+          '$region','$shs','$shsprog','$disable','$distype','$prog','$feepaying','$progtype','$progoffered','Active','$level','$apptype')";
+        }
         $insrun = $conn->query($dbcon,$ins);
 
         if($insrun){
             $response['errorCode'] = "0";
-            $response['errorMsg'] = "Applicant Details Added Successfully";
+            $response['errorMsg'] = "Application Completed Successfully";
         }else{
             $response['errorCode'] = "1";
             $response['errorMsg'] = "Applicant Details Could Not Be Saved Successfully";
@@ -1558,22 +1840,118 @@ if(isset($_POST['addNewStudent'])){
 
 
     }else{
-        $status="";
-        if($qualify == "Yes" && $offer == "No" && $accept == "No"){
-            $status = "Qualified";
-        }elseif($offer == "Yes" && $accept == "No"){
-            $status="Offered";
-        }elseif($accept == "Yes"){
-            $status = "Enrolled";
-        }else{
-            $status = "Pending";
-        }
         $upd="UPDATE appadmissions SET status='$status' WHERE applicant_id='$stdid'";
         $conn->query($dbcon,$upd);
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Applicant With Apllicant ID, $stdid, updated.";
     }
 
+
+    print json_encode($response);
+}
+
+if(isset($_POST['addNewStudentRec'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $stdid=mysqli_real_escape_string($dbcon,$_POST['addNewStudentRec']);
+    $fname=mysqli_real_escape_string($dbcon,$_POST['fname']);
+    $lname=mysqli_real_escape_string($dbcon,$_POST['lname']);
+    $oname=mysqli_real_escape_string($dbcon,$_POST['oname']);
+    $dob=mysqli_real_escape_string($dbcon,$_POST['dob']);
+    $sex=mysqli_real_escape_string($dbcon,$_POST['sex']);
+    $idtype=mysqli_real_escape_string($dbcon,$_POST['idtype']);
+    $idnum=mysqli_real_escape_string($dbcon,$_POST['idnum']);
+    $country=mysqli_real_escape_string($dbcon,$_POST['country']);
+    $birth=mysqli_real_escape_string($dbcon,$_POST['birth']);
+    $disable=mysqli_real_escape_string($dbcon,$_POST['disable']);
+    $distype=mysqli_real_escape_string($dbcon,$_POST['distype']);
+    $inst=mysqli_real_escape_string($dbcon,$_POST['inst']);
+    $religion=mysqli_real_escape_string($dbcon,$_POST['religion']);
+    $town=mysqli_real_escape_string($dbcon,$_POST['town']);
+    $region=mysqli_real_escape_string($dbcon,$_POST['region']);
+    $shs=mysqli_real_escape_string($dbcon,$_POST['shs']);
+    $shsprog=mysqli_real_escape_string($dbcon,$_POST['shsprog']);
+    $progoffered=mysqli_real_escape_string($dbcon,$_POST['progoffered']);
+    $feepaying=mysqli_real_escape_string($dbcon,$_POST['feepaying']);
+    $year=mysqli_real_escape_string($dbcon,$_POST['year']);
+    $progtype=mysqli_real_escape_string($dbcon,$_POST['progtype']);
+    $level=mysqli_real_escape_string($dbcon,$_POST['level']);
+    $apptype=mysqli_real_escape_string($dbcon,$_POST['apptype']);
+
+    //CHECK IF STUDENT ID EXISTS
+    $chk = "SELECT first_name FROM enrollments WHERE applicant_id = '$stdid'";
+    $chkrun = $conn->query($dbcon,$chk);
+    if($conn->sqlnum($chkrun) == 0){
+        //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
+         $ins = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+         other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+          high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+          VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
+          '$region','$shs','$shsprog','$disable','$distype','$feepaying','$progtype','$progoffered','Active','$level','$apptype')";
+
+        $insrun = $conn->query($dbcon,$ins);
+
+        if($insrun){
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Student Daetails Added Successfully";
+        }else{
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Student Details Could Not Be Saved Successfully";
+        }
+
+
+
+    }else{
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "Student Records Already Exists With The Student ID $stdid";
+    }
+
+
+    print json_encode($response);
+}
+
+if(isset($_POST['updateNewStudentRec'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $stdid=mysqli_real_escape_string($dbcon,$_POST['updateNewStudentRec']);
+    $fname=mysqli_real_escape_string($dbcon,$_POST['fname']);
+    $lname=mysqli_real_escape_string($dbcon,$_POST['lname']);
+    $oname=mysqli_real_escape_string($dbcon,$_POST['oname']);
+    $dob=mysqli_real_escape_string($dbcon,$_POST['dob']);
+    $sex=mysqli_real_escape_string($dbcon,$_POST['sex']);
+    $idtype=mysqli_real_escape_string($dbcon,$_POST['idtype']);
+    $idnum=mysqli_real_escape_string($dbcon,$_POST['idnum']);
+    $country=mysqli_real_escape_string($dbcon,$_POST['country']);
+    $birth=mysqli_real_escape_string($dbcon,$_POST['birth']);
+    $disable=mysqli_real_escape_string($dbcon,$_POST['disable']);
+    $distype=mysqli_real_escape_string($dbcon,$_POST['distype']);
+    $inst=mysqli_real_escape_string($dbcon,$_POST['inst']);
+    $religion=mysqli_real_escape_string($dbcon,$_POST['religion']);
+    $town=mysqli_real_escape_string($dbcon,$_POST['town']);
+    $region=mysqli_real_escape_string($dbcon,$_POST['region']);
+    $shs=mysqli_real_escape_string($dbcon,$_POST['shs']);
+    $shsprog=mysqli_real_escape_string($dbcon,$_POST['shsprog']);
+    $progoffered=mysqli_real_escape_string($dbcon,$_POST['progoffered']);
+    $feepaying=mysqli_real_escape_string($dbcon,$_POST['feepaying']);
+    $year=mysqli_real_escape_string($dbcon,$_POST['year']);
+    $progtype=mysqli_real_escape_string($dbcon,$_POST['progtype']);
+    $level=mysqli_real_escape_string($dbcon,$_POST['level']);
+    $apptype=mysqli_real_escape_string($dbcon,$_POST['apptype']);
+
+    //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
+     $ins = "UPDATE enrollments SET institution='$inst', year='$year', applicant_id_type='$idtype',applicant_national_id='$idnum', first_name='$fname', surname='$lname',
+     other_names='$oname', gender='$sex', birth_date='$dob', birth_country='$birth', nationality='$country', religion='$religion', home_town='$town', home_region='$region', high_school='$shs',
+      high_school_program='$shsprog', disability='$disable', disability_type='$distype',fee_type='$feepaying',programme_type='$progtype',programme_offered='$progoffered',admission_level='$level',application_type='$apptype' WHERE applicant_id ='$stdid'";
+
+    if($conn->query($dbcon,$ins)){
+        $response['errorCode'] = "0";
+        $response['errorMsg'] = "Student Details Updated.";
+    }else{
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "Student Detail Updates Failed.";
+    }
 
     print json_encode($response);
 }
@@ -1609,7 +1987,7 @@ if(isset($_GET['getAllApplicants'])){
     if($conn->sqlnum($selrun) == 0){
         $response = $response."<tr><td colspan='6'>No Applicants Available For The Selection Above</td></tr>";
     }else{
-        $btn =$btn."<div class='row'><div class='col-md-6' align='right'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div><div class='col-md-6' align='left'><button type='button' class='btn btn-success btn-lg'>Export</button></div></div>";
+        $btn =$btn."<div class='row'><div class='col-md-6' align='right'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div><div class='col-md-6' align='left'><button type='button' class='btn btn-success btn-lg'><span class='icon icon-download10'></span>Download</button></div></div>";
         while($data = $conn->fetch($selrun)){
             $count++;
             $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td></tr>";
@@ -1636,12 +2014,41 @@ if(isset($_POST['admitApplicant'])){
     }else{
         $status = "Graduated";
     }
+
     $obj = explode(",",$applicants);
-    for($i=0;$i < COUNT($obj);$i++){
-        $appId = $obj[$i];
-        $upd = "UPDATE appadmissions SET status = '$status' WHERE applicant_id='$appId'";
-        $conn->query($dbcon,$upd);
-    }
+        for($i=0;$i < COUNT($obj);$i++){
+            $appId = $obj[$i];
+
+            if($status == "Qualified" || $status =="Offered"){
+                $upd = "UPDATE appadmissions SET status = '$status' WHERE applicant_id='$appId'";
+                $conn->query($dbcon,$upd);
+            }
+            elseif($status == "Enrolled" || $status == "Graduated"){
+                $mov="";
+                if($status == "Enrolled"){
+                    //MOVE RECORDS FROM APPADMISSIONS TO ENROLLMENTS
+                    $mov = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+                      SELECT institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type FROM appadmissions WHERE applicant_id = '$appId'";
+                    }
+                    else{
+                    $mov = "INSERT INTO graduates(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+                      SELECT institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                     other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                      high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type FROM appadmissions WHERE applicant_id = '$appId'";
+                }
+                $conn->query($dbcon,$mov);
+                //DELETE THE RECORDS FROM THE APPADMISSIONS TABLE
+                $del ="DELETE FROM appadmissions WHERE applicant_id = '$appId'";
+                $conn->query($dbcon,$del);
+            }
+        }
+
     $response['errorCode'] = "0";
     $response['errorMsg'] = "Applicant(s) Have Been ".$status." Successfully";
     print json_encode($response);
