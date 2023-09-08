@@ -1258,7 +1258,7 @@ if(isset($_GET['sortDataTableStudents'])){
 
     $qry = "SELECT * FROM enrollments $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="<table class='table table-hover datatable-basic'>
+    $data ="<table class='table table-hover' id='studentsearchtable'>
                                         <thead>
                                         <tr>
                                             <th> Student/Reference Number </th>
@@ -1280,8 +1280,8 @@ if(isset($_GET['sortDataTableStudents'])){
                                             <th> Admission Level</th>
                                             <th> Mode of Study</th>
                                             <th> Fee Paying Status</th>
-                                            <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
-                                            <th> Indicate the Special Education Needs (e.g. Physically Challenged, Visually Impaired)</th>
+                                            <th> Special Education Needs (Yes or No) </th>
+                                            <th> Special Education Needs Type(e.g.Visually Impaired)</th>
                                             <th>Status</th>
                                         </tr>
                                         </thead>
@@ -1290,6 +1290,114 @@ if(isset($_GET['sortDataTableStudents'])){
         $id = $row['id'];
         $data = $data."<tr>
                             <td><a href='../admin/dashboard.php?view_student=$id'>".$row['applicant_id']."</a></td>
+                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
+                            <td>".$row['gender']."</td>
+                            <td>".$row['birth_date']."</td>
+                            <td>".$row['birth_country']."</td>
+                            <td>".$row['nationality']."</td>
+                            <td>".$row['religion']."</td>
+                            <td>".$row['home_town']."</td>
+                            <td>".$row['home_region']."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['year']."</td>
+                            <td>".$row['applicant_id_type']."</td>
+                            <td>".$row['applicant_national_id']."</td>
+                            <td>".$row['high_school']."</td>
+                            <td>".$row['high_school_program']."</td>
+                            <td>".getProgram($row['programme_offered'])."</td>
+                            <td>".$row['admission_level']."</td>
+                            <td>".$row['programme_type']."</td>
+                            <td>".$row['fee_type']."</td>
+                            <td>".$row['disability']."</td>
+                            <td>".$row['disability_type']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
+
+if(isset($_GET['sortDataTableGraduates'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $prog = $_GET['prog'];
+    $feepay = $_GET['feepay'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($prog != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }else{
+            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }
+    }
+
+    if($feepay != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE fee_type = '$feepay'";
+        }else{
+            $clause = $clause."AND fee_type = '$feepay'";
+        }
+    }
+
+
+    $qry = "SELECT * FROM graduates $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-hover' id='studentsearchtable'>
+                                        <thead>
+                                        <tr>
+                                            <th> Student/Reference Number </th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>Date of Birth</th>
+                                            <th>Country Of Birth</th>
+                                            <th>Nationality</th>
+                                            <th>Religion</th>
+                                            <th>Hometown</th>
+                                            <th>Home Region</th>
+                                            <th>Institution</th>
+                                            <th>Application Year </th>
+                                            <th> National ID Type</th>
+                                            <th> National ID Number</th>
+                                            <th>Senior High School Attended </th>
+                                            <th> SHS Programme Offered  </th>
+                                            <th> Name Of Programme Offered</th>
+                                            <th> Admission Level</th>
+                                            <th> Mode of Study</th>
+                                            <th> Fee Paying Status</th>
+                                            <th> Special Education Needs (Yes or No) </th>
+                                            <th> Special Education Needs Type(e.g.Visually Impaired)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td>".$row['applicant_id']."</td>
                             <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
                             <td>".$row['gender']."</td>
                             <td>".$row['birth_date']."</td>
@@ -1380,7 +1488,7 @@ if(isset($_GET['sortDataTableStaff'])){
 
     $qry = "SELECT * FROM staff $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="<table class='table table-hover datatable-basic'>
+    $data ="<table class='table table-hover' id='staffsearchtable'>
                                         <thead>
                                         <tr>
                                             <th>Staff ID</th>
