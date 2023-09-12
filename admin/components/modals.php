@@ -168,20 +168,25 @@
                 <strong id="uploadtitle"></strong>
             </div>
             <div class="modal-body">
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data" id="bulkUploadFile">
                     <div class="row">
                         <div class="col-md-12" align="left" style="font-style: italic; font-size: small; ">Click on the link below to download the template, fill and upload using the form below</div>
                         <div class="col-md-12" align="left" id="filedownload"></div>
                     </div>
-                    <div class="row" style="margin: 20px;">
-                        <div class="col-md-4" align="right">Upload File</div>
-                        <div class="col-md-8" align="left">
-                            <input type="file" class="form-control" id="uploadFile" onchange="validateFile()"/>
+                    <div class="row" style="margin: 20px;" id="uploadField">
+                        <div class="col-md-12" align="center">
+                            <input type="hidden" name="uploadType" id="uploadType" />
+                            <label>
+                                <input type="file" style="display:none" class="form-control" name="uploadFile" onchange="validateFile()"/>
+                                <span><img id="stfimg" src="../admin/assets/images/upload.png" width="100" height="100" class="img-responsive img-rounded" /></span><br/>
+                                <div class="mainbold">Click To Upload File</div>
+                            </label>
+
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row hidden" id="uploadLoader">
                         <div class="col-md-12" align="center">
-                            <img src="../admin/assets/images/loader.gif" style="width: 200px; height: 100px;" class="img-responsive" /><br/>
+                            <img src="../admin/assets/images/loader.gif" style="width: 200px; height: 100px;" class="img-responsive" /><br/>File upload in progress..
                         </div>
                     </div>
                 </form>

@@ -983,9 +983,26 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     }
 
 
-    echo $qry = "SELECT * FROM acc_programmes $clause";
+    $qry = "SELECT * FROM acc_programmes $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="";
+    $data ="<table class='table table-striped table-responsive' id='accreditedPrograms'><thead><tr>
+                                            <th>Name Of Program</th>
+                                            <th>Institution</th>
+                                            <th>Accreditation Year</th>
+                                            <th>College</th>
+                                            <th>Faculty / School</th>
+                                            <th>Department</th>
+                                            <th>Name Of Head</th>
+                                            <th>E-mail Of Head</th>
+                                            <th>Contact Of Head</th>
+                                            <th>Name Of Person Filling Form</th>
+                                            <th>E-mail Of Person Filling Form</th>
+                                            <th>Contact Of Person Filling Form</th>
+                                            <th>Accreditation Date</th>
+                                            <th>Expiry Date</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
     while($row = $conn->fetch($qryrun)){
         $data = $data."<tr>
                             <td>".getProgram($row['programme'])."</td>
@@ -1007,9 +1024,9 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     }
 
     if($data == ""){
-        print("<tr><td colspan='8'>No Records Found</td></tr>");
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
     }else{
-        print $data;
+        print $data."</tbody></table>";
     }
 
     $conn->close($dbcon);
@@ -1114,9 +1131,19 @@ if(isset($_GET['sortDataTablePublication'])){
     }
 
 
-    echo $qry = "SELECT * FROM publication $clause";
+    $qry = "SELECT * FROM publication $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="";
+    $data ="<table class='table table-striped table-responsive' id='publications'><thead><tr>
+                                            <th>Staff ID</th>
+                                            <th>Staff Name</th>
+                                            <th>Publication Type</th>
+                                            <th>Publication Title</th>
+                                            <th>Publication Year</th>
+                                            <th>Publisher Of Publication</th>
+                                            <th>Institution</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
     while($row = $conn->fetch($qryrun)){
         $id = $row['id'];
         $data = $data."<tr>
@@ -1131,9 +1158,9 @@ if(isset($_GET['sortDataTablePublication'])){
     }
 
     if($data == ""){
-        print("<tr><td colspan='7'>No Records Found</td></tr>");
+        print("<tr><td colspan='7'>No Records Found</td></tr></tbody></table>");
     }else{
-        print $data;
+        print $data."</tbody></table>";
     }
 
     $conn->close($dbcon);
@@ -1164,14 +1191,29 @@ if(isset($_GET['sortDataTableConference'])){
     }
 
 
-    echo $qry = "SELECT * FROM conferenceworkshop $clause";
+    $qry = "SELECT * FROM conferenceworkshop $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="";
+    $data ="<table class='table table-striped table-responsive' id='conferences'><thead><tr>
+                                            <th>Staff ID</th>
+                                            <th>Staff Name</th>
+                                            <th>Insitution</th>
+                                            <th>Conference</th>
+                                            <th>Organizer</th>
+                                            <th>Venue</th>
+                                            <th>Country</th>
+                                            <th>City</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Date Created</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
     while($row = $conn->fetch($qryrun)){
         $id = $row['id'];
         $data = $data."<tr>
                             <td>".$row['staff_id']."</td>
                             <td>".getStaff($row['staff_id'])."</td>
+                            <td>".getInstitution($row['institution'])."</td>
                             <td>".$row['conference']."</td>
                             <td>".$row['organizer']."</td>
                             <td>".$row['venue']."</td>
@@ -1184,9 +1226,9 @@ if(isset($_GET['sortDataTableConference'])){
     }
 
     if($data == ""){
-        print("<tr><td colspan='7'>No Records Found</td></tr>");
+        print("<tr><td colspan='10'>No Records Found</td></tr></tbody></table>");
     }else{
-        print $data;
+        print $data."</tbody></table>";
     }
 
     $conn->close($dbcon);
@@ -1258,7 +1300,7 @@ if(isset($_GET['sortDataTableStudents'])){
 
     $qry = "SELECT * FROM enrollments $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="<table class='table table-hover datatable-basic'>
+    $data ="<table class='table table-hover' id='studentsearchtable'>
                                         <thead>
                                         <tr>
                                             <th> Student/Reference Number </th>
@@ -1280,8 +1322,8 @@ if(isset($_GET['sortDataTableStudents'])){
                                             <th> Admission Level</th>
                                             <th> Mode of Study</th>
                                             <th> Fee Paying Status</th>
-                                            <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
-                                            <th> Indicate the Special Education Needs (e.g. Physically Challenged, Visually Impaired)</th>
+                                            <th> Special Education Needs (Yes or No) </th>
+                                            <th> Special Education Needs Type(e.g.Visually Impaired)</th>
                                             <th>Status</th>
                                         </tr>
                                         </thead>
@@ -1290,6 +1332,222 @@ if(isset($_GET['sortDataTableStudents'])){
         $id = $row['id'];
         $data = $data."<tr>
                             <td><a href='../admin/dashboard.php?view_student=$id'>".$row['applicant_id']."</a></td>
+                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
+                            <td>".$row['gender']."</td>
+                            <td>".$row['birth_date']."</td>
+                            <td>".$row['birth_country']."</td>
+                            <td>".$row['nationality']."</td>
+                            <td>".$row['religion']."</td>
+                            <td>".$row['home_town']."</td>
+                            <td>".$row['home_region']."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['year']."</td>
+                            <td>".$row['applicant_id_type']."</td>
+                            <td>".$row['applicant_national_id']."</td>
+                            <td>".$row['high_school']."</td>
+                            <td>".$row['high_school_program']."</td>
+                            <td>".getProgram($row['programme_offered'])."</td>
+                            <td>".$row['admission_level']."</td>
+                            <td>".$row['programme_type']."</td>
+                            <td>".$row['fee_type']."</td>
+                            <td>".$row['disability']."</td>
+                            <td>".$row['disability_type']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
+
+if(isset($_GET['sortDataTableApplicants'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $prog = $_GET['prog'];
+    $qualify = $_GET['qualify'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($prog != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }else{
+            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }
+    }
+
+    if($qualify != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE status = '$qualify'";
+        }else{
+            $clause = $clause."AND status = '$qualify'";
+        }
+    }
+
+
+    $qry = "SELECT * FROM appadmissions $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-hover' id='appsearchtable'>
+                                        <thead>
+                                        <tr>
+                                            <th> Student/Reference Number </th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>Date of Birth</th>
+                                            <th>Country Of Birth</th>
+                                            <th>Nationality</th>
+                                            <th>Religion</th>
+                                            <th>Hometown</th>
+                                            <th>Home Region</th>
+                                            <th>Institution</th>
+                                            <th>Application Year </th>
+                                            <th> National ID Type</th>
+                                            <th> National ID Number</th>
+                                            <th>Senior High School Attended </th>
+                                            <th> SHS Programme Offered  </th>
+                                            <th> Name Of Programme Offered</th>
+                                            <th> Admission Level</th>
+                                            <th> Mode of Study</th>
+                                            <th> Fee Paying Status</th>
+                                            <th> Special Education Needs (Yes or No) </th>
+                                            <th> Special Education Needs Type(e.g.Visually Impaired)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td><a href='../admin/dashboard.php?view_student=$id'>".$row['applicant_id']."</a></td>
+                            <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
+                            <td>".$row['gender']."</td>
+                            <td>".$row['birth_date']."</td>
+                            <td>".$row['birth_country']."</td>
+                            <td>".$row['nationality']."</td>
+                            <td>".$row['religion']."</td>
+                            <td>".$row['home_town']."</td>
+                            <td>".$row['home_region']."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['year']."</td>
+                            <td>".$row['applicant_id_type']."</td>
+                            <td>".$row['applicant_national_id']."</td>
+                            <td>".$row['high_school']."</td>
+                            <td>".$row['high_school_program']."</td>
+                            <td>".getProgram($row['programme_offered'])."</td>
+                            <td>".$row['admission_level']."</td>
+                            <td>".$row['programme_type']."</td>
+                            <td>".$row['fee_type']."</td>
+                            <td>".$row['disability']."</td>
+                            <td>".$row['disability_type']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
+
+if(isset($_GET['sortDataTableGraduates'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+    $prog = $_GET['prog'];
+    $feepay = $_GET['feepay'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE year = '$year'";
+        }else{
+            $clause = $clause."AND year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+    if($prog != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }else{
+            $clause = $clause."AND (programme_applied = '$prog' OR programme_offered = '$prog')";
+        }
+    }
+
+    if($feepay != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE fee_type = '$feepay'";
+        }else{
+            $clause = $clause."AND fee_type = '$feepay'";
+        }
+    }
+
+
+    $qry = "SELECT * FROM graduates $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-hover' id='studentsearchtable'>
+                                        <thead>
+                                        <tr>
+                                            <th> Student/Reference Number </th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>Date of Birth</th>
+                                            <th>Country Of Birth</th>
+                                            <th>Nationality</th>
+                                            <th>Religion</th>
+                                            <th>Hometown</th>
+                                            <th>Home Region</th>
+                                            <th>Institution</th>
+                                            <th>Application Year </th>
+                                            <th> National ID Type</th>
+                                            <th> National ID Number</th>
+                                            <th>Senior High School Attended </th>
+                                            <th> SHS Programme Offered  </th>
+                                            <th> Name Of Programme Offered</th>
+                                            <th> Admission Level</th>
+                                            <th> Mode of Study</th>
+                                            <th> Fee Paying Status</th>
+                                            <th> Special Education Needs (Yes or No) </th>
+                                            <th> Special Education Needs Type(e.g.Visually Impaired)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td>".$row['applicant_id']."</td>
                             <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
                             <td>".$row['gender']."</td>
                             <td>".$row['birth_date']."</td>
@@ -1380,7 +1638,7 @@ if(isset($_GET['sortDataTableStaff'])){
 
     $qry = "SELECT * FROM staff $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="<table class='table table-hover datatable-basic'>
+    $data ="<table class='table table-hover' id='staffsearchtable'>
                                         <thead>
                                         <tr>
                                             <th>Staff ID</th>
@@ -1980,21 +2238,26 @@ if(isset($_GET['getAllApplicants'])){
         $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
     }
 
+    $errorCode="1";
+
     $selrun = $conn->query($dbcon,$sel);
-    $response = "<p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p><table class='table table-striped  datatable-basic'><thead><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td></tr></thead><tbody>";
+    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='6'><p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td></tr></thead><tbody>";
     $count=0;
     $btn="";
     if($conn->sqlnum($selrun) == 0){
         $response = $response."<tr><td colspan='6'>No Applicants Available For The Selection Above</td></tr>";
     }else{
-        $btn =$btn."<div class='row'><div class='col-md-6' align='right'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div><div class='col-md-6' align='left'><button type='button' class='btn btn-success btn-lg'><span class='icon icon-download10'></span>Download</button></div></div>";
+        $btn =$btn."<div class='row'><div class='col-md-12' align='center'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div></div>";
         while($data = $conn->fetch($selrun)){
             $count++;
             $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td></tr>";
         }
+        $errorCode = "0";
     }
     $response = $response."</tbody></table>".$btn;
-    print $response;
+    $responses['data'] = $response;
+    $responses['code'] = $errorCode;
+    print json_encode($responses);
 
     $conn->close($dbcon);
 }
