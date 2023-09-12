@@ -31,12 +31,12 @@
                     <!-- Main -->
                     <?php if(str_contains($access,'Home')){?><li class="menu-item"><a href="../admin/dashboard.php"><i class="icon-home4"></i> <span>Home</span></a></li><?php } ?>
                     <?php if(str_contains($access,'ISCED') && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?isced"><i class="icon-home9"></i> <span>ISCED</span></a></li><?php } ?>
-                    <?php if(str_contains($access,'ISCED') && $actype == "GTEC"){?><li class="menu-item"><a onclick="sendEmail()"><i class="icon-home9"></i> <span>Test Mail</span></a></li><?php } ?>
                     <?php if(str_contains($access,'Contact') || str_contains($access,'Programs') || str_contains($access,'Proposed')){?>
                     <li>
                         <a href="#"class="menu-item"><i class="icon-medal"></i> <span>Accreditation</span></a>
                         <ul>
-                            <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?acc_programs"><i class="icon-book3"></i><span>Accredited Programmes</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?add_acc_programs"><i class="icon-add-to-list"></i><span>Add Accreditation</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?acc_programs"><i class="icon-eye4"></i><span>View Accreditations</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Programs') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?programs"><i class="icon-book3"></i><span>Programmes</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Proposed')){?><li><a href="../admin/dashboard.php?acc_proposed_programs"><i class="icon-book2"></i><span>Proposed Programmes</span></a></li><?php } ?>
                         </ul>
@@ -60,9 +60,16 @@
                             <?php if(str_contains($access,'Staff Category') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?staff_category" id="layout1"><i class="icon-make-group"></i><span>Category</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Staff Category') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?staff_ranks" id="layout1"><i class="icon-make-group"></i><span>Ranks</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff" id="layout2"><i class="icon-users4"></i><span>Add Staff</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff_records" id="layout2"><i class="icon-users4"></i><span>View Staff</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?publication" id="layout3"><i class="icon-newspaper2"></i><span>Publications</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?conferences_and_workshops" id="layout4"><i class="icon-hammer2"></i><span>Conferences & Workshops</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?add_publication" id="layout3"><i class="icon-newspaper2"></i><span>Add Publications</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?add_conferences_and_workshops" id="layout4"><i class="icon-hammer2"></i><span>Add Conference/Workshop</span></a></li><?php } ?>
+                            <li>
+                                <a href="#"><i class="icon-pie-chart5"></i> <span>View Data</span></a>
+                                <ul>
+                                    <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?conferences_and_workshops" id="layout4"><i class="icon-hammer2"></i><span>Conferences & Workshops</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff_records" id="layout2"><i class="icon-users4"></i><span>View Staff</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?publication" id="layout3"><i class="icon-newspaper2"></i><span>View Publications</span></a></li><?php } ?>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <?php } if(str_contains($access,'Applications') || str_contains($access,'Enrollments') || str_contains($access,'Graduations')){?>
@@ -70,16 +77,10 @@
                         <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Application Mgt</span></a>
                         <ul>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_application"><i class="icon-pen6"></i><span>Add Applications</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?view_application_data"><i class="icon-file-eye2"></i><span>View Applications</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Applications')){?><li><a onclick="bulkUploads('appadmissions', 'application')"><i class="icon-folder-upload3"></i><span>Bulk Applications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_admissions"><i class="icon-graduation"></i><span>Admit Student</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?student_enrollments"><i class="icon-user-plus"></i><span>Enroll Student</span></a></li><?php } ?>
-
-                            <li>
-                                <a href="#"><i class="icon-pie-chart5"></i> <span>View Data</span></a>
-                                <ul>
-                                    <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?view_application_data">Applications Data</a></li><?php }?>
-                                    <?php if(str_contains($access,'Applications')){ ?><li><a href="../admin/dashboard.php?view_admissions_data">Admissions Data</a></li><?php } ?>
-                                </ul>
-                            </li>
 
                         </ul>
                     </li>

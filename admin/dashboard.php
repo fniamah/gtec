@@ -373,13 +373,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 $permissions= $row['permissions'];
                                                 $obj = explode(",",$permissions);
                                                 for($i=0;$i < count($obj); $i++){
-                                                    if($obj[$i] == "CREATE"){
+                                                    if($obj[$i] == "create"){
                                                         $border="border-success";
                                                         $text="text-success-600";
-                                                    }elseif($obj[$i] == "READ"){
+                                                    }elseif($obj[$i] == "read"){
                                                         $border="border-info";
                                                         $text="text-info-600";
-                                                    }elseif($obj[$i] == "UPDATE"){
+                                                    }elseif($obj[$i] == "update"){
                                                         $border="border-warning";
                                                         $text="text-warning-600";
                                                     }else{
@@ -2481,9 +2481,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Add New Applicant</h6></div>
-                                <div class="col-md-6" align="right">
-                                    <a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a>
-                                </div>
                             </div>
 
                         </div>
@@ -2775,9 +2772,9 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <div class="page-header" style="margin: 20px;">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
+                            <li style="font-weight: bold; font-size: x-large">Application Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li>View Data</li>
+                            <li><a>View Data</a></li>
                             <li class="active"><a href="dashboard.php?view_application_data">Applications Data</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
@@ -2787,149 +2784,87 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- /page header -->
                 <!-- Content area -->
                 <div class="content">
-
                     <!-- Clickable title -->
-                    <div class="panel panel-white" id="view_staff">
+                    <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Qualified Applicants</h6>
+                            <h6 class="panel-title">Select Criteria</h6>
                         </div>
-                        <div class="row" style="margin: 20px;">
-                            <div class="col-md-12">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
+                        <div class="panel-body">
+                            <div class="row" style="margin: 10px;">
+                                <div class="col-md-3">
+                                    <label>Year</label>
+                                    <select name="institution" id="studentyear" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Institution</label>
+                                    <select name="institution" id="studentinst" class="form-control">
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Programme</label>
+                                    <select name="institution" id="studentprog" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $sel = "SELECT prog_code, programme FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
+                                        $selrun = $conn->query($dbcon,$sel);
+                                        while($row = $conn->fetch($selrun)){
+                                            ?>
+                                            <option value="<?php echo $row['prog_code']; ?>"><?php echo $row['programme']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Application Status</label>
+                                    <select name="institution" id="studentqualify" class="form-control">
+                                        <option value="All">All</option>
+                                        <option value="Qualified">Qualified</option>
+                                        <option value="Offered">Offered</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getApplicantDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="row" style="margin: 10px;">
-                            <div class="col-md-3">
-                                <label>Year</label>
-                                <select name="institution" id="studentyear" class="form-control" onchange="sortDatTableApplicants()">
-                                    <option value="All">All</option>
-                                    <?php
-                                    $curryear = date("Y");
-                                    for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                        ?>
-                                        <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label>Institution</label>
-                                <select name="institution" id="studentinst" class="form-control" onchange="sortDatTableApplicants()">
-                                    <?php
-                                    if($actype == "GTEC"){
-                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            ?>
-                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                        <?php }?>
-                                        <option selected value="All">All</option>
-                                    <?php }else{?>
-                                        <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label>Programme</label>
-                                <select name="institution" id="studentprog" class="form-control" onchange="sortDatTableApplicants()">
-                                    <option value="All">All</option>
-                                    <?php
-                                    $sel = "SELECT prog_code, programme FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
-                                    $selrun = $conn->query($dbcon,$sel);
-                                    while($row = $conn->fetch($selrun)){
-                                        ?>
-                                        <option value="<?php echo $row['prog_code']; ?>"><?php echo $row['programme']; ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label>Application Status</label>
-                                <select name="institution" id="studentqualify" class="form-control" onchange="sortDatTableApplicants()">
-                                    <option value="All">All</option>
-                                    <option value="Qualified">Qualified</option>
-                                    <option value="Offered">Offered</option>
-                                    <option value="Enrolled">Enrolled</option>
-                                    <option value="Graduated">Graduated</option>
-                                </select>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Applicants List</h6>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;">
-                                    <table class="table table-hover" id="dataTable">
-                                        <thead>
-                                        <tr>
-                                            <th> Student/Reference Number </th>
-                                            <th>Student Name</th>
-                                            <th>Gender</th>
-                                            <th>Date of Birth</th>
-                                            <th>Country Of Birth</th>
-                                            <th>Nationality</th>
-                                            <th>Religion</th>
-                                            <th>Hometown</th>
-                                            <th>Home Region</th>
-                                            <th>Institution</th>
-                                            <th>Application Year </th>
-                                            <th> National ID Type</th>
-                                            <th> National ID Number</th>
-                                            <th>Senior High School Attended </th>
-                                            <th> SHS Programme Offered  </th>
-                                            <th> Name Of Programme Applied</th>
-                                            <th> Mode of Study</th>
-                                            <th> Fee Paying Status</th>
-                                            <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
-                                            <th> Indicate the Special Education Needs (e.g. Physically Challenged, Visually Impaired)</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        $count= 0;
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT * FROM appadmissions WHERE status='Qualified' ORDER BY first_name ASC";
-                                        }else{
-                                            $sel = "SELECT * FROM appadmissions WHERE status='Qualified' AND institution='$institution' ORDER BY first_name ASC";
-                                        }
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            $count++;
-                                            $id = $row['id'];
-                                            ?>
-                                            <tr style="color: <?php echo $color; ?>">
-                                                <td><?php echo $row['applicant_id']; ?></td>
-                                                <td><?php echo $row['first_name']." ".$row['other_names']." ".$row['surname']; ?></td>
-                                                <td><?php echo $row['gender']; ?></td>
-                                                <td><?php echo $row['birth_date']; ?></td>
-                                                <td><?php echo $row['birth_country']; ?></td>
-                                                <td><?php echo $row['nationality']; ?></td>
-                                                <td><?php echo $row['religion']; ?></td>
-                                                <td><?php echo $row['home_town']; ?></td>
-                                                <td><?php echo $row['home_region']; ?></td>
-                                                <td><?php echo getInstitution($row['institution']); ?></td>
-                                                <td><?php echo $row['year']; ?></td>
-                                                <td><?php echo $row['applicant_id_type']; ?></td>
-                                                <td><?php echo $row['applicant_national_id']; ?></td>
-                                                <td><?php echo $row['high_school']; ?></td>
-                                                <td><?php echo $row['high_school_program']; ?></td>
-                                                <td><?php echo getProgram($row['programme_applied']); ?></td>
-                                                <td><?php echo $row['programme_type']; ?></td>
-                                                <td><?php echo $row['fee_type']; ?></td>
-                                                <td><?php echo $row['disability']; ?></td>
-                                                <td><?php echo $row['disability_type']; ?></td>
-                                                <td><?php echo $row['status']; ?></td>
-                                            </tr>
-                                        <?php } ?>
-                                        </tbody>
-                                    </table>
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult2">
                                 </div>
                             </div>
                         </div>
@@ -4001,24 +3936,11 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <!-- Clickable title -->
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Students List</h6>
+                            <h6 class="panel-title">Staff List</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -4350,7 +4272,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?staff">Publications</a></li>
+                            <li class="active"><a href="dashboard.php?staff_records">Publications</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -4360,9 +4282,111 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_publication">
+                    <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Publications</h6>
+                            <h6 class="panel-title">Select Criteria</h6>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Publication Year</label>
+                                    <select id="pubbyear" class="form-control" onchange="sortDataTablePublication()">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Institution</label>
+                                    <select id="pubbinst" class="form-control" onchange="sortDataTablePublication()">
+                                        <option></option>
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Publication Type</label>
+                                    <select id="pubbtype" class="form-control" onchange="sortDataTablePublication()">
+                                        <option value="All">All</option>
+                                        <option value="article">article</option>
+                                        <option value="chapter">chapter</option>
+                                        <option value="edited(book)">edit(book)</option>
+                                        <option value="proceeding">proceeding</option>
+                                        <option value="monograph or preprint">monograph or preprint</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getPublicationsFromSearch()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Staff List</h6>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['add_publication'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Staff </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?staff">Add New Publication</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_publication">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Add Publication</h6>
                         </div>
 
                         <form class="stepy-clickable">
@@ -4379,13 +4403,13 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                     $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
                                                     $selrun = $conn->query($dbcon,$sel);
                                                     if($conn->sqlnum($selrun) == 0){
-                                                ?>
-                                                <option value="">No Records Found</option>
-                                                <?php }else{
+                                                        ?>
+                                                        <option value="">No Records Found</option>
+                                                    <?php }else{
                                                         while($data = $conn->fetch($selrun)){
-                                                ?>
-                                                <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
-                                                <?php }}}else{?>
+                                                            ?>
+                                                            <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
+                                                        <?php }}}else{?>
                                                     <option value="<?php  echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
                                                 <?php } ?>
                                             </select>
@@ -4447,122 +4471,91 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         </form>
                     </div>
                     <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['conferences_and_workshops'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Staff </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?conferences_and_workshops">Conferences & Workshops</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Select Criteria</h6>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Year</label>
+                                    <select name="institution" id="conferenceyear" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Institution</label>
+                                    <select name="institution" id="conferenceinst" class="form-control">
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="sortDataTableConference()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
 
                     <!-- Clickable title -->
-                    <div class="panel panel-white" id="view_publication">
+                    <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Staff Publications</h6>
+                            <h6 class="panel-title">Conferences And Workshops</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_publication','view_publication')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add Publication</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="panel panel-flat" style="margin: 10px;">
-                                    <table class="table table-hover datatable-basic">
-                                        <thead>
-                                        <tr style="background-color: #ffffff">
-                                            <th colspan="10">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label>Publication Year</label>
-                                                        <select id="pubbyear" class="form-control" onchange="sortDataTablePublication()">
-                                                            <option value="All">All</option>
-                                                            <?php
-                                                            $curryear = date("Y");
-                                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                                                ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label>Institution</label>
-                                                        <select id="pubbinst" class="form-control" onchange="sortDataTablePublication()">
-                                                            <option></option>
-                                                            <?php
-                                                            if($actype == "GTEC"){
-                                                                $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                                $selrun = $conn->query($dbcon,$sel);
-                                                                while($row = $conn->fetch($selrun)){
-                                                                    ?>
-                                                                    <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                                                <?php }?>
-                                                                <option selected value="All">All</option>
-                                                            <?php }else{?>
-                                                                <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label>Publication Type</label>
-                                                        <select id="pubbtype" class="form-control" onchange="sortDataTablePublication()">
-                                                            <option value="All">All</option>
-                                                            <option value="article">article</option>
-                                                            <option value="chapter">chapter</option>
-                                                            <option value="edited(book)">edit(book)</option>
-                                                            <option value="proceeding">proceeding</option>
-                                                            <option value="monograph or preprint">monograph or preprint</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th>Staff ID</th>
-                                            <th>Staff Name</th>
-                                            <th>Publication Type</th>
-                                            <th>Publication Title</th>
-                                            <th>Publication Year</th>
-                                            <th>Publisher Of Publication</th>
-                                            <th>Institution</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        $count= 0;
-                                        $sel="";
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT * FROM publication ORDER BY createdAt DESC";
-                                        }else{
-                                            $sel = "SELECT * FROM publication WHERE institution_id = '$institution' ORDER BY createdAt DESC";
-                                        }
-
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            $count++;
-                                            $id = $row['id'];
-                                            $color = "#000000";
-                                            ?>
-                                            <tr style="color: <?php echo $color; ?>">
-                                                <td><?php echo $row['staff_id']; ?></td>
-                                                <td><?php echo getStaff($row['staff_id']); ?></td>
-                                                <td><?php echo $row['publication_type']; ?></td>
-                                                <td><?php echo $row['title']; ?></td>
-                                                <td><?php echo $row['publication_year']; ?></td>
-                                                <td><?php echo $row['publisher']; ?></td>
-                                                <td><?php echo getInstitution($row['institution_id']); ?></td>
-                                             </tr>
-                                        <?php } ?>
-                                        </tbody>
-                                    </table>
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
                                 </div>
                             </div>
                         </div>
@@ -4572,7 +4565,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- /content area -->
 
             </div>
-            <?php $conn->close($dbcon);}elseif(isset($_GET['conferences_and_workshops'])){
+            <?php $conn->close($dbcon);}elseif(isset($_GET['add_conferences_and_workshops'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
             $status = "";
@@ -4594,7 +4587,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_publication">
+                    <div class="panel panel-white" id="add_new_publication">
                         <div class="panel-heading">
                             <h6 class="panel-title">Conferences And Workshops</h6>
                         </div>
@@ -4610,16 +4603,16 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <option></option>
                                                 <?php
                                                 if($actype == "GTEC"){
-                                                $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                $selrun = $conn->query($dbcon,$sel);
-                                                if($conn->sqlnum($selrun) == 0){
-                                                    ?>
-                                                    <option value="">No Records Found</option>
-                                                <?php }else{
-                                                    while($data = $conn->fetch($selrun)){
+                                                    $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    if($conn->sqlnum($selrun) == 0){
                                                         ?>
-                                                        <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
-                                                    <?php }}}else{?>
+                                                        <option value="">No Records Found</option>
+                                                    <?php }else{
+                                                        while($data = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
+                                                        <?php }}}else{?>
                                                     <option value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
                                                 <?php } ?>
                                             </select>
@@ -4693,131 +4686,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                             </fieldset>
                             <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
                         </form>
-                    </div>
-                    <!-- /clickable title -->
-
-                    <!-- Clickable title -->
-                    <div class="panel panel-white" id="view_publication">
-                        <div class="panel-heading">
-                            <h6 class="panel-title">Conferences And Workshops</h6>
-                        </div>
-                        <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_publication','view_publication')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>&nbsp;&nbsp;&nbsp;Add&nbsp;&nbsp;&nbsp;</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="panel panel-flat" style="margin: 10px;">
-                                    <table class="table table-hover datatable-basic">
-                                        <thead>
-                                        <tr style="background-color: #ffffff">
-                                            <th colspan="10">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label>Year</label>
-                                                        <select id="conferenceyear" class="form-control" onchange="sortDataTableConference()">
-                                                            <option value="All">All</option>
-                                                            <?php
-                                                            $curryear = date("Y");
-                                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                                                ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label>Institution</label>
-                                                        <select id="conferenceinst" class="form-control" onchange="sortDataTableConference()">
-                                                            <?php
-                                                            if($actype == "GTEC"){
-                                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                            $selrun = $conn->query($dbcon,$sel);
-                                                            while($row = $conn->fetch($selrun)){
-                                                            ?>
-                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                                            <?php }?>
-                                                            <option selected value="All">All</option>
-                                                            <?php }else{?>
-                                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <!--<div class="col-md-4">
-                                                        <label>Participant Rank</label>
-                                                        <select id="conferencerank" class="form-control" onchange="sortDataTableConference()">
-                                                            <option value="">Publication Type</option>
-                                                            <option value="article">article</option>
-                                                            <option value="chapter">chapter</option>
-                                                            <option value="edited(book)">edit(book)</option>
-                                                            <option value="proceeding">proceeding</option>
-                                                            <option value="monograph or preprint">monograph or preprint</option>
-                                                        </select>
-                                                    </div>-->
-                                                </div>
-
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th>Staff ID</th>
-                                            <th>Staff Name</th>
-                                            <th>Conference</th>
-                                            <th>Organizer</th>
-                                            <th>Venue</th>
-                                            <th>Country</th>
-                                            <th>City</th>
-                                            <th>Start Date</th>
-                                            <th>End Date</th>
-                                            <th>Date Created</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        $count= 0;
-                                        $sel="";
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT * FROM conferenceworkshop ORDER BY createdAt DESC";
-                                        }else{
-                                            $sel = "SELECT * FROM conferenceworkshop WHERE institution='$institution' ORDER BY createdAt DESC";
-                                        }
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            $count++;
-                                            $id = $row['id'];
-                                            $color = "#000000";
-                                            ?>
-                                            <tr style="color: <?php echo $color; ?>">
-                                                <td><?php echo $row['staff_id']; ?></td>
-                                                <td><?php echo getStaff($row['staff_id']); ?></td>
-                                                <td><?php echo $row['conference']; ?></td>
-                                                <td><?php echo $row['organizer']; ?></td>
-                                                <td><?php echo $row['venue']; ?></td>
-                                                <td><?php echo $row['country']; ?></td>
-                                                <td><?php echo $row['city']; ?></td>
-                                                <td><?php echo $row['start_date']; ?></td>
-                                                <td><?php echo $row['end_date']; ?></td>
-                                                <td><?php echo $row['createdAt']; ?></td>
-                                            </tr>
-                                        <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <!-- /clickable title -->
                 </div>
@@ -5504,6 +5372,96 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">Accredited Programs</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Select Criteria</h6>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Accreditation Year</label>
+                                    <select name="institution" id="accredityear" class="form-control">
+                                        <option value="All">All</option>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                            ?>
+                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Institution</label>
+                                    <select name="institution" id="accreditinst" class="form-control">
+                                        <?php
+                                        if($actype == "GTEC"){
+                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                            $selrun = $conn->query($dbcon,$sel);
+                                            while($row = $conn->fetch($selrun)){
+                                                ?>
+                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                            <?php }?>
+                                            <option selected value="All">All</option>
+                                        <?php }else{?>
+                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getAccreditedProgramsFromSearch()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <h6 class="panel-title">Students List</h6>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['add_acc_programs'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header" style="margin: 20px;">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Accreditation </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
                             <li class="active"><a href="dashboard.php?acc_programs">Accredited Programs</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
@@ -5514,7 +5472,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                 <!-- Content area -->
                 <div class="content">
                     <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="add_new_publication">
+                    <div class="panel panel-white" id="add_new_publication">
                         <div class="panel-heading">
                             <h6 class="panel-title">Program Accreditation</h6>
                         </div>
@@ -5549,16 +5507,16 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <?php
                                                 $sel="";
                                                 if($actype == "GTEC"){
-                                                $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                $selrun = $conn->query($dbcon,$sel);
-                                                if($conn->sqlnum($selrun) == 0){
-                                                    ?>
-                                                    <option value="">No Records Found</option>
-                                                <?php }else{
-                                                    while($data = $conn->fetch($selrun)){
+                                                    $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                    $selrun = $conn->query($dbcon,$sel);
+                                                    if($conn->sqlnum($selrun) == 0){
                                                         ?>
-                                                        <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
-                                                    <?php }}}else{?>
+                                                        <option value="">No Records Found</option>
+                                                    <?php }else{
+                                                        while($data = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
+                                                        <?php }}}else{?>
                                                     <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
                                                 <?php } ?>
                                             </select>
@@ -5691,132 +5649,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                             </fieldset>
                             <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
                         </form>
-                    </div>
-                    <!-- /clickable title -->
-
-                    <!-- Clickable title -->
-                    <div class="panel panel-white" id="view_publication">
-                        <div class="panel-heading">
-                            <h6 class="panel-title">Accredited Programmes</h6>
-                        </div>
-                        <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_publication','view_publication')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>&nbsp;&nbsp;&nbsp;Add&nbsp;&nbsp;&nbsp;</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="panel panel-flat" style="margin: 10px; overflow-x:auto;">
-                                    <table class="table table-hover datatable-basic">
-                                        <thead>
-                                        <tr style="background-color: #ffffff">
-                                            <th colspan="10">
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label>Accreditation Year</label>
-                                                        <select name="institution" id="accredityear" class="select" onchange="sortDataTableAccPrograms()">
-                                                            <option value="All">All</option>
-                                                            <?php
-                                                            $curryear = date("Y");
-                                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                                                ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label>Institution</label>
-                                                        <select name="institution" id="accreditinst" class="select" onchange="sortDataTableAccPrograms()">
-                                                            <option></option>
-                                                            <?php
-                                                            $sel="";
-                                                            if($actype == "GTEC"){
-                                                                $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                                $selrun = $conn->query($dbcon,$sel);
-                                                                if($conn->sqlnum($selrun) == 0){
-                                                                    ?>
-                                                                    <option value="">No Records Found</option>
-                                                                <?php }else{
-                                                                    while($data = $conn->fetch($selrun)){
-                                                                        ?>
-                                                                        <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
-                                                                    <?php }}}else{?>
-                                                                <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
-                                                            <?php } ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th>Name Of Program</th>
-                                            <th>Institution</th>
-                                            <th>Accreditation Year</th>
-                                            <th>College</th>
-                                            <th>Faculty / School</th>
-                                            <th>Department</th>
-                                            <th>Name Of Head</th>
-                                            <th>E-mail Of Head</th>
-                                            <th>Contact Of Head</th>
-                                            <th>Name Of Person Filling Form</th>
-                                            <th>E-mail Of Person Filling Form</th>
-                                            <th>Contact Of Person Filling Form</th>
-                                            <th>Accreditation Date</th>
-                                            <th>Expiry Date</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        $count= 0;
-                                        $sel="";
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT * FROM acc_programmes ORDER BY programme ASC";
-                                        }else{
-                                            $sel = "SELECT * FROM acc_programmes WHERE institution = '$institution' ORDER BY programme ASC";
-                                        }
-
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            $count++;
-                                            $id = $row['id'];
-                                            ?>
-                                            <tr>
-                                                <td><?php echo getProgram($row['programme']); ?></td>
-                                                <td><?php echo getInstitution($row['institution']); ?></td>
-                                                <td><?php echo $row['accreditation_year']; ?></td>
-                                                <td><?php echo getCollege($row['college']); ?></td>
-                                                <td><?php echo getFaculty($row['faculty_school']); ?></td>
-                                                <td><?php echo getDepartment($row['department']); ?></td>
-                                                <td><?php echo $row['hname']; ?></td>
-                                                <td><?php echo $row['hmail']; ?></td>
-                                                <td><?php echo $row['hcont']; ?></td>
-                                                <td><?php echo $row['fname']; ?></td>
-                                                <td><?php echo $row['fmail']; ?></td>
-                                                <td><?php echo $row['fcont']; ?></td>
-                                                <td><?php echo $row['accredited_date']; ?></td>
-                                                <td><?php echo $row['expiration_date']; ?></td>
-
-                                            </tr>
-                                        <?php } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <!-- /clickable title -->
                 </div>
