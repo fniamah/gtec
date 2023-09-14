@@ -2233,15 +2233,15 @@ if(isset($_GET['getAllApplicants'])){
 
     $sel="";
     if($prog == "All"){
-        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type FROM appadmissions WHERE institution = '$institution' AND status = '$status'";
+        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND status = '$status'";
     }else{
-        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
+        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
     }
 
     $errorCode="1";
 
     $selrun = $conn->query($dbcon,$sel);
-    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='6'><p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td></tr></thead><tbody>";
+    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='7'><p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td><td>Status</td></tr></thead><tbody>";
     $count=0;
     $btn="";
     if($conn->sqlnum($selrun) == 0){
@@ -2250,7 +2250,7 @@ if(isset($_GET['getAllApplicants'])){
         $btn =$btn."<div class='row'><div class='col-md-12' align='center'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div></div>";
         while($data = $conn->fetch($selrun)){
             $count++;
-            $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td></tr>";
+            $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td><td>".$data['status']."</td></tr>";
         }
         $errorCode = "0";
     }

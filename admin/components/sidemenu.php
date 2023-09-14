@@ -78,7 +78,7 @@
                         <ul>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_application"><i class="icon-pen6"></i><span>Add Applications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?view_application_data"><i class="icon-file-eye2"></i><span>View Applications</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Applications')){?><li><a onclick="bulkUploads('appadmissions', 'application')"><i class="icon-folder-upload3"></i><span>Bulk Applications</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Applications')){?><li><a onclick="bulkUploads('appadmissions', 'application', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Applications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Applications')){?><li><a href="../admin/dashboard.php?student_admissions"><i class="icon-graduation"></i><span>Admit Student</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?student_enrollments"><i class="icon-user-plus"></i><span>Enroll Student</span></a></li><?php } ?>
 

@@ -2900,7 +2900,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Add New Student</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'add_student','yes')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
                             </div>
                         </div>
                         <div class="row">
@@ -3208,7 +3208,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Admit New Applicant(s)</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','qualified')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
                             </div>
 
                         </div>
@@ -3462,7 +3462,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Enroll New Student(s)</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','offered')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
                             </div>
                         </div>
 
@@ -3678,7 +3678,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">Students Enrollment</a></li>
+                            <li class="active"><a href="dashboard.php?student_enrollments">Students Records</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -3690,7 +3690,10 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <!-- Clickable title -->
                     <div class="panel panel-white" id="add_new_staff">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Select Criteria</h6>
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Select Criteria</h6></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','graduated')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload Graduates</a></div>
+                            </div>
                         </div>
                         <div class="panel-body">
                             <div class="row">
@@ -3790,7 +3793,10 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                     <!-- Clickable title -->
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Students List</h6>
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Students List</h6></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','graduated')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload Graduates</a></div>
+                            </div>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
