@@ -294,6 +294,69 @@ if (isset($_POST["uploadType"])) {
             }
 
         }
+        elseif($type == "add_staff"){
+            if($highestColumm == "V"){
+                $col1=mysqli_real_escape_string($dbcon,$spreadSheetAry[0]['0']);
+                $col2=mysqli_real_escape_string($dbcon,$spreadSheetAry[0]['17']);
+                $col3=mysqli_real_escape_string($dbcon,$spreadSheetAry[0]['21']);
+
+                if(trim($col1) == "Staff ID" && trim($col2) == "Staff Rank" && $col3 == "Designation"){
+                    for ($i = 1; $i < $sheetCount; $i ++) {
+                        $stfid=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['0']);
+                        $title=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['1']);
+                        $fname=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['2']);
+                        $lname=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['3']);
+                        $oname=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['4']);
+                        $dob=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['5']);
+                        $sex=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['6']);
+                        $idtype=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['7']);
+                        $idnum=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['8']);
+                        $edu=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['9']);
+                        $nat=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['10']);
+                        $disable=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['11']);
+                        $distype=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['12']);
+                        $inst=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['13']);
+                        $acad=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['14']);
+                        $emptype=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['15']);
+                        $stftype=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['16']);
+                        $rank=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['17']);
+                        $college=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['18']);
+                        $faculty=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['19']);
+                        $dept=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['20']);
+                        $desig=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['21']);
+
+                        //IGNORE EMPTY SPACES
+                        if(!empty($stfid)){
+                            //CHECK IF STAFF ID EXISTS
+                            $chk = "SELECT first_name FROM staff WHERE staff_id = '$stfid'";
+                            $chkrun = $conn->query($dbcon,$chk);
+                            if($conn->sqlnum($chkrun) == 0){
+                                $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
+                                        birth_date, gender, nationality, qualification, designation, rank, staff_type, college, department, faculty, employment_type, disability, 
+                                        disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
+                                        ,'$dept','$faculty','$emptype','$disable','$distype')";
+                                $insrun = $conn->query($dbcon,$ins);
+                            }else{
+                                //log exists here
+                            }
+
+                        }
+                    }
+                    $response['errorCode'] = "0";
+                    $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
+                    print json_encode($response);
+                }else{
+                    $response['errorCode'] = "1";
+                    $response['errorMsg'] = "File Validation Failed";
+                    print json_encode($response);
+                }
+            }else{
+                $response['errorCode'] = "1";
+                $response['errorMsg'] = "File Validation Failed";
+                print json_encode($response);
+            }
+
+        }
         else{
             $response['errorCode'] = "1";
             $response['errorMsg'] = "I dont know";

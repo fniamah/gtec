@@ -71,6 +71,11 @@ if (isset($_POST['uname'])) {
     $_SESSION['actype'] = $seldata['account_type'];
     $_SESSION['roleid'] = $seldata['roleid'];
     $_SESSION['access'] = $seldata['pages'];
+
+    $msg = "Logged in";
+    $log = date("Y-m-d H:i:s")." Username:".$uname." Message:".$msg.PHP_EOL;
+    logrequest($log,"System Logs");
+
     header("location: dashboard.php");
     $conn->close($dbcon);
     exit(0);
@@ -356,6 +361,17 @@ function getSTR2Details($code,$target){
     $conn->close($dbcon);
 }
 
+function logrequest($log,$folder){
+    //TODAY'S DATE WILL BE THE NAME OF THE FILE
+    $fname = "assets/Logs/".$folder."/".date("Ymd").".log";
+    if(file_exists($fname)){
+        file_put_contents($fname, $log, FILE_APPEND);
+    }else{
+        touch($fname);
+        file_put_contents($fname, $log, FILE_APPEND);
+    }
+}
+
 function getScienceToHumanitiesRatio($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -387,7 +403,7 @@ function getScienceToHumanitiesRatio($year){
 function getEnrollmentByYear($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $sel="SELECT COUNT(student_id) AS totalCount FROM enrollments WHERE year = '$year'";
+    $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE year = '$year'";
     $selrun = $conn->query($dbcon,$sel);
     $data = $conn->fetch($selrun);
     $response = $data['totalCount'];

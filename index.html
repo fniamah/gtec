@@ -33,6 +33,9 @@
 		<link rel="icon" type="image/png" sizes="32x32" href="admin/assets/images/favicon/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="admin/assets/images/favicon/favicon-16x16.png">
 		<link rel="manifest" href="/site.webmanifest">
+		<script type="text/javascript" src="admin/assets/js/echarts.js"></script>
+		<script type="text/javascript" src="admin/assets/js/themes/roma.js"></script>
+		<script type="text/javascript" src="admin/assets/js/themes/infographic.js"></script>
 
 		<!-- Current Page CSS -->
 		<link rel="stylesheet" href="vendor/rs-plugin/css/settings.css" media="screen">
@@ -61,7 +64,7 @@
 		}
 	</style>
 	</head>
-	<body>
+	<body onload="dashboardGraphs()">
 
 		<div class="body">
 			<header id="header">
@@ -146,24 +149,18 @@
 						</div>
 					</div>
 					<div class="row" style="background-color: #FFFFFF; border-radius: 5px; border: #ffffff thin solid">
-						<div class="col-md-7">
+						<div class="col-md-5">
 							<h2 style="font-size: x-large" class="push-top"><strong>Internation Standard Classification Of Education</strong> (ISCED)<br>
 								<div style="font-size: large">mapping programmes run by Tertiary Education Institutions by ISCED fields of study</div></h2>
-							<p style="font-weight: bold;">
-								Education<br/>
-								Arts and Humanities<br/>
-								Social Sciences, Journalism and Information<br/>
-								Business, Administration and Law<br/>
-								Natural Sciences, Mathematics and Statistics<br/>
-								Information and Communication Technologies<br/>
-								Engineering, Manufacturing and Construction<br/>
-								Agriculture, Forestry, Fisheries and Veterinary<br/>
-								Health and Welfare<br/>
-								Services
+							<p style="font-weight: bold;" id="iscedinfo">
 							</p>
 						</div>
-						<div class="col-md-5">
-							<img src="img/img1.jpg" class="img-responsive" style="width: auto; height: 350px"/>
+						<div class="col-md-7">
+                            <div class="panel bg-white">
+                                <div class="panel-body">
+                                    <div id="nationalitygraph" style="width: auto;height:400px;"></div>
+                                </div>
+                            </div>
 						</div>
 					</div>
 					<div class="row" style="background-color: #FFFFFF; border-radius: 5px; border: #ffffff thin solid; margin-top: 2%">
@@ -249,6 +246,76 @@
 		
 		</script>
 		 -->
+    <script type="text/javascript">
+        function dashboardGraphs(){
+                /*
+            THE ECHARTS STARTS HERE
+             */
+
+
+                var myBarChart = echarts.init(document.getElementById('nationalitygraph'),'infographic');
+                myBarChart.showLoading();
+                var xData2 = [];
+                var yData2 = [];
+                $.ajax({
+                    type: "get",
+                    url: "admin/php/index.php",
+                    data: "getIscedCounts",
+                    success: function (data) {
+                        var result = $.parseJSON(data);
+
+                        //GET THE ISCEDs FROM THE LIST
+                        var iscedinfo = "";
+                        for(var i=0; i < result.length; i++){
+                            var ddata = result[i];
+                            iscedinfo = iscedinfo + ddata["name"] + "<br/>";
+                        }
+                        $("#iscedinfo").html(iscedinfo);
+                        option = {
+                            title: {
+                                text: '',
+                                subtext: '',
+                                left: 'center'
+                            },
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: '{a} <br/>{b} : {c} ({d}%)'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    mark: { show: true },
+                                    dataView: { show: true, readOnly: false },
+                                    restore: { show: true },
+                                    saveAsImage: { show: true }
+                                }
+                            },
+                            series: [
+
+                                {
+                                    name: 'Total',
+                                    type: 'pie',
+                                    radius: [20, 150],
+                                    center: ['50%', '50%'],
+                                    roseType: 'area',
+                                    itemStyle: {
+                                        borderRadius: 5
+                                    },
+                                    //data: [{"value":3,"name":"Togolese"},{"value":2,"name":"Ghanaian"},{"value":1,"name":"Nigerian"},{"value":1,"name":"American"}]
+                                    data: result
+                                }
+                            ]
+                        };
+                        // Display the chart using the configuration items and data just specified.
+                        myBarChart.hideLoading();
+                        myBarChart.setOption(option);
+                    },
+                    error: function (xhr, desc, err) {
+                    }
+                });
+
+        }
+    </script>
 
 	</body>
 </html>

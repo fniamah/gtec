@@ -2,9 +2,9 @@
 include("dbcon.php");
 session_unset();
 session_destroy();
-if(isset($_GET['logout'])){
-    $uname = $_GET['logout'];
-    $msg = "Logged out";
+if(isset($_GET['userid'])){
+    $uname = $_GET['userid'];
+    $msg = "Signed out";
     $log = date("Y-m-d H:i:s")." Username:".$uname." Message:".$msg.PHP_EOL;
     logrequest($log,"System Logs");
 }
@@ -84,11 +84,11 @@ if(isset($_GET['logout'])){
 						<div class="panel panel-body login-form">
                             <div class="text-center">
                                 <div class="border-slate-300 text-slate-300" align="center"><img src="assets/images/logo.png" class="img-responsive" style="width: 150px; height: 100px;"/></div>
-                                <h5 class="content-group">Welcome Back <small class="display-block">Please Log In Below</small></h5>
+                                <h5 class="content-group">System Signed Out After Long Period Of Inactivity <small class="display-block">Please Log In Below</small></h5>
                             </div>
 
-							<div class="form-group has-feedback has-feedback-left">
-								<input type="text" class="form-control" placeholder="E-mail" id="uname" name="uname">
+							<div class="form-group has-feedback has-feedback-left hidden">
+								<input type="text" value="<?php echo $uname; ?>" class="form-control" placeholder="E-mail" id="uname" name="uname">
 								<div class="form-control-feedback">
 									<i class="icon-user text-muted"></i>
 								</div>

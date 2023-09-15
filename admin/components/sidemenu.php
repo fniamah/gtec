@@ -60,6 +60,7 @@
                             <?php if(str_contains($access,'Staff Category') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?staff_category" id="layout1"><i class="icon-make-group"></i><span>Category</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Staff Category') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?staff_ranks" id="layout1"><i class="icon-make-group"></i><span>Ranks</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff" id="layout2"><i class="icon-users4"></i><span>Add Staff</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Staff,')){?><li><a onclick="bulkUploads('appadmissions', 'add_staff', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Staff Upload</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?add_publication" id="layout3"><i class="icon-newspaper2"></i><span>Add Publications</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?add_conferences_and_workshops" id="layout4"><i class="icon-hammer2"></i><span>Add Conference/Workshop</span></a></li><?php } ?>
                             <li>
@@ -89,6 +90,7 @@
                         <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students Mgt</span></a>
                         <ul>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?add_student"><i class="icon-user-plus"></i><span>Add Students</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Enrollments')){?><li><a onclick="bulkUploads('appadmissions', 'add_student', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Student Upload</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?students_records"><i class="icon-user-plus"></i><span>Students Records</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Graduations')){?><li><a href="../admin/dashboard.php?student_graduation"><i class="icon-graduation2"></i><span>Graduates Records</span></a></li><?php } ?>
                         </ul>

@@ -238,6 +238,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                 <a class="dropdown-toggle" data-toggle="dropdown">
                     <img src="assets/images/logo.png" alt="">
                     <span><?php echo $fname." ".$lname; ?></span>
+                    <span id="unameid" class="hidden"><?php echo $uname; ?></span>
                     <i class="caret"></i>
                 </a>
 
@@ -2195,7 +2196,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
 
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Create Staff</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'application')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
                             </div>
                         </div>
 
@@ -2900,7 +2900,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Add New Student</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions', 'add_student','yes')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
                             </div>
                         </div>
                         <div class="row">
@@ -5493,7 +5492,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                             <select id="progtitle" data-placeholder="Select Program" class="select btnrqd">
                                                 <option></option>
                                                 <?php
-                                                $sel = "SELECT prog_code, programme FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
+                                                $sel = "SELECT prog_code, programme, prog_isced FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
                                                 $selrun = $conn->query($dbcon,$sel);
                                                 if($conn->sqlnum($selrun) == 0){
                                                     ?>
@@ -5501,7 +5500,7 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                                 <?php }else{
                                                     while($data = $conn->fetch($selrun)){
                                                         ?>
-                                                        <option value="<?php echo $data['prog_code'] ?>"><?php echo $data['programme']; ?></option>
+                                                        <option value="<?php echo $data['prog_code'].'*'.$data['prog_isced']; ?>"><?php echo $data['programme']; ?></option>
                                                     <?php }} ?>
                                             </select>
                                         </div>
@@ -6659,27 +6658,23 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>First Name:<b class="rqd">*</b></label>
-                                                <input type="text" id="fname" class="form-control" required />
+                                                <input type="text" id="fname" class="form-control btnrqd" required placeholder="First Name"/>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>Last Name:<b class="rqd">*</b></label>
-                                                <input type="text" id="lname" class="form-control" required />
+                                                <input type="text" id="lname" class="form-control btnrqd" placeholder="Last Name" required />
                                             </div>
                                         </div>
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>Phone Number:<b class="rqd">*</b></label>
-                                                <input type="text" id="contact" class="form-control" required />
+                                                <input type="text" id="contact" placeholder="Phone Number" class="form-control btnrqd" required />
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label>E-mail:<b class="rqd">*</b></label>
-                                                <input type="text" id="email" class="form-control" required />
+                                                <input type="text" id="email" class="form-control btnrqd" required placeholder="E-mail" />
                                             </div>
                                         </div>
 
@@ -6693,7 +6688,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
 
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>Account Type:<b class="rqd">*</b></label>
                                                 <select name="account-type" id="actype" data-placeholder="Choose Account Type" class="select" onchange="unhideInstitution(this.value)">
                                                     <option></option>
                                                     <option value="GTEC">GTEC</option>
@@ -6703,7 +6697,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                         </div>
                                         <div class="col-md-4 hidden" id="unhideinst">
                                             <div class="form-group">
-                                                <label>Institution:</label>
                                                 <select name="institution" id="institution" data-placeholder="Select User Institution" class="select">
                                                     <option></option>
                                                     <?php
@@ -6718,7 +6711,6 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>User Role:<b class="rqd">*</b></label>
                                                 <select name="experience-from-month" id="role" data-placeholder="Select User Role" class="select">
                                                     <option></option>
                                                     <?php
@@ -6733,14 +6725,12 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>Password:<b class="rqd">*</b></label>
-                                                <input type="password" id="password" id="email" class="form-control" required />
+                                                <input type="password" id="password" class="form-control btnrqd" placeholder="Password" required />
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label>Confirmation Password:<b class="rqd">*</b></label>
-                                                <input type="password" id="confpassword" id="email" class="form-control" required />
+                                                <input type="password" id="confpassword" class="form-control btnrqd" placeholder="Confirm Password" required />
                                             </div>
                                         </div>
                                     </div>
@@ -7325,6 +7315,20 @@ digital_address, contact_telephone, contact_email, url, fname,fcont,fmail,hname,
 <!-- /page container -->
 <?php include("components/modals.php"); ?>
 <script type="text/javascript">
+    var logtimer = 0;
+    function countDown() {
+        var uname = $("#unameid").text();
+        var uRl = "signout.php?userid=" + uname;
+        logtimer = logtimer + 1;
+        if(logtimer == 1800){
+            errorNotification('Sign out','System signout in 30 seconds','success');
+            setTimeout(function(){
+                window.location.replace(uRl);
+            },10000);
+        }
+    }
+    setInterval(function () { countDown();}, 1000);
+
     $("#select-all").click(function(event){
         console.log("LOROROROROOR");
         if(this.checked){
