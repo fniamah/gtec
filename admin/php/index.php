@@ -95,10 +95,11 @@ if(isset($_GET['getEnrollmentByCountry'])){
     $nationalityData = array();
     $tcount = 0;
     while($data = $conn->fetch($selyearrun)){
-        $tcount = $data['totalCount'];
+        $dcount = $data['totalCount'];
+        $tcount+=$dcount;
         array_push($nationalityData,
             array(
-                "value"        =>(int)$tcount,
+                "value"        =>(int)$dcount,
                 "name"        => $data['nationality'],
             )
         );
@@ -106,6 +107,29 @@ if(isset($_GET['getEnrollmentByCountry'])){
 
     print json_encode($nationalityData);
     //print_r($yearData);
+
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getIscedCounts'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE YEARS STUDENTS HAVE BEEN REGISTERED
+    $selyear = "SELECT isced, COUNT(institution) AS totalCount FROM acc_programmes GROUP BY isced";
+    $selyearrun = $conn->query($dbcon,$selyear);
+
+    $nationalityData = array();
+    while($data = $conn->fetch($selyearrun)){
+        $dcount = $data['totalCount'];
+        array_push($nationalityData,
+            array(
+                "value"        =>(int)$dcount,
+                "name"        => getIsced($data['isced']),
+            )
+        );
+    }
+
+    print json_encode($nationalityData);
 
     $conn->close($dbcon);
 }
@@ -988,6 +1012,7 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     $data ="<table class='table table-striped table-responsive' id='accreditedPrograms'><thead><tr>
                                             <th>Name Of Program</th>
                                             <th>Institution</th>
+                                            <th>ISCED</th>
                                             <th>Accreditation Year</th>
                                             <th>College</th>
                                             <th>Faculty / School</th>
@@ -1007,6 +1032,7 @@ if(isset($_GET['sortDataTableAccPrograms'])){
         $data = $data."<tr>
                             <td>".getProgram($row['programme'])."</td>
                             <td>".getInstitution($row['institution'])."</td>
+                            <td>".getIsced($row['isced'])."</td>
                             <td>".$row['accreditation_year']."</td>
                             <td>".getCollege($row['college'])."</td>
                             <td>".getFaculty($row['faculty_school'])."</td>
@@ -1024,7 +1050,7 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     }
 
     if($data == ""){
-        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
+        print("<tr><td colspan='10'>No Records Found</td></tr></tbody></table>");
     }else{
         print $data."</tbody></table>";
     }
@@ -2233,15 +2259,15 @@ if(isset($_GET['getAllApplicants'])){
 
     $sel="";
     if($prog == "All"){
-        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type FROM appadmissions WHERE institution = '$institution' AND status = '$status'";
+        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND status = '$status'";
     }else{
-        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
+        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
     }
 
     $errorCode="1";
 
     $selrun = $conn->query($dbcon,$sel);
-    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='6'><p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td></tr></thead><tbody>";
+    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='7'><p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td><td>Status</td></tr></thead><tbody>";
     $count=0;
     $btn="";
     if($conn->sqlnum($selrun) == 0){
@@ -2250,7 +2276,7 @@ if(isset($_GET['getAllApplicants'])){
         $btn =$btn."<div class='row'><div class='col-md-12' align='center'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div></div>";
         while($data = $conn->fetch($selrun)){
             $count++;
-            $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td></tr>";
+            $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td><td>".$data['status']."</td></tr>";
         }
         $errorCode = "0";
     }
@@ -2431,8 +2457,13 @@ if(isset($_POST['addProgram'])){
     $hcont=mysqli_real_escape_string($dbcon,$_POST['hcont']);
     $hmail=mysqli_real_escape_string($dbcon,$_POST['hmail']);
 
-    $ins = "INSERT INTO acc_programmes (institution, accreditation_year, faculty_school, department, college, programme, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
- VALUES ('$inst','$year','$faculty','$dept','$college','$title','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
+    //GET THE ISCED OF THE PROGRAM
+    $obj = explode("*",$title);
+    $isced = $obj[1];
+    $prog = $obj[0];
+
+    $ins = "INSERT INTO acc_programmes (institution, accreditation_year, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
+ VALUES ('$inst','$year','$faculty','$dept','$college','$prog','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
     $insrun = $conn->query($dbcon,$ins);
     if($insrun){
         $response['errorCode'] = "0";
