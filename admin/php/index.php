@@ -85,6 +85,37 @@ if(isset($_GET['getStudentsGraphData'])){
     $conn->close($dbcon);
 }
 
+if(isset($_GET['genderParityIndex'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE YEARS STUDENTS HAVE BEEN REGISTERED
+    $selyear = "SELECT DISTINCT year FROM enrollments";
+    $selyearrun = $conn->query($dbcon,$selyear);
+
+    $yearData = array();
+    $countData = array();
+
+    while($data = $conn->fetch($selyearrun)){
+        $femaleCount = getEnrollmentByYearByGender($data['year'],'Female');
+        $maleCount = getEnrollmentByYearByGender($data['year'],'Male');
+        $parityIndex = 0;
+        if($maleCount > 0){
+            $parityIndex = $femaleCount / $maleCount;
+        }
+        array_push($yearData,
+            array(
+                'year'        =>$data['year'],
+                'parityIndex'        => $parityIndex,
+            )
+        );
+    }
+
+    print json_encode($yearData);
+    //print_r($yearData);
+
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['getEnrollmentByCountry'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1059,6 +1090,78 @@ if(isset($_GET['sortDataTableAccPrograms'])){
 
 }
 
+if(isset($_GET['sortDataTableAccProgramsProposed'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $year = $_GET['year'];
+    $inst = $_GET['inst'];
+
+    $clause = "";
+    if($year != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE accreditation_year = '$year'";
+        }else{
+            $clause = $clause."AND accreditation_year = '$year'";
+        }
+    }
+    if($inst != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE institution = '$inst'";
+        }else{
+            $clause = $clause."AND institution = '$inst'";
+        }
+    }
+
+
+    $qry = "SELECT * FROM acc_programmes_proposed $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-striped table-responsive' id='accreditedProgramsProp'><thead><tr>
+                                            <th>Name Of Program</th>
+                                            <th>I.S.C.E.D</th>
+                                            <th>Institution</th>
+                                            <th>Accreditation Year</th>
+                                            <th>College</th>
+                                            <th>Faculty / School</th>
+                                            <th>Department</th>
+                                            <th>Name Of Head</th>
+                                            <th>E-mail Of Head</th>
+                                            <th>Contact Of Head</th>
+                                            <th>Name Of Person Filling Form</th>
+                                            <th>E-mail Of Person Filling Form</th>
+                                            <th>Contact Of Person Filling Form</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $data = $data."<tr>
+                            <td>".getProgram($row['programme'])."</td>                   
+                            <td>".getIsced($row['isced'])."</td>
+                            <td>".getInstitution($row['institution'])."</td>
+                            <td>".$row['accreditation_year']."</td>
+                            <td>".getCollege($row['college'])."</td>
+                            <td>".getFaculty($row['faculty_school'])."</td>
+                            <td>".getDepartment($row['department'])."</td>
+                            <td>".$row['hname']."</td>
+                            <td>".$row['hmail']."</td>
+                            <td>".$row['hcont']."</td>
+                            <td>".$row['fname']."</td>
+                            <td>".$row['fmail']."</td>
+                            <td>".$row['fcont']."</td>
+                            <td>".$row['status']."</td>
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='10'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
+
 if(isset($_GET['sortDataTableInstitutions'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1435,37 +1538,38 @@ if(isset($_GET['sortDataTableApplicants'])){
     $qry = "SELECT * FROM appadmissions $clause";
     $qryrun = $conn->query($dbcon,$qry);
     $data ="<table class='table table-hover' id='appsearchtable'>
-                                        <thead>
-                                        <tr>
-                                            <th> Student/Reference Number </th>
-                                            <th>Student Name</th>
-                                            <th>Gender</th>
-                                            <th>Date of Birth</th>
-                                            <th>Country Of Birth</th>
-                                            <th>Nationality</th>
-                                            <th>Religion</th>
-                                            <th>Hometown</th>
-                                            <th>Home Region</th>
-                                            <th>Institution</th>
-                                            <th>Application Year </th>
-                                            <th> National ID Type</th>
-                                            <th> National ID Number</th>
-                                            <th>Senior High School Attended </th>
-                                            <th> SHS Programme Offered  </th>
-                                            <th> Name Of Programme Offered</th>
-                                            <th> Admission Level</th>
-                                            <th> Mode of Study</th>
-                                            <th> Fee Paying Status</th>
-                                            <th> Special Education Needs (Yes or No) </th>
-                                            <th> Special Education Needs Type(e.g.Visually Impaired)</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>";
-    while($row = $conn->fetch($qryrun)){
-        $id = $row['id'];
-        $data = $data."<tr>
-                            <td><a href='../admin/dashboard.php?view_student=$id'>".$row['applicant_id']."</a></td>
+                <thead>
+                <tr>
+                    <th> Student/Reference Number </th>
+                    <th>Student Name</th>
+                    <th>Gender</th>
+                    <th>Date of Birth</th>
+                    <th>Country Of Birth</th>
+                    <th>Nationality</th>
+                    <th>Religion</th>
+                    <th>Hometown</th>
+                    <th>Home Region</th>
+                    <th>Institution</th>
+                    <th>Application Year </th>
+                    <th> National ID Type</th>
+                    <th> National ID Number</th>
+                    <th>Senior High School Attended </th>
+                    <th> SHS Programme Offered  </th>
+                    <th> Name Of Programme Offered</th>
+                    <th> Admission Level</th>
+                    <th> Mode of Study</th>
+                    <th> Fee Paying Status</th>
+                    <th> Special Education Needs (Yes or No) </th>
+                    <th> Special Education Needs Type(e.g.Visually Impaired)</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>";
+    if($conn->sqlnum($qryrun) != 0){
+        while($row = $conn->fetch($qryrun)){
+            $id = $row['id'];
+            $data = $data."<tr>
+                            <td><a href='../admin/dashboard.php?view_applicant=$id'>".$row['applicant_id']."</a></td>
                             <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
                             <td>".$row['gender']."</td>
                             <td>".$row['birth_date']."</td>
@@ -1488,12 +1592,10 @@ if(isset($_GET['sortDataTableApplicants'])){
                             <td>".$row['disability_type']."</td>
                             <td>".$row['status']."</td>
                         </tr>";
-    }
-
-    if($data == ""){
-        print("<tr><td colspan='9'>No Records Found</td></tr></tbody></table>");
-    }else{
+        }
         print $data."</tbody></table>";
+    }else{
+        print $data."<tr><td colspan='9'>No Records Found</td></tr></tbody></table>";
     }
 
     $conn->close($dbcon);
@@ -2235,6 +2337,52 @@ if(isset($_POST['updateNewStudentRec'])){
     }else{
         $response['errorCode'] = "1";
         $response['errorMsg'] = "Student Detail Updates Failed.";
+    }
+
+    print json_encode($response);
+}
+
+if(isset($_POST['updateNewApplicantRec'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $stdid=mysqli_real_escape_string($dbcon,$_POST['updateNewApplicantRec']);
+    $fname=mysqli_real_escape_string($dbcon,$_POST['fname']);
+    $lname=mysqli_real_escape_string($dbcon,$_POST['lname']);
+    $oname=mysqli_real_escape_string($dbcon,$_POST['oname']);
+    $dob=mysqli_real_escape_string($dbcon,$_POST['dob']);
+    $sex=mysqli_real_escape_string($dbcon,$_POST['sex']);
+    $idtype=mysqli_real_escape_string($dbcon,$_POST['idtype']);
+    $idnum=mysqli_real_escape_string($dbcon,$_POST['idnum']);
+    $country=mysqli_real_escape_string($dbcon,$_POST['country']);
+    $birth=mysqli_real_escape_string($dbcon,$_POST['birth']);
+    $disable=mysqli_real_escape_string($dbcon,$_POST['disable']);
+    $distype=mysqli_real_escape_string($dbcon,$_POST['distype']);
+    $inst=mysqli_real_escape_string($dbcon,$_POST['inst']);
+    $religion=mysqli_real_escape_string($dbcon,$_POST['religion']);
+    $town=mysqli_real_escape_string($dbcon,$_POST['town']);
+    $region=mysqli_real_escape_string($dbcon,$_POST['region']);
+    $shs=mysqli_real_escape_string($dbcon,$_POST['shs']);
+    $shsprog=mysqli_real_escape_string($dbcon,$_POST['shsprog']);
+    $progoffered=mysqli_real_escape_string($dbcon,$_POST['progoffered']);
+    $prog=mysqli_real_escape_string($dbcon,$_POST['prog']);
+    $feepaying=mysqli_real_escape_string($dbcon,$_POST['feepaying']);
+    $year=mysqli_real_escape_string($dbcon,$_POST['year']);
+    $progtype=mysqli_real_escape_string($dbcon,$_POST['progtype']);
+    $level=mysqli_real_escape_string($dbcon,$_POST['level']);
+    $apptype=mysqli_real_escape_string($dbcon,$_POST['apptype']);
+
+    //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
+     $ins = "UPDATE appadmissions SET programme_applied = '$prog', institution='$inst', year='$year', applicant_id_type='$idtype',applicant_national_id='$idnum', first_name='$fname', surname='$lname',
+     other_names='$oname', gender='$sex', birth_date='$dob', birth_country='$birth', nationality='$country', religion='$religion', home_town='$town', home_region='$region', high_school='$shs',
+      high_school_program='$shsprog', disability='$disable', disability_type='$distype',fee_type='$feepaying',programme_type='$progtype',programme_offered='$progoffered',admission_level='$level',application_type='$apptype' WHERE applicant_id ='$stdid'";
+
+    if($conn->query($dbcon,$ins)){
+        $response['errorCode'] = "0";
+        $response['errorMsg'] = "Applicant Details Updated.";
+    }else{
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "Applicant Detail Updates Failed.";
     }
 
     print json_encode($response);

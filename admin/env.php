@@ -9,7 +9,7 @@ define("curDate",date("Y-m-d"));
 define("DB_HOST",'localhost');
 define("DB_USER",'root');
 define("DB_PASSWORD",'');
-define("DB_NAME",'fptec_test');
+define("DB_NAME",'fptec');
 define("TIMESTAMP",date("Y-m-d H:i:s"));
 
 $shsprog = [

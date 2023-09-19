@@ -167,7 +167,7 @@
 						<div class="col-md-12">
 							<h2 style="font-size: x-large" class="push-top"><strong>Gender Parity</strong> Index<br>
 								<div style="font-size: large">GPI= [Total Female Student Enrolment in Tertiary Education] ÷ [Total Male Enrolment in Tertiary Education</div></h2>
-							<p><img src="img/img2.jpg" class="img-responsive"/></p>
+							<div id="genderparity" style="width: auto;height:400px;"></div>
 						</div>
 					</div>
 					<div class="row" style="background-color: #FFFFFF; border-radius: 5px; border: #ffffff thin solid; margin-top: 2%">
@@ -251,7 +251,50 @@
                 /*
             THE ECHARTS STARTS HERE
              */
+            // Initialize the echarts instance based on the prepared dom
+            var myChart = echarts.init(document.getElementById('genderparity'),'infographic');
+            myChart.showLoading();
+            // Specify the configuration items and data for the chart
+            var xData = [];
+            var yData = [];
+            $.ajax({
+                type: "get",
+                url: "admin/php/index.php",
+                data: "genderParityIndex",
+                success: function (data) {
+                    var result = $.parseJSON(data);
+                    for(var i=0; i < result.length;i++ ){
+                        let dval = result[i];
+                        var year = dval['year'];
+                        var dcount = dval['parityIndex'];
+                        xData.push(year);
+                        yData.push(dcount);
 
+                    }
+                    option = {
+                        xAxis: {
+                            data: xData
+                        },
+                        yAxis: {},
+                        series: [
+                            {
+                                type: 'bar',
+                                data: yData,
+                                showBackground: true,
+                                backgroundStyle: {
+                                    color: 'rgba(180, 180, 180, 0.2)'
+                                }
+                            }
+                        ]
+                    };
+
+                    // Display the chart using the configuration items and data just specified.
+                    myChart.hideLoading();
+                    myChart.setOption(option);
+                },
+                error: function (xhr, desc, err) {
+                }
+            });
 
                 var myBarChart = echarts.init(document.getElementById('nationalitygraph'),'infographic');
                 myBarChart.showLoading();
@@ -262,6 +305,7 @@
                     url: "admin/php/index.php",
                     data: "getIscedCounts",
                     success: function (data) {
+                        console.log(data);
                         var result = $.parseJSON(data);
 
                         //GET THE ISCEDs FROM THE LIST

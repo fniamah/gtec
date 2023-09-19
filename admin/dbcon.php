@@ -409,6 +409,15 @@ function getEnrollmentByYear($year){
     $response = $data['totalCount'];
     return $response;
 }
+function getEnrollmentByYearByGender($year,$gender){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE year = '$year' AND gender = '$gender'";
+    $selrun = $conn->query($dbcon,$sel);
+    $data = $conn->fetch($selrun);
+    $response = $data['totalCount'];
+    return $response;
+}
 
 function checkAccess($type,$user){
     $conn=new Db_connect;

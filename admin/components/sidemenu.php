@@ -36,9 +36,10 @@
                         <a href="#"class="menu-item"><i class="icon-medal"></i> <span>Accreditation</span></a>
                         <ul>
                             <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?add_acc_programs"><i class="icon-add-to-list"></i><span>Add Accreditation</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Proposed')){?><li><a href="../admin/dashboard.php?acc_proposed_programs"><i class="icon-book2"></i><span>Add New Proposal</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?acc_programs"><i class="icon-eye4"></i><span>View Accreditations</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?view_proposals"><i class="icon-eye4"></i><span>View Proposals</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Programs') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?programs"><i class="icon-book3"></i><span>Programmes</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Proposed')){?><li><a href="../admin/dashboard.php?acc_proposed_programs"><i class="icon-book2"></i><span>Proposed Programmes</span></a></li><?php } ?>
                         </ul>
                     </li>
                     <?php } if((str_contains($access,'Institution Category') || str_contains($access,'Institution')) && $actype == "GTEC"){?>
@@ -50,7 +51,8 @@
                             <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_colleges"><i class="icon-mobile"></i><span>Colleges</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_faculties"><i class="icon-mobile"></i><span>Faculties</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_departments"><i class="icon-mobile"></i><span>Departments</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution')){?><li><a href="../admin/dashboard.php?institutions"><i class="icon-book3"></i><span>Institutions</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution')){?><li><a href="../admin/dashboard.php?institutions"><i class="icon-book3"></i><span>Add Institutions</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution')){?><li><a href="../admin/dashboard.php?view_institutions"><i class="icon-file-eye2"></i><span>View Institutions</span></a></li><?php } ?>
                         </ul>
                     </li>
                     <?php } if(str_contains($access,'Staff Category') || str_contains($access,'Staff,') || str_contains($access,'Publications')){?>
