@@ -1044,7 +1044,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                 <!-- /content area -->
 
             </div>
-            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCumSa1SxK_bh-OSLAgaVzK5DskXXOWEo&callback=initMap&libraries=&v=weekly"async></script>
+            <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo GOOGLE_API_KEY; ?>&callback=initMap&libraries=&v=weekly"async></script>
             <script type="text/javascript">
                 // Initialize and add the map
                 function initMap() {

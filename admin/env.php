@@ -11,6 +11,7 @@ define("DB_USER",'root');
 define("DB_PASSWORD",'');
 define("DB_NAME",'fptec');
 define("TIMESTAMP",date("Y-m-d H:i:s"));
+define("GOOGLE_API_KEY","AIzaSyCCumSa1SxK_bh-OSLAgaVzK5DskXXOWEo");
 
 $shsprog = [
     "AGRICULTURAL SCIENCE",
