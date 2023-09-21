@@ -62,6 +62,11 @@
 		em{
 			color: #CD5C5C;
 		}
+        thead{
+            background-color: #0c7cd5;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
 	</style>
 	</head>
 	<body onload="dashboardGraphs()">
@@ -78,13 +83,25 @@
 						<i class="fa fa-bars"></i>
 					</button>
 				</div>
-				<div class="navbar-collapse nav-main-collapse collapse">
-					<div class="container">
-						<div class="row">
-							<div class="col-md-12"><p style="font-weight: bold; font-size: xx-large; text-align: center; color: #000000">Tertiary Education Statistics</p></div>
-						</div>
-					</div>
-				</div>
+                <div class="navbar-collapse nav-main-collapse collapse">
+                    <div class="container">
+                        <nav class="nav-main mega-menu">
+                            <ul class="nav nav-pills nav-main" id="mainMenu">
+                                <li>
+                                    <a href="admin/index.php" class="btn btn-lg btn-default" style="border: #000000 thin solid; background-color: #FFDC0A; font-size: medium; color: #ffffff;"><span class="fa fa-user"></span>  Login</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!--<div class="navbar-collapse nav-main-collapse collapse">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12"><p style="font-weight: bold; font-size: xx-large; text-align: center; color: #000000">Tertiary Education Statistics</p></div>
+                        </div>
+                    </div>
+                </div>-->
 			</header>
 
 			<div role="main" class="main">
@@ -96,9 +113,7 @@
 									<li><p style="font-weight: bold; color: #FFFFFF; font-size: x-large;">Home</p></li>
 								</ul>
 							</div>
-							<div class="col-md-8">&nbsp;</div>
-							<div class="col-md-2" align="right"><a href="admin/index.php" class="btn btn-lg btn-default" style="border: #000000 thin solid; background-color: transparent; font-size: medium"><span class="fa fa-user"></span>  Login</a></div>
-						</div>
+                        </div>
 					</div>
 				</section>
 
@@ -173,8 +188,8 @@
 					<div class="row" style="background-color: #FFFFFF; border-radius: 5px; border: #ffffff thin solid; margin-top: 2%">
 						<div class="col-md-12">
 							<h2 style="font-size: x-large" class="push-top"><strong>Total Students</strong> Enrollment<br>
-								<div style="font-size: large"> This is the list of Tertiary Education Institutions the 2019 - 2023 data covers. </div></h2>
-							<p><img src="img/img3.jpg" class="img-responsive"/></p>
+								<div style="font-size: large"> This is the statistics of Tertiary Education Institutions Categories And Their Enrollments. </div></h2>
+							<div id="enrollmentStats"></div>
 						</div>
 					</div>
 					<div class="row" style="margin-top: 2%">
@@ -263,14 +278,24 @@
                 data: "genderParityIndex",
                 success: function (data) {
                     var result = $.parseJSON(data);
-                    for(var i=0; i < result.length;i++ ){
-                        let dval = result[i];
+                    var studentsData = result[0]['students'];
+                    var nationalityData = result[0]['nationality'];
+                    var enrollmentData = result[0]['enrollments'][0]['data'];
+
+                    console.log(enrollmentData);
+
+                    for(var i=0; i < studentsData.length;i++ ){
+                        let dval = studentsData[i];
                         var year = dval['year'];
                         var dcount = dval['parityIndex'];
                         xData.push(year);
                         yData.push(dcount);
 
                     }
+
+                    /*
+                    STUDENTS ENROLLMENT GRAPH
+                     */
                     option = {
                         xAxis: {
                             data: xData
@@ -287,76 +312,66 @@
                             }
                         ]
                     };
-
-                    // Display the chart using the configuration items and data just specified.
                     myChart.hideLoading();
                     myChart.setOption(option);
+
+                    /** END OF STUDENTS ENROLLMENT GRAPH
+					 * BEGINNING OF THE NATIONALITY GRAPH**/
+                    var myBarChart = echarts.init(document.getElementById('nationalitygraph'),'infographic');
+                    myBarChart.showLoading();
+                    //GET THE ISCEDs FROM THE LIST
+                    var iscedinfo = "";
+                    for(var i=0; i < nationalityData.length; i++){
+                        var ddata = nationalityData[i];
+                        iscedinfo = iscedinfo + ddata["name"] + "<br/>";
+                    }
+                    $("#iscedinfo").html(iscedinfo);
+                    option = {
+                        title: {
+                            text: '',
+                            subtext: '',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b} : {c} ({d}%)'
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                mark: { show: true },
+                                dataView: { show: true, readOnly: false },
+                                restore: { show: true },
+                                saveAsImage: { show: true }
+                            }
+                        },
+                        series: [
+
+                            {
+                                name: 'Total',
+                                type: 'pie',
+                                radius: [20, 150],
+                                center: ['50%', '50%'],
+                                roseType: 'area',
+                                itemStyle: {
+                                    borderRadius: 5
+                                },
+                                //data: [{"value":3,"name":"Togolese"},{"value":2,"name":"Ghanaian"},{"value":1,"name":"Nigerian"},{"value":1,"name":"American"}]
+                                data: nationalityData
+                            }
+                        ]
+                    };
+                    // Display the chart using the configuration items and data just specified.
+                    myBarChart.hideLoading();
+                    myBarChart.setOption(option);
+
+                    //DISPLAY THE TABLE
+                    $("#enrollmentStats").html(enrollmentData);
+
                 },
                 error: function (xhr, desc, err) {
                 }
             });
-
-                var myBarChart = echarts.init(document.getElementById('nationalitygraph'),'infographic');
-                myBarChart.showLoading();
-                var xData2 = [];
-                var yData2 = [];
-                $.ajax({
-                    type: "get",
-                    url: "admin/php/index.php",
-                    data: "getIscedCounts",
-                    success: function (data) {
-                        console.log(data);
-                        var result = $.parseJSON(data);
-
-                        //GET THE ISCEDs FROM THE LIST
-                        var iscedinfo = "";
-                        for(var i=0; i < result.length; i++){
-                            var ddata = result[i];
-                            iscedinfo = iscedinfo + ddata["name"] + "<br/>";
-                        }
-                        $("#iscedinfo").html(iscedinfo);
-                        option = {
-                            title: {
-                                text: '',
-                                subtext: '',
-                                left: 'center'
-                            },
-                            tooltip: {
-                                trigger: 'item',
-                                formatter: '{a} <br/>{b} : {c} ({d}%)'
-                            },
-                            toolbox: {
-                                show: true,
-                                feature: {
-                                    mark: { show: true },
-                                    dataView: { show: true, readOnly: false },
-                                    restore: { show: true },
-                                    saveAsImage: { show: true }
-                                }
-                            },
-                            series: [
-
-                                {
-                                    name: 'Total',
-                                    type: 'pie',
-                                    radius: [20, 150],
-                                    center: ['50%', '50%'],
-                                    roseType: 'area',
-                                    itemStyle: {
-                                        borderRadius: 5
-                                    },
-                                    //data: [{"value":3,"name":"Togolese"},{"value":2,"name":"Ghanaian"},{"value":1,"name":"Nigerian"},{"value":1,"name":"American"}]
-                                    data: result
-                                }
-                            ]
-                        };
-                        // Display the chart using the configuration items and data just specified.
-                        myBarChart.hideLoading();
-                        myBarChart.setOption(option);
-                    },
-                    error: function (xhr, desc, err) {
-                    }
-                });
 
         }
     </script>

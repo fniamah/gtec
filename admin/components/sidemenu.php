@@ -93,6 +93,7 @@
                         <ul>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?add_student"><i class="icon-user-plus"></i><span>Add Students</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments')){?><li><a onclick="bulkUploads('appadmissions', 'add_student', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Student Upload</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Enrollments')){?><li><a onclick="bulkUploads('appadmissions','graduated')"><i class="icon-folder-upload3"></i><span>Bulk Graduate Upload</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments')){?><li><a href="../admin/dashboard.php?students_records"><i class="icon-user-plus"></i><span>Students Records</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Graduations')){?><li><a href="../admin/dashboard.php?student_graduation"><i class="icon-graduation2"></i><span>Graduates Records</span></a></li><?php } ?>
                         </ul>
