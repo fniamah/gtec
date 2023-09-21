@@ -209,8 +209,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             width: 1200px;
         }
         .dashboard-stats{
-            font-size: x-large;
-            color: #FFDC0A;
+            font-size: large;
+            color: rgba(187,21,5,0.98);
             font-weight: bold;
         }
 
@@ -4020,7 +4020,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Select Criteria</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','graduated')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload Graduates</a></div>
                             </div>
                         </div>
                         <div class="panel-body">
@@ -4123,7 +4122,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Students List</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','graduated')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload Graduates</a></div>
                             </div>
                         </div>
                         <div class="row" style="margin: 20px;">
@@ -6760,7 +6758,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                                             <input readonly id="unamechg" value="<?php echo $uname; ?>" type="text" class="form-control" />
                                                                         </div>
                                                                         <div class="col-sm-6">
-                                                                            <label for="uname">Previous Password</label>
+                                                                            <label for="uname">Old Password</label>
                                                                             <input type="password" id="curpassword" class="form-control" />
                                                                         </div>
                                                                     </div>
@@ -7389,7 +7387,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <!-- /clickable title -->
                     </div>
                 </div>
-                <?php $conn->close($dbcon);}else{?>
+                <?php $conn->close($dbcon);}else{
+                    $dashboard = new Dashboard();
+                ?>
                     <div class="content-wrapper">
                         <!-- Page header -->
                         <div class="page-header" style="margin: 20px;">
@@ -7412,14 +7412,14 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <div class="heading-elements">
                                                 <ul class="icons-list">
                                                     <li class="dropdown">
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog3" style="font-size: xx-large;"></i></a>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-cog3" style="font-size: xx-large; color:rgba(10,150,173,0.98)"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large">
                                             <?php 
-                                            echo Dashboard::getAccreditationCount();
+                                            echo $dashboard::getAccreditationCount($actype,$institution);
                                             ?>
                                             </h3>
                                             <div class="dashboard-stats">Accreditations</div>
@@ -7434,14 +7434,14 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <div class="heading-elements">
                                                 <ul class="icons-list">
                                                     <li class="dropdown">
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-users4" style="font-size: xx-large;"></i></a>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-users4" style="font-size: xx-large; color:rgba(10,150,173,0.98)"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large">
                                             <?php 
-                                            echo Dashboard::getStaffCount();
+                                            echo $dashboard::getStaffCount($actype,$institution);
                                             ?>
                                             </h3>
                                             <div  class="dashboard-stats">Staff</div>
@@ -7456,13 +7456,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <div class="heading-elements">
                                                 <ul class="icons-list">
                                                     <li class="dropdown">
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-office" style="font-size: xx-large;"></i></a>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-office" style="font-size: xx-large; color:rgba(10,150,173,0.98)"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php 
-                                            echo Dashboard::getInstitutionCount();
+                                            echo $dashboard::getInstitutionCount();
                                             ?></h3>
                                             <div  class="dashboard-stats">Institutions</div>
                                         </div>
@@ -7476,13 +7476,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <div class="heading-elements">
                                                 <ul class="icons-list">
                                                     <li class="dropdown">
-                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user-tie" style="font-size: xx-large;"></i></a>
+                                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user-tie" style="font-size: xx-large; color:rgba(10,150,173,0.98)"></i></a>
                                                     </li>
                                                 </ul>
                                             </div>
 
-                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php 
-                                            echo Dashboard::getUsersCount();
+                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php
+                                            echo $dashboard::getUsersCount($actype,$institution);
                                             ?></h3>
                                             <div  class="dashboard-stats">Users</div>
                                         </div>
@@ -7507,7 +7507,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Qualified</div>
-                                                            <div class="text-muted"><?php echo Dashboard::getApplicantCount('Qualified'); ?></div>
+                                                            <div class="text-muted"><?php echo $dashboard::getApplicantCount('Qualified',$actype,$institution); ?></div>
                                                         </li>
                                                     </ul>
 
@@ -7523,7 +7523,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Admitted</div>
-                                                            <div class="text-muted"><?php echo Dashboard::getApplicantCount('Offered'); ?></div>
+                                                            <div class="text-muted"><?php echo $dashboard::getApplicantCount('Offered',$actype,$institution); ?></div>
                                                         </li>
                                                     </ul>
 
@@ -7554,7 +7554,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Students</div>
-                                                            <div class="text-muted"><?php echo Dashboard::getStudentsCount(); ?></div>
+                                                            <div class="text-muted"><?php echo $dashboard::getStudentsCount($actype,$institution); ?></div>
                                                         </li>
                                                     </ul>
 
@@ -7570,7 +7570,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                         </li>
                                                         <li class="text-left">
                                                             <div class="text-semibold">Graduates</div>
-                                                            <div class="text-muted"><?php echo Dashboard::getGraduatesCount(); ?></div>
+                                                            <div class="text-muted"><?php echo $dashboard::getGraduatesCount($actype,$institution); ?></div>
                                                         </li>
                                                     </ul>
 

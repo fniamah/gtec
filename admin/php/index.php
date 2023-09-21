@@ -88,16 +88,32 @@ if(isset($_GET['getStudentsGraphData'])){
 if(isset($_GET['genderParityIndex'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    //GET THE YEARS STUDENTS HAVE BEEN REGISTERED
-    $selyear = "SELECT DISTINCT year FROM enrollments";
-    $selyearrun = $conn->query($dbcon,$selyear);
 
+    $location = $_GET['genderParityIndex'];
+    $selyear = "";
+    $selyear2 = "";
+    if(empty($location)){
+        $selyear = "SELECT DISTINCT year FROM enrollments";
+        $selyear2 = "SELECT nationality, COUNT(first_name) AS totalCount FROM enrollments GROUP BY nationality ORDER BY totalCount DESC LIMIT 10 ";
+    }else{
+        //GET THE ACCOUNT TYPE AND INSTITUTION
+        if($_SESSION['actype'] == "Institution"){
+            $selyear = "SELECT DISTINCT year FROM enrollments WHERE institution = '".$_SESSION['institution']."'";
+            $selyear2 = "SELECT nationality, COUNT(first_name) AS totalCount FROM enrollments WHERE institution = '".$_SESSION['institution']."' GROUP BY nationality ORDER BY totalCount DESC LIMIT 10 ";
+        }else{
+            $selyear = "SELECT DISTINCT year FROM enrollments";
+            $selyear2 = "SELECT nationality, COUNT(first_name) AS totalCount FROM enrollments GROUP BY nationality ORDER BY totalCount DESC LIMIT 10 ";
+        }
+    }
+    //GET THE YEARS STUDENTS HAVE BEEN REGISTERED
+
+    $selyearrun = $conn->query($dbcon,$selyear);
     $yearData = array();
-    $countData = array();
+    $enrollmentDataCount = array();
 
     while($data = $conn->fetch($selyearrun)){
-        $femaleCount = getEnrollmentByYearByGender($data['year'],'Female');
-        $maleCount = getEnrollmentByYearByGender($data['year'],'Male');
+        $femaleCount = getEnrollmentByYearByGender($data['year'],'Female',$location);
+        $maleCount = getEnrollmentByYearByGender($data['year'],'Male',$location);
         $parityIndex = 0;
         if($maleCount > 0){
             $parityIndex = $femaleCount / $maleCount;
@@ -108,10 +124,64 @@ if(isset($_GET['genderParityIndex'])){
                 'parityIndex'        => $parityIndex,
             )
         );
+
+        array_push($enrollmentDataCount,
+            array(
+                'year'        =>$data['year'],
+                'totalCount'        => $femaleCount + $maleCount,
+            )
+        );
     }
 
-    print json_encode($yearData);
-    //print_r($yearData);
+    //GET THE YEARS STUDENTS HAVE BEEN REGISTERED
+    $selyearrun2 = $conn->query($dbcon,$selyear2);
+
+    $nationalityData = array();
+    $tcount = 0;
+    while($data = $conn->fetch($selyearrun2)){
+        $dcount = $data['totalCount'];
+        $tcount+=$dcount;
+        array_push($nationalityData,
+            array(
+                "value"        =>(int)$dcount,
+                "name"        => $data['nationality'],
+            )
+        );
+    }
+
+    //GET THE TOTAL ENROLLMENTS
+    $enrollmentData = array();
+    $enr = "SELECT name, id FROM institute_categories WHERE status = 'Active'";
+    $enrun = $conn->query($dbcon,$enr);
+    $tabledisp = "<table class='table table-striped table-responsive'><thead><tr><th>Category</th><th>Males</th><th>Females</th><th>Total</th><th>Percentage %</th></tr></thead><tbody>";
+    $totalEnrollments = getTotalEnrollments();
+    while($data = $conn->fetch($enrun)){
+        $id = $data['id'];
+        $instname = $data['name'];
+        $getMaleEnrollments = getEnrollmentsByGenderByInstitution($id,'Male');
+        $getFemaleEnrollments = getEnrollmentsByGenderByInstitution($id,'Female');
+        $totalPerCat = $getMaleEnrollments + $getFemaleEnrollments;
+        $tabledisp.="<tr><td>".$instname."</td><td>".$getMaleEnrollments."</td><td>".$getFemaleEnrollments."</td><td>".$totalPerCat."</td><td>".(($totalPerCat / $totalEnrollments)*100)."</td></tr>";
+        /*array_push($enrollmentData,[
+            "category" => $instname,
+            "males" => $getMaleEnrollments,
+            "females" => $getFemaleEnrollments,
+        ]);*/
+    }
+    $tabledisp.="</tbody></table>";
+    $tabeData = array();
+    array_push($tabeData,[
+        "data" => $tabledisp,
+    ]);
+
+    $feedback = array();
+    array_push($feedback,array(
+        "nationality" => $nationalityData,
+        "students" => $yearData,
+        "enrollments" => $tabeData,
+        "totalenrollments" => $enrollmentDataCount,
+    ));
+    print json_encode($feedback);
 
     $conn->close($dbcon);
 }

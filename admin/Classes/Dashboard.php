@@ -7,10 +7,11 @@
  */
 class Dashboard extends Db_connect
 {
-    public static function getAccreditationCount():int{
+
+    public static function getAccreditationCount($actype,$institution){
         $conn=new Db_connect;
         $dbcon=$conn->conn();
-        $sel="SELECT COUNT(institution) AS totalCount FROM acc_programmes";
+        $sel = $actype == "GTEC" ? "SELECT COUNT(institution) AS totalCount FROM acc_programmes" : "SELECT COUNT(institution) AS totalCount FROM acc_programmes WHERE institution = '$institution'";
         $selrun = $conn->query($dbcon,$sel);
         $data = $conn->fetch($selrun);
         $response = $data['totalCount'];
@@ -18,10 +19,10 @@ class Dashboard extends Db_connect
         return $response;
     }
 
-    public static function getStaffCount():int{
+    public static function getStaffCount($actype,$institution){
         $conn=new Db_connect;
         $dbcon=$conn->conn();
-        $sel="SELECT COUNT(staff_id) AS totalCount FROM staff";
+        $sel = $actype == "GTEC" ? "SELECT COUNT(staff_id) AS totalCount FROM staff" : "SELECT COUNT(staff_id) AS totalCount FROM staff WHERE institution='$institution'";
         $selrun = $conn->query($dbcon,$sel);
         $data = $conn->fetch($selrun);
         $response = $data['totalCount'];
@@ -29,10 +30,10 @@ class Dashboard extends Db_connect
         return $response;
     }
 
-    public static function getUsersCount():int{
+    public static function getUsersCount($actype,$institution){
         $conn=new Db_connect;
         $dbcon=$conn->conn();
-        $sel="SELECT COUNT(email) AS totalCount FROM users";
+        $sel= $actype == "GTEC" ? "SELECT COUNT(email) AS totalCount FROM users" : "SELECT COUNT(email) AS totalCount FROM users WHERE institution = '$institution'";
         $selrun = $conn->query($dbcon,$sel);
         $data = $conn->fetch($selrun);
         $response = $data['totalCount'];
@@ -40,10 +41,10 @@ class Dashboard extends Db_connect
         return $response;
     }
 
-    public static function getApplicantCount($status):int{
+    public static function getApplicantCount($status,$actype,$institution){
         $conn=new Db_connect;
         $dbcon=$conn->conn();
-        $sel="SELECT COUNT(first_name) AS totalCount FROM appadmissions WHERE status='$status'";
+        $sel= $actype == "GTEC" ? "SELECT COUNT(first_name) AS totalCount FROM appadmissions WHERE status='$status'" : "SELECT COUNT(first_name) AS totalCount FROM appadmissions WHERE status='$status' AND institution = '$institution'";
         $selrun = $conn->query($dbcon,$sel);
         $data = $conn->fetch($selrun);
         $response = $data['totalCount'];
@@ -62,10 +63,10 @@ class Dashboard extends Db_connect
         return $response;
     }
 
-    public static function getStudentsCount(){
+    public static function getStudentsCount($actype,$institution){
         $conn=new Db_connect;
         $dbcon=$conn->conn();
-        $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments";
+        $sel= $actype == "GTEC" ? "SELECT COUNT(applicant_id) AS totalCount FROM enrollments" : "SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE institution = '$institution'";
         $selrun = $conn->query($dbcon,$sel);
         $data = $conn->fetch($selrun);
         $response = $data['totalCount'];
@@ -73,10 +74,10 @@ class Dashboard extends Db_connect
         return $response;
     }
 
-    public static function getGraduatesCount(){
+    public static function getGraduatesCount($actype,$institution){
         $conn=new Db_connect;
         $dbcon=$conn->conn();
-        $sel="SELECT COUNT(applicant_id) AS totalCount FROM graduates";
+        $sel= $actype == "GTEC" ? "SELECT COUNT(applicant_id) AS totalCount FROM graduates" : "SELECT COUNT(applicant_id) AS totalCount FROM graduates WHERE institution = '$institution'";
         $selrun = $conn->query($dbcon,$sel);
         $data = $conn->fetch($selrun);
         $response = $data['totalCount'];

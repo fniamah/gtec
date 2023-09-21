@@ -409,14 +409,48 @@ function getEnrollmentByYear($year){
     $response = $data['totalCount'];
     return $response;
 }
-function getEnrollmentByYearByGender($year,$gender){
+function getEnrollmentByYearByGender($year,$gender,$location){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE year = '$year' AND gender = '$gender'";
+    $sel = "";
+    if(empty($location)){
+        $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE year = '$year' AND gender = '$gender'";
+    }else{
+        if($_SESSION['actype'] == "GTEC"){
+            $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE year = '$year' AND gender = '$gender'";
+        }else{
+            $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments WHERE year = '$year' AND gender = '$gender' AND institution = '".$_SESSION['institution']."'";
+        }
+    }
+
     $selrun = $conn->query($dbcon,$sel);
     $data = $conn->fetch($selrun);
     $response = $data['totalCount'];
     return $response;
+}
+
+function getTotalEnrollments(){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments";
+    $selrun = $conn->query($dbcon,$sel);
+    $data = $conn->fetch($selrun);
+    $response = $data['totalCount'];
+    return $response;
+}
+
+function getEnrollmentsByGenderByInstitution($catid,$gender){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $sel="SELECT COUNT(applicant_id) AS totalCount FROM enrollments e INNER JOIN institutes i ON e.institution = i.institution_code INNER JOIN institute_categories c ON i.category_id = c.id WHERE i.category_id = $catid AND e.gender = '$gender' GROUP BY e.gender";
+    $selrun = $conn->query($dbcon,$sel);
+    $count=0;
+    if($conn->sqlnum($selrun) > 0){
+        $data = $conn->fetch($selrun);
+        $count = $data['totalCount'];
+    }
+
+    return $count;
 }
 
 function checkAccess($type,$user){

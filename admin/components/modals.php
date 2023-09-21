@@ -170,16 +170,16 @@
             <div class="modal-body">
                 <form method="post" enctype="multipart/form-data" id="bulkUploadFile">
                     <div class="row">
-                        <div class="col-md-12" align="left" style="font-style: italic; font-size: small; ">Click on the link below to download the template, fill and upload using the form below</div>
-                        <div class="col-md-12" align="left" id="filedownload"></div>
+                        <div class="col-md-12" align="center" style="font-style: italic; font-size: small; " id="clickinscription"></div>
                     </div>
                     <div class="row" style="margin: 20px;" id="uploadField">
-                        <div class="col-md-12" align="center">
+                        <div class="col-md-6" align="right" id="filedownload"></div>
+                        <div class="col-md-6" align="left">
                             <input type="hidden" name="uploadType" id="uploadType" />
                             <label>
                                 <input type="file" style="display:none" class="form-control" name="uploadFile" onchange="validateFile()"/>
                                 <span><img id="stfimg" src="../admin/assets/images/upload.png" width="100" height="100" class="img-responsive img-rounded" /></span><br/>
-                                <div class="mainbold">Click To Upload File</div>
+                                <div class="mainbold">Upload Excel File</div>
                             </label>
 
                         </div>
