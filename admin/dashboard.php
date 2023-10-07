@@ -94,6 +94,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             font-family: Arial, Helvetica, sans-serif;
         }
 
+        .page-header{
+            margin-top: 50px;
+        }
         .hero-image {
             background-image: url("assets/images/background.png");
             background-color: #cccccc;
@@ -224,7 +227,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 <body onload="dashboardGraphs()">
 
 <!-- Main navbar -->
-<div class="navbar navbar-inverse">
+<div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-header">
         <a class="navbar-brand" href="index.html"><img src="assets/images/logo_light.png" alt=""></a>
 
@@ -283,7 +286,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
         ?>
         <div class="content-wrapper">
             <!-- Page header -->
-            <div class="page-header" style="margin: 20px;">
+            <div class="page-header">
                 <div class="breadcrumb-line">
                     <ul class="breadcrumb" style="font-size: medium;">
                         <li style="font-weight: bold; font-size: x-large">Accounts </li>
@@ -427,7 +430,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accounts </li>
@@ -564,7 +567,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
@@ -778,7 +781,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
@@ -1074,7 +1077,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
@@ -1422,7 +1425,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Application Mgt. </li>
@@ -1777,7 +1780,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff. </li>
@@ -2115,7 +2118,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Reports. </li>
@@ -2426,7 +2429,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -2712,7 +2715,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
@@ -3019,7 +3022,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Application Mgt. </li>
@@ -3131,7 +3134,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
@@ -3438,7 +3441,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Application Mgt. </li>
@@ -3517,7 +3520,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Students </li>
@@ -3692,7 +3695,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Applications Mgt. </li>
@@ -3922,7 +3925,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institutions </li>
@@ -4001,7 +4004,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
@@ -4149,7 +4152,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -4295,7 +4298,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Analytics Report </li>
@@ -4487,7 +4490,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Students Mgt. </li>
@@ -4599,7 +4602,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -4701,7 +4704,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -4814,7 +4817,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -4904,7 +4907,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -5031,7 +5034,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
@@ -5273,7 +5276,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
@@ -5389,12 +5392,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?acc_programs">Proposed Programs</a></li>
+                            <li class="active"><a href="dashboard.php?acc_proposed_programs">Proposed Programs</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -5587,12 +5590,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">Accredited Programs</a></li>
+                            <li class="active"><a href="dashboard.php?acc_programs">Accredited Programs</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -5650,7 +5653,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     <!-- Clickable title -->
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Students List</h6>
+                            <h6 class="panel-title">Accredited Programs</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
@@ -5677,7 +5680,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
@@ -5740,7 +5743,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     <!-- Clickable title -->
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Students List</h6>
+                            <h6 class="panel-title">Proposed Programs List</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
@@ -5767,7 +5770,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Accreditation </li>
@@ -5792,6 +5795,11 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                 <legend class="text-semibold">Accreditation Details</legend>
 
                                 <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="text" id="progcertid" class="form-control btnrqd" placeholder="Certificate ID" />
+                                        </div>
+                                    </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <select id="progtitle" data-placeholder="Select Program" class="select btnrqd">
@@ -5975,7 +5983,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
@@ -6096,7 +6104,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
@@ -6210,7 +6218,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
@@ -6324,7 +6332,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
@@ -6442,7 +6450,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -6589,7 +6597,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Staff </li>
@@ -6695,7 +6703,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">User </li>
@@ -6807,7 +6815,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
-                <div class="page-header" style="margin: 20px;">
+                <div class="page-header">
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">System </li>
@@ -6934,7 +6942,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                 ?>
                 <div class="content-wrapper">
                     <!-- Page header -->
-                    <div class="page-header" style="margin: 20px;">
+                    <div class="page-header">
                         <div class="breadcrumb-line">
                             <ul class="breadcrumb" style="font-size: medium;">
                                 <li style="font-weight: bold; font-size: x-large">Accounts </li>
@@ -7202,7 +7210,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                 ?>
                     <div class="content-wrapper">
                         <!-- Page header -->
-                        <div class="page-header" style="margin: 20px;">
+                        <div class="page-header">
                             <div class="breadcrumb-line">
                                 <ul class="breadcrumb" style="font-size: medium;">
                                     <li style="font-weight: bold; font-size: x-large">Accounts </li>
@@ -7392,7 +7400,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                 ?>
                     <div class="content-wrapper">
                         <!-- Page header -->
-                        <div class="page-header" style="margin: 20px;">
+                        <div class="page-header">
                             <div class="breadcrumb-line">
                                 <ul class="breadcrumb" style="font-size: medium;">
                                     <li style="font-weight: bold; font-size: x-large">Dashboard </li>
