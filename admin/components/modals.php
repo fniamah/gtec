@@ -98,11 +98,8 @@
         <div class="modal-content">
             <div class="modal-body">
                 <div class="row">
-                    <input type="hidden" id="rejectId" />
-                    <input type="hidden" id="rejectTable" />
-                    <input type="hidden" id="rejectStatus" />
-                    <input type="hidden" id="rejectIsced" />
-                    <input type="hidden" id="rejectProg" />
+                    <input type="text" id="rejectId" />
+                    <input type="text" id="rejectStatus" />
                     <div class="col-md-12" align="center">
                         <img src="../admin/assets/images/pnotify/warning.PNG" style="width: 80px; height: 80px;" class="img-responsive" />
                     </div>
@@ -115,6 +112,10 @@
                         <textarea id="rejectNote" rows="4" maxlength="150" class="form-control" placeholder="Brief Note (optional)"></textarea>
                     </div>
                     <div id="approveshow" class="hidden">
+                        <div class="col-md-12" style="margin-bottom: 20px;">
+                            <label>Certificate ID</label>
+                            <input id="rejectcertid" type="text" class="form-control" placeholder="Accredited Certificate ID" />
+                        </div>
                         <div class="col-md-12" style="margin-bottom: 20px;">
                             <label>Accredited Date</label>
                             <input id="rejectaccdate" type="date" class="form-control" value="<?php echo date('Y-m-d'); ?>" />

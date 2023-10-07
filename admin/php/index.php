@@ -881,19 +881,26 @@ if(isset($_POST['rejectRow'])){
     $dbcon=$conn->conn();
 
     $id = $_POST['rejectRow'];
-    $table = $_POST['table'];
     $status = $_POST['status'];
-    $accdate = $_POST['accdate'];
-    $expirydate = $_POST['expirydate'];
-    $isced = $_POST['isced'];
-    $prog = $_POST['prog'];
     $note = $_POST['note'];
+
     $response =array();
     $user = $_SESSION['uname'];
 
     if($status == "Rejected"){
-        $ins="UPDATE ".$table." SET notes='$note', status = '$status', modify_by = '$user', updatedAt = '".date('Y-m-d H:i:s')."' WHERE id = $id";
+        $ins="UPDATE acc_programmes_proposed SET notes='$note', status = '$status', modify_by = '$user', updatedAt = '".date('Y-m-d H:i:s')."' WHERE id = $id";
     }else{
+        //GET THE DETAILS OF THE PROPOSED PROGRAM
+        $getprop = "SELECT programme, isced FROM acc_programmes_proposed WHERE id = $id";
+        $getproprun = $conn->query($dbcon,$getprop);
+        $getpropdata = $conn->fetch($getproprun);
+
+        $accdate = $_POST['accdate'];
+        $expirydate = $_POST['expirydate'];
+        $isced = $getpropdata['isced'];
+        $prog = $getpropdata['programme'];
+        $certid = $_POST['certid'];
+
         //ADD PROGRAM TO THE LIST OF PROGRAMS
         $checkprog = "SELECT prog_isced FROM programmes WHERE programme = '$prog'";
         $checkprogrun = $conn->query($dbcon,$checkprog);
@@ -909,8 +916,8 @@ if(isset($_POST['rejectRow'])){
         $pid = $seliddata['prog_code'];
 
         //MOVE THE RECORDS FROM THE PROPOSED  TO ACCREDITED PROGRAM
-        $ins="INSERT INTO acc_programmes (institution, accreditation_year, faculty_school, department, college, programme, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail,approved_by, approved_date,notes,isced)
-              SELECT institution, accreditation_year, faculty_school, department, college, '$pid', '$accdate', '$expirydate',fname,fcont,fmail,hname,hcont,hmail,'$user','".date('Y-m-d H:i:s')."','$note', isced FROM acc_programmes_proposed WHERE id=$id";
+        $ins="INSERT INTO acc_programmes (certid,institution, accreditation_year, faculty_school, department, college, programme, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail,approved_by, approved_date,notes,isced)
+              SELECT $certid, institution, accreditation_year, faculty_school, department, college, '$pid', '$accdate', '$expirydate',fname,fcont,fmail,hname,hcont,hmail,'$user','".date('Y-m-d H:i:s')."','$note', isced FROM acc_programmes_proposed WHERE id=$id";
     }
 
     $insrun = $conn->query($dbcon,$ins);
@@ -922,12 +929,11 @@ if(isset($_POST['rejectRow'])){
             $conn->query($dbcon,$del);
         }
 
-
         $response['errorCode'] = "0";
-        $response['errorMsg'] = "Proposed program, <b>$prog</b> has been $status";
+        $response['errorMsg'] = "Proposed program has been $status";
     }else{
         $response['errorCode'] = "1";
-        $response['errorMsg'] = "Proposed program, <b>$prog</b> could not be completed. Please contact systems administrator";
+        $response['errorMsg'] = "Proposed program could not be completed. Please contact systems administrator";
     }
     print json_encode($response);
     $conn->close($dbcon);
@@ -1111,6 +1117,7 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     $qry = "SELECT * FROM acc_programmes $clause";
     $qryrun = $conn->query($dbcon,$qry);
     $data ="<table class='table table-striped table-responsive' id='accreditedPrograms'><thead><tr>
+                                            <th>Certificate ID</th>
                                             <th>Name Of Program</th>
                                             <th>Institution</th>
                                             <th>ISCED</th>
@@ -1131,6 +1138,7 @@ if(isset($_GET['sortDataTableAccPrograms'])){
                                         <tbody>";
     while($row = $conn->fetch($qryrun)){
         $data = $data."<tr>
+                            <td>".$row['certid']."</td>
                             <td>".getProgram($row['programme'])."</td>
                             <td>".getInstitution($row['institution'])."</td>
                             <td>".getIsced($row['isced'])."</td>
@@ -1165,6 +1173,7 @@ if(isset($_GET['sortDataTableAccProgramsProposed'])){
     $dbcon=$conn->conn();
     $year = $_GET['year'];
     $inst = $_GET['inst'];
+    $actype = $_SESSION['actype'];
 
     $clause = "";
     if($year != 'All'){
@@ -1200,12 +1209,23 @@ if(isset($_GET['sortDataTableAccProgramsProposed'])){
                                             <th>E-mail Of Person Filling Form</th>
                                             <th>Contact Of Person Filling Form</th>
                                             <th>Status</th>
+                                            <th>&nbsp;</th>
                                         </tr>
                                         </thead>
                                         <tbody>";
     while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $isced = $row['isced'];
+        $program = $row['programme'];
+        $type = "acc_programmes_proposed";
+        $acceptance = "Accepted";
+        $action = "";
+        if($actype == "GTEC"){
+            $action.= "<a class='btn btn-success' onclick='rejectProposedProgram(".$id.",1)' data-popup='tooltip' title='Approve Proposed Programme' data-placement='bottom'><span class='icon icon-thumbs-up3'></span> Approve</a><br/><br/>";
+            $action.= "<a class='btn btn-danger' onclick='rejectProposedProgram(".$id.",0)' data-popup='tooltip' title='Reject Proposed Programme' data-placement='bottom'><span class='icon icon-thumbs-down3'></span> Reject</a>";
+        }
         $data = $data."<tr>
-                            <td>".getProgram($row['programme'])."</td>                   
+                            <td>".$row['programme']."</td>                   
                             <td>".getIsced($row['isced'])."</td>
                             <td>".getInstitution($row['institution'])."</td>
                             <td>".$row['accreditation_year']."</td>
@@ -1219,6 +1239,7 @@ if(isset($_GET['sortDataTableAccProgramsProposed'])){
                             <td>".$row['fmail']."</td>
                             <td>".$row['fcont']."</td>
                             <td>".$row['status']."</td>
+                            <td>".$action."</td>
                         </tr>";
     }
 
@@ -2674,22 +2695,33 @@ if(isset($_POST['addProgram'])){
     $hname=mysqli_real_escape_string($dbcon,$_POST['hname']);
     $hcont=mysqli_real_escape_string($dbcon,$_POST['hcont']);
     $hmail=mysqli_real_escape_string($dbcon,$_POST['hmail']);
+    $certid=mysqli_real_escape_string($dbcon,$_POST['certid']);
 
     //GET THE ISCED OF THE PROGRAM
     $obj = explode("*",$title);
     $isced = $obj[1];
     $prog = $obj[0];
 
-    $ins = "INSERT INTO acc_programmes (institution, accreditation_year, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
- VALUES ('$inst','$year','$faculty','$dept','$college','$prog','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
-    $insrun = $conn->query($dbcon,$ins);
-    if($insrun){
-        $response['errorCode'] = "0";
-        $response['errorMsg'] = "Programme Accreditation Completed Successfully";
+    //CHECK IF ACCREDITATION EXISTS FOR THE PROGRAM
+    $chk = "SELECT institution FROM acc_programmes WHERE certid = '$certid' OR (institution = '$inst' AND programme = '$prog' AND isced ='$isced')";
+    $chkrun = $conn->query($dbcon,$chk);
+    if($conn->sqlnum($chkrun) == 0){
+        $ins = "INSERT INTO acc_programmes (certid,institution, accreditation_year, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
+ VALUES ('$certid','$inst','$year','$faculty','$dept','$college','$prog','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
+        $insrun = $conn->query($dbcon,$ins);
+        if($insrun){
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Programme Accreditation Completed Successfully";
+        }else{
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Programme Accreditation Could Not Be Completed. Please Try Again";
+        }
     }else{
         $response['errorCode'] = "1";
-        $response['errorMsg'] = "Programme Accreditation Could Not Be Completed. Please Try Again";
+        $response['errorMsg'] = "Programme Accreditation With Certificate ID, $certid Already Exists";
     }
+
+
 
 
     print json_encode($response);
