@@ -57,7 +57,7 @@ if (isset($_POST['uname'])) {
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $uname =$_POST['uname'];
-    $sel = "SELECT u.first_name, u.last_name, u.photo, u.phone, u.email, u.institution, u.account_type, u.roleid, p.pages FROM users u INNER JOIN userspages p ON u.email = p.userid WHERE u.email = '$uname'";
+    $sel = "SELECT u.first_name, u.last_name, u.photo, u.phone, u.email, u.institution, u.account_type, u.roleid, p.pages, r.permissions FROM users u INNER JOIN userspages p ON u.email = p.userid LEFT JOIN roles r ON u.roleid = r.id WHERE u.email = '$uname'";
     $selrun = $conn->query($dbcon,$sel);
     $seldata = $conn->fetch($selrun);
 
@@ -71,6 +71,7 @@ if (isset($_POST['uname'])) {
     $_SESSION['actype'] = $seldata['account_type'];
     $_SESSION['roleid'] = $seldata['roleid'];
     $_SESSION['access'] = $seldata['pages'];
+    $_SESSION['permission'] = $seldata['permissions'];
 
     $msg = "Logged in";
     $log = date("Y-m-d H:i:s")." Username:".$uname." Message:".$msg.PHP_EOL;
@@ -361,9 +362,15 @@ function getSTR2Details($code,$target){
     $conn->close($dbcon);
 }
 
-function logrequest($log,$folder){
+function logrequest($log,$folder,$index = 0){
     //TODAY'S DATE WILL BE THE NAME OF THE FILE
-    $fname = "assets/Logs/".$folder."/".date("Ymd").".log";
+    $fname="";
+    if($index == 0){
+        $fname = "../assets/Logs/".$folder."/".date("Ymd").".log";
+    }else{
+        $fname = "assets/Logs/".$folder."/".date("Ymd").".log";
+    }
+
     if(file_exists($fname)){
         file_put_contents($fname, $log, FILE_APPEND);
     }else{

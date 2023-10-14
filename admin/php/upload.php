@@ -35,6 +35,7 @@ if (isset($_POST["uploadType"])) {
         $spreadSheetAry = $excelSheet->toArray();
         $sheetCount = count($spreadSheetAry);
         $highestColumm = $spreadSheet->setActiveSheetIndex(0)->getHighestColumn();
+        //print_r($spreadSheetAry);
 
         $validated="No";
         if($type == "application"){
@@ -340,6 +341,83 @@ if (isset($_POST["uploadType"])) {
                                 //log exists here
                             }
 
+                        }
+                    }
+                    $response['errorCode'] = "0";
+                    $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
+                    print json_encode($response);
+                }else{
+                    $response['errorCode'] = "1";
+                    $response['errorMsg'] = "File Validation Failed";
+                    print json_encode($response);
+                }
+            }else{
+                $response['errorCode'] = "1";
+                $response['errorMsg'] = "File Validation Failed";
+                print json_encode($response);
+            }
+
+        }
+        elseif($type == "add_accreditation"){
+            if($highestColumm == "P"){
+                $col1=mysqli_real_escape_string($dbcon,$spreadSheetAry[0]['0']);
+                $col2=mysqli_real_escape_string($dbcon,$spreadSheetAry[0]['8']);
+                $col3=mysqli_real_escape_string($dbcon,$spreadSheetAry[0]['15']);
+
+                if(trim($col1) == "Certificate ID" && trim($col2) == "Accreditation Date" && $col3 == "E-mail Of Person Filling Form"){
+                    for ($i = 1; $i < $sheetCount; $i ++) {
+                        $certid=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['0']);
+                        $isced=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['1']);
+                        $prog=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['2']);
+                        $inst=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['3']);
+                        $year=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['4']);
+                        $college=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['5']);
+                        $faculty=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['6']);
+                        $dept=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['7']);
+                        $accredit=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['8']);
+                        $expire=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['9']);
+                        $hname=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['10']);
+                        $hcont=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['11']);
+                        $hmail=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['12']);
+                        $fname=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['13']);
+                        $fcont=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['14']);
+                        $fmail=mysqli_real_escape_string($dbcon,$spreadSheetAry[$i]['15']);
+
+                        //IGNORE EMPTY SPACES
+                        if(!empty($certid)){
+                            //CHECK IF ACCREDITATION EXISTS FOR THE PROGRAM
+                            $chk = "SELECT institution FROM acc_programmes WHERE certid = '$certid'";
+                            $chkrun = $conn->query($dbcon,$chk);
+                            if($conn->sqlnum($chkrun) == 0){
+                                //ADD PROGRAM TO THE LIST OF PROGRAMS
+                                $checkprog = "SELECT prog_isced FROM programmes WHERE programme = '$prog'";
+                                $checkprogrun = $conn->query($dbcon,$checkprog);
+                                if($conn->sqlnum($checkprogrun) == 0){
+                                    $insprog = "INSERT INTO programmes (programme, prog_isced, status) VALUES('$prog','$isced','Active')";
+                                    $conn->query($dbcon,$insprog);
+                                }
+
+                                //GET THE ID OF THE INSERTED PROGRAMME
+                                $selid = "SELECT prog_code FROM programmes WHERE programme = '$prog'";
+                                $selidrun = $conn->query($dbcon,$selid);
+                                $seliddata = $conn->fetch($selidrun);
+                                $pid = $seliddata['prog_code'];
+
+
+                                $ins = "INSERT INTO acc_programmes (certid,institution, accreditation_year, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
+ VALUES ('$certid','$inst','$year','$faculty','$dept','$college','$pid','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
+                                $insrun = $conn->query($dbcon,$ins);
+                                if($insrun){
+                                    $response['errorCode'] = "0";
+                                    $response['errorMsg'] = "Programme Accreditation Completed Successfully";
+                                }else{
+                                    $response['errorCode'] = "1";
+                                    $response['errorMsg'] = "Programme Accreditation Could Not Be Completed. Please Try Again";
+                                }
+                            }else{
+                                $response['errorCode'] = "1";
+                                $response['errorMsg'] = "Programme Accreditation With Certificate ID, $certid Already Exists";
+                            }
                         }
                     }
                     $response['errorCode'] = "0";

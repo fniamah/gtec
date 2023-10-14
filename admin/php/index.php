@@ -24,7 +24,10 @@ if(isset($_GET['validateUser'])){
 
     if($pword == "" || $uname == ""){
         $response['erroCode'] = "1";
-        $response['errorMsg'] = "Please Supply All Fields";
+        $response['errorMsg'] = "Missing username or password";
+
+        $log = date("Y-m-d H:i:s")." Response: Missing username or password".PHP_EOL;
+        logrequest($log,"System Logs");
     }else{
         //CHECK IF USER RECORDS EXISTS
         $chk = "SELECT status, password FROM users WHERE email = '$uname'";
@@ -32,6 +35,9 @@ if(isset($_GET['validateUser'])){
         if($conn->sqlnum($chkrun) == 0){
             $response['errorCode'] = "1";
             $response['errorMsg'] = "E-mail does not exist";
+
+            $log = date("Y-m-d H:i:s")." Username: $uname Response: E-mail does not exist".PHP_EOL;
+            logrequest($log,"System Logs");
         }else{
             //GET THE STATUS
             $data = $conn->fetch($chkrun);
@@ -40,18 +46,29 @@ if(isset($_GET['validateUser'])){
 
             if($status == "Pending"){
                 $response['errorCode'] = "1";
-                $response['errorMsg'] = "Your Account Has Not Been Validated. Kindly Check Your E-mail, $email, To Activate Your Account To Proceed";
+                $response['errorMsg'] = "Your Account Has Not Been Validated. Kindly Check Your E-mail, $uname, To Activate Your Account To Proceed";
+
+                $log = date("Y-m-d H:i:s")." Your Account Has Not Been Validated. Kindly Check Your E-mail, $uname, To Activate Your Account To Proceed".PHP_EOL;
+                logrequest($log,"System Logs");
             }elseif($status == "Inactive"){
                 $response['errorCode'] = "1";
                 $response['errorMsg'] = "Your Account is inactive. Contact your systems administrator for assistance";
+                $log = date("Y-m-d H:i:s")." Your Account, $uname, is inactive. Contact your systems administrator for assistance".PHP_EOL;
+                logrequest($log,"System Logs");
             }else{
                 //CHECK IF PASSWORDS MATCH
                 if(password_verify($pword, $hash)){
                     $response['errorCode'] = "0";
                     $response['errorMsg'] = "Account validated successfully";
+                    $log = date("Y-m-d H:i:s")." Account, $uname, is validated and logged in successfully.".PHP_EOL;
+                    logrequest($log,"System Logs");
+
                 }else{
                     $response['errorCode'] = "1";
                     $response['errorMsg'] = "Wrong Password Supplied";
+
+                    $log = date("Y-m-d H:i:s")." Account, $uname, entered wrong password".PHP_EOL;
+                    logrequest($log,"System Logs");
                 }
             }
         }
@@ -269,6 +286,9 @@ VALUES('$fname','$lname','$institution','$email','$contact','$actype','Active','
 
             $response['erroCode'] = "0";
             $response['errorMsg'] = "Account Created Successfully, Pending user activation";
+
+            $log = date("Y-m-d H:i:s")." Account, $email, is created successfully.".PHP_EOL;
+            logrequest($log,"System Logs");
         }else{
             $response['erroCode'] = "1";
             $response['errorMsg'] = "Account creation failed. Contact the systems administrators for assistance";
@@ -1253,21 +1273,12 @@ if(isset($_GET['sortDataTableAccProgramsProposed'])){
 
 }
 
-if(isset($_GET['sortDataTableInstitutions'])){
+/*if(isset($_GET['sortDataTableInstitutions'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $sname = $_GET['sname'];
     $cat = $_GET['cat'];
-    $status = $_GET['status'];
 
     $clause = "";
-    if($sname != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE short_name = '$sname'";
-        }else{
-            $clause = $clause."AND short_name = '$sname'";
-        }
-    }
     if($cat != 'All'){
         if($clause == ""){
             $clause = $clause." WHERE category_id = '$cat'";
@@ -1275,16 +1286,9 @@ if(isset($_GET['sortDataTableInstitutions'])){
             $clause = $clause."AND category_id = '$cat'";
         }
     }
-    if($status != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE status = '$status'";
-        }else{
-            $clause = $clause."AND status = '$status'";
-        }
-    }
 
 
-    echo $qry = "SELECT * FROM institutes $clause";
+    $qry = "SELECT * FROM institutes $clause";
     $qryrun = $conn->query($dbcon,$qry);
     $data ="";
     while($row = $conn->fetch($qryrun)){
@@ -1317,7 +1321,7 @@ if(isset($_GET['sortDataTableInstitutions'])){
 
     $conn->close($dbcon);
 
-}
+}*/
 
 if(isset($_GET['sortDataTablePublication'])){
     $conn=new Db_connect;
@@ -1586,6 +1590,58 @@ if(isset($_GET['sortDataTableStudents'])){
 
 }
 
+
+if(isset($_GET['getAllApplicants'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $institution = $_GET['getAllApplicants'];
+    $prog = $_GET['prog'];
+    $statCode = $_GET['status'];
+    $status="";
+    if($statCode == 1){
+        $status = "Qualified";
+    }elseif($statCode == 2){
+        $status = "Offered";
+    }elseif($statCode == 3){
+        $status = "Enrolled";
+    }else{
+        $status = "Graduated";
+    }
+
+    $sel="";
+    $title="";
+    if($prog == "All"){
+        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND status = '$status'";
+        $title = "List Of All ".$status." Applicants For ".getInstitution($institution);
+    }else{
+        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
+        $title = "List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog);
+    }
+
+    $errorCode="1";
+
+    $selrun = $conn->query($dbcon,$sel);
+    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='7'><p style='text-align: center; font-weight: bold; font-size: large;'>$title</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td><td>Status</td></tr></thead><tbody>";
+    $count=0;
+    $btn="";
+    if($conn->sqlnum($selrun) == 0){
+        $response = $response."<tr><td colspan='6'>No Applicants Available For The Selection Above</td></tr>";
+    }else{
+        $btn =$btn."<div class='row'><div class='col-md-12' align='center'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div></div>";
+        while($data = $conn->fetch($selrun)){
+            $count++;
+            $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td><td>".$data['status']."</td></tr>";
+        }
+        $errorCode = "0";
+    }
+    $response = $response."</tbody></table>".$btn;
+    $responses['data'] = $response;
+    $responses['code'] = $errorCode;
+    print json_encode($responses);
+
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['sortDataTableApplicants'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1656,10 +1712,13 @@ if(isset($_GET['sortDataTableApplicants'])){
                 </tr>
                 </thead>
                 <tbody>";
-    if($conn->sqlnum($qryrun) != 0){
+    $errorCode="1";
+    $count = 0;
+    if($conn->sqlnum($qryrun) > 0){
         while($row = $conn->fetch($qryrun)){
+            $count++;
             $id = $row['id'];
-            $data = $data."<tr>
+            $data.="<tr>
                             <td><a href='../admin/dashboard.php?view_applicant=$id'>".$row['applicant_id']."</a></td>
                             <td>".$row['first_name']." ".$row['other_names']." ".$row['surname']."</td>
                             <td>".$row['gender']."</td>
@@ -1684,10 +1743,14 @@ if(isset($_GET['sortDataTableApplicants'])){
                             <td>".$row['status']."</td>
                         </tr>";
         }
-        print $data."</tbody></table>";
+        $errorCode = "0";
     }else{
-        print $data."<tr><td colspan='9'>No Records Found</td></tr></tbody></table>";
+        $data.="<tr><td colspan='22'>No Records Found</td></tr>";
     }
+    $response = $data."</tbody></table>";
+    $responses['data'] = $response;
+    $responses['code'] = $errorCode;
+    print json_encode($responses);
 
     $conn->close($dbcon);
 
@@ -1897,7 +1960,77 @@ if(isset($_GET['sortDataTableStaff'])){
 
 }
 
-if(isset($_GET['sortDataTableApplicants'])){
+if(isset($_GET['sortDataTableInstitutions'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $cat = $_GET['cat'];
+
+    $clause = "";
+
+    if($cat != 'All'){
+        if($clause == ""){
+            $clause = $clause." WHERE category_id = '$cat'";
+        }else{
+            $clause = $clause."AND category_id = '$cat'";
+        }
+    }
+
+    $qry = "SELECT * FROM institutes $clause";
+    $qryrun = $conn->query($dbcon,$qry);
+    $data ="<table class='table table-hover' id='institutesearchtable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Institution ID</th>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th>Location Address</th>
+                                            <th>Region</th>
+                                            <th>District</th>
+                                            <th>Town</th>
+                                            <th>Official E-mail</th>
+                                            <th>Official Contact</th>
+                                            <th>Name Of Head</th>
+                                            <th>Contact Of Head</th>
+                                            <th>E-mail Of Head</th>
+                                            <th>Name Of Representative</th>
+                                            <th>Contact Of Representative</th>
+                                            <th>E-mail Of Representative</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($row = $conn->fetch($qryrun)){
+        $id = $row['id'];
+        $data = $data."<tr>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['institution_code']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['name']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". getCategory($row['category_id'])."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['digital_address']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['region']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['district']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['town']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['contact_email']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['contact_telephone']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['hname']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['hcont']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['hmail']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['fname']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['fcont']."</a></td>
+                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['fmail']."</a></td>
+                            
+                        </tr>";
+    }
+
+    if($data == ""){
+        print("<tr><td colspan='15'>No Records Found</td></tr></tbody></table>");
+    }else{
+        print $data."</tbody></table>";
+    }
+
+    $conn->close($dbcon);
+
+}
+
+/*if(isset($_GET['sortDataTableApplicants'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $year = $_GET['year'];
@@ -1974,7 +2107,7 @@ if(isset($_GET['sortDataTableApplicants'])){
 
     $conn->close($dbcon);
 
-}
+}*/
 
 
 
@@ -2479,53 +2612,7 @@ if(isset($_POST['updateNewApplicantRec'])){
     print json_encode($response);
 }
 
-if(isset($_GET['getAllApplicants'])){
-    $conn=new Db_connect;
-    $dbcon=$conn->conn();
-    $institution = $_GET['getAllApplicants'];
-    $prog = $_GET['prog'];
-    $statCode = $_GET['status'];
-    $status="";
-    if($statCode == 1){
-        $status = "Qualified";
-    }elseif($statCode == 2){
-        $status = "Offered";
-    }elseif($statCode == 3){
-        $status = "Enrolled";
-    }else{
-        $status = "Graduated";
-    }
 
-    $sel="";
-    if($prog == "All"){
-        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND status = '$status'";
-    }else{
-        $sel = "SELECT applicant_id, first_name, surname, other_names, programme_applied, programme_type, status FROM appadmissions WHERE institution = '$institution' AND programme_applied='$prog' AND status = '$status'";
-    }
-
-    $errorCode="1";
-
-    $selrun = $conn->query($dbcon,$sel);
-    $response = "<table class='table table-striped' id='applicantsData'><thead><tr style='background-color: #ffffff; color: #000'><th colspan='7'><p style='text-align: center; font-weight: bold; font-size: large;'>List Of ".$status." Applicants For ".getInstitution($institution)."<br/> Offering ".getProgram($prog)."</p></th></tr><tr><td>#</td><td><input type='checkbox' name='select-all' id='select-all' /></td><td>Applicant ID</td><td>Applicant Name</td><td>Programme Applied</td><td>Programme Type</td><td>Status</td></tr></thead><tbody>";
-    $count=0;
-    $btn="";
-    if($conn->sqlnum($selrun) == 0){
-        $response = $response."<tr><td colspan='6'>No Applicants Available For The Selection Above</td></tr>";
-    }else{
-        $btn =$btn."<div class='row'><div class='col-md-12' align='center'><button type='button' class='btn btn-dark btn-lg' onclick='updateApplicant(".$statCode.")'>Proceed</button></div></div>";
-        while($data = $conn->fetch($selrun)){
-            $count++;
-            $response = $response."<tr><td>".$count."</td><td><input type='checkbox' name='check_list' value='".$data['applicant_id']."' id='<?php echo $count; ?>'/></td><td>".$data['applicant_id']."</td><td>".$data['first_name']." ".$data['other_names']." ".$data['surname']."</td><td>".getProgram($data['programme_applied'])."</td><td>".$data['programme_type']."</td><td>".$data['status']."</td></tr>";
-        }
-        $errorCode = "0";
-    }
-    $response = $response."</tbody></table>".$btn;
-    $responses['data'] = $response;
-    $responses['code'] = $errorCode;
-    print json_encode($responses);
-
-    $conn->close($dbcon);
-}
 
 if(isset($_POST['admitApplicant'])){
     $conn=new Db_connect;

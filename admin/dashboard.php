@@ -13,6 +13,7 @@ if (!isset($_SESSION['uname'])) {
     $roleid = $_SESSION['roleid'];
     $institution = $_SESSION['institution'];
     $access = $_SESSION['access'];
+    $mypermission = $_SESSION['permission'];
     $actype = $_SESSION['actype'];
     $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 }
@@ -229,7 +230,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 <!-- Main navbar -->
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-header">
-        <a class="navbar-brand" href="index.html"><img src="assets/images/logo_light.png" alt=""></a>
+        <a class="navbar-brand" href="index.html">&nbsp;</a>
 
         <ul class="nav navbar-nav pull-right visible-xs-block">
             <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
@@ -346,11 +347,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     <div class="panel-heading">
                         <h6 class="panel-title">User Roles</h6>
                     </div>
+                    <?php if(strpos($mypermission,'create') !== false){ ?>
                     <div class="row" style="margin: 20px;">
                         <div class="col-md-6">
                             <div align="left"><a onclick="toggle('add_new_role','view_roles')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add Roles</a></div>
                         </div>
                     </div>
+                    <?php } ?>
 
                     <div class="row">
                         <div class="col-md-12">
@@ -361,8 +364,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <th>#</th>
                                         <th>Role</th>
                                         <th>Permissions</th>
-                                        <th>&nbsp;</th>
-                                        <th>&nbsp;</th>
+                                        <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php }?>
+                                        <?php if(strpos($mypermission,'delete') !== false){ ?><th>&nbsp;</th><?php } ?>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -404,9 +407,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 }
                                             ?>
                                         </td>
-                                        <td align="right"><a class="btn" onclick="updateRole(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td>
-                                        <td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'roles')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
-                                        </td>
+                                        <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="updateRole(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
+                                        <?php if(strpos($mypermission,'update') !== false){ ?><td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'roles')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                        </td><?php } ?>
                                     </tr>
                                     <?php } ?>
                                     </tbody>
@@ -501,11 +504,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">ISCED</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_isced','view_isced')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add ISCED</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -519,8 +524,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <th>ISCED Description</th>
                                             <th>Classification</th>
                                             <th>STR Target</th>
-                                            <th>&nbsp;</th>
-                                            <th>&nbsp;</th>
+                                            <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
+                                            <?php if(strpos($mypermission,'delete') !== false){ ?><th>&nbsp;</th><?php } ?>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -544,9 +549,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td><?php echo $row['classify']; ?></td>
                                                 <td><?php echo $row['target']; ?></td>
-                                                <td align="right"><a class="btn" onclick="getIsced(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td>
-                                                <td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'isceds')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
-                                                </td>
+                                                <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="getIsced(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
+                                                <?php if(strpos($mypermission,'delete') !== false){ ?><td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'isceds')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                </td><?php } ?>
                                             </tr>
                                         <?php } ?>
                                         </tbody>
@@ -811,12 +816,14 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         ?>
                         <div class="panel panel-white" id="view_institution">
                             <div class="panel-heading">
+                                <?php if(strpos($mypermission,'update') !== false){ ?>
                                 <div class="row">
                                     <div class="col-md-6"></div>
                                     <div class="col-md-6" align="right">
-                                        <a onclick="toggle('add_new_institution','view_institution')"><span class="icon icon-pencil7"></span></a>
+                                        <a onclick="toggle('add_new_institution','view_institution')"><span class="icon icon-pencil7"></span> Edit</a>
                                     </div>
                                 </div>
+                                <?php } ?>
                                 <h6 class="panel-title">Added On <?php echo $rows['createdAt']; ?></h6>
                             </div>
                             <div class="row" style="margin: 10px;">
@@ -1107,7 +1114,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         ?>
                         <div class="panel panel-white" id="view_student_record">
                             <div class="panel-heading" align="right">
-                                <h6 class="panel-title"><a onclick="updateStudentView()"><span class="icon icon-pencil7"></span></a></h6>
+                                <?php if(strpos($mypermission,'update') !== false){ ?><h6 class="panel-title"><a onclick="updateStudentView()"><span class="icon icon-pencil7"></span> Edit Student</a></h6><?php } ?>
                             </div>
                             <div class="row" style="margin: 10px;">
 
@@ -1810,7 +1817,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         ?>
                         <div class="panel panel-white" id="view_student_record">
                             <div class="panel-heading" align="right">
-                                <h6 class="panel-title"><a onclick="updateStudentView()"><span class="icon icon-pencil7"></span></a></h6>
+                                <?php if(strpos($mypermission,'update') !== false){ ?><h6 class="panel-title"><a onclick="updateStudentView()"><span class="icon icon-pencil7"></span> Edit Staff</a></h6><?php } ?>
                             </div>
                             <div class="row" style="margin: 10px;">
 
@@ -2760,7 +2767,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="date"  id="stddob" class="form-control btnrqd" value="<?php echo date('Y-m-d'); ?>" />
+                                            <input type="text"  id="stddob" class="form-control btnrqd" placeholder="Date Of Birth (YYY-MM-DD)" onfocus="(this.type = 'date')" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -2850,6 +2857,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <div class="form-group">
                                             <select id="stdshs" data-placeholder="Senior High School" class="select">
                                                 <option></option>
+                                                <option value="OTHER">OTHER</option>
                                                 <?php
                                                 $shsCount = count($shs);
                                                 for($i=0; $i < $shsCount; $i++){
@@ -3460,7 +3468,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Admit New Applicant(s)</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','qualified')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','qualified')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Admit Students</a></div>
                             </div>
 
                         </div>
@@ -3714,7 +3722,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Enroll New Student(s)</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','offered')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload</a></div>
+                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','offered')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Students Enrollments</a></div>
                             </div>
                         </div>
 
@@ -3950,7 +3958,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             <div class="row">
                                 <div class="col-md-4">
                                     <label>Category</label>
-                                    <select name="institution" id="instcat" class="select">
+                                    <select id="getinstcat" class="select">
                                         <option value="All">All</option>
                                         <?php
                                         $sel = "SELECT id, name FROM institute_categories WHERE status = 'Active' ORDER BY name ASC";
@@ -3964,7 +3972,88 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             </div>
                             <div class="row" style="margin: 20px">
                                 <div class="col-md-12" align="center">
-                                    <button class="btn btn-lg btn-success" onclick="getInstitutionDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
+                                    <button class="btn btn-lg btn-success" onclick="getDataTableInstitutions()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Institutions List</h6></div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-6">
+                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['log_details'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">System. </li>
+                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                            <li class="active"><a href="dashboard.php?log_details">Logs</a></li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Select Criteria</h6></div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Log Type</label>
+                                    <select name="institution" id="logtype" class="form-control">
+                                        <option value="All">All</option>
+                                        <option value="Bulk">Bulk Logs</option>
+                                        <option value="System">System Logs</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Start Date</label>
+                                    <input type="date" id="lodsdate" value="<?php echo date('Y-m-d'); ?>" class="form-control" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label>End Date</label>
+                                    <input type="date" id="lodedate" value="<?php echo date('Y-m-d'); ?>" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getStudentDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -3976,7 +4065,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-md-6" align="left"><h6 class="panel-title">Students List</h6></div>
-                                <div class="col-md-6" align="right"><a onclick="bulkUploads('appadmissions','graduated')" class="btn btn-lg btn-success"><span class="icon icon-file-upload2"></span>   Bulk Upload Graduates</a></div>
                             </div>
                         </div>
                         <div class="row" style="margin: 20px;">
@@ -5701,7 +5789,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         </div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label>Accreditation Year</label>
                                     <select name="institution" id="accredityear" class="form-control">
                                         <option value="All">All</option>
@@ -5713,7 +5801,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <?php } ?>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label>Institution</label>
                                     <select name="institution" id="accreditinst" class="form-control">
                                         <?php
@@ -5910,12 +5998,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="date" value="<?php echo date('Y-m-d'); ?>" id="progaccredit" class="form-control btnrqd" placeholder="Accredited Date" />
+                                            <input type="text" id="progaccredit" class="form-control btnrqd" placeholder="Accredited Date (YYYY-MM-DD)" onfocus="(this.type = 'date')"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="date" value="<?php echo date('Y-m-d'); ?>" id="progexpire" class="form-control btnrqd" placeholder="Expiry Date" />
+                                            <input type="text" id="progexpire" class="form-control btnrqd" placeholder="Expiry Date (YYYY-MM-DD)"  onfocus="(this.type = 'date')"/>
                                         </div>
                                     </div>
                                 </div>
@@ -5976,10 +6064,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             <?php $conn->close($dbcon);}elseif(isset($_GET['institution_category'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
-            $status = "";
-            if(isset($_GET['status'])){
-                $status = $_GET['status'];
-            }
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
@@ -6041,11 +6125,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">Institution Category</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_instcat','view_instcat')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add Category</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -6078,8 +6164,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;
-                                                    <a class="btn" onclick="deleteModal(<?php echo $id; ?>,'users')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'users')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -6162,11 +6248,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">Colleges</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_instcat','view_instcat')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add New College</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -6196,8 +6284,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;
-                                                    <a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_colleges')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_colleges')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -6276,11 +6364,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">Departments</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_instcat','view_instcat')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add New Department</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -6310,8 +6400,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;
-                                                    <a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_departments')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_departments')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -6390,11 +6480,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">Faculties</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_instcat','view_instcat')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add New Faculty</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -6424,8 +6516,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;
-                                                    <a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_faculties')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_faculties')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -6443,10 +6535,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             <?php $conn->close($dbcon);}elseif(isset($_GET['staff_category'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
-            $status = "";
-            if(isset($_GET['status'])){
-                $status = $_GET['status'];
-            }
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
@@ -6525,11 +6613,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">Staff Category</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_staffcat','view_staffcat')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add Staff Category</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -6541,8 +6631,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <th>Name</th>
                                             <th>Rank(s)</th>
                                             <th>Status</th>
-                                            <th>&nbsp;</th>
-                                            <th>&nbsp;</th>
+                                            <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
+                                            <?php if(strpos($mypermission,'delete') !== false){ ?><th>&nbsp;</th><?php } ?>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -6574,9 +6664,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                     ?>
                                                 </td>
                                                 <td><?php echo $row['status']; ?></td>
-                                                <td align="right"><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td>
-                                                <td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'staffcategory')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
-                                                </td>
+                                                <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
+                                                <?php if(strpos($mypermission,'delete') !== false){ ?><td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'staffcategory')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                </td><?php } ?>
                                             </tr>
                                         <?php } ?>
                                         </tbody>
@@ -6593,7 +6683,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
             <?php $conn->close($dbcon);}elseif(isset($_GET['staff_ranks'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
-            $status = "";
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
@@ -6644,11 +6733,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                         <div class="panel-heading">
                             <h6 class="panel-title">Staff Ranks</h6>
                         </div>
+                        <?php if(strpos($mypermission,'create') !== false){ ?>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
                                 <div align="left"><a onclick="toggle('add_new_staffrank','view_staffrank')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add Staff Rank</a></div>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -6659,8 +6750,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <th>#</th>
                                             <th>Rank</th>
                                             <th>Status</th>
-                                            <th>&nbsp;</th>
-                                            <th>&nbsp;</th>
+                                            <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
+                                            <?php if(strpos($mypermission,'delete') !== false){ ?><th>&nbsp;</th><?php } ?>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -6681,9 +6772,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <td><?php echo $count; ?></td>
                                                 <td><?php echo $row['rank']; ?></td>
                                                 <td><?php echo $row['status']; ?></td>
-                                                <td align="right"><a class="btn" onclick="getStaffRank(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td>
-                                                <td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'staffranks')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
-                                                </td>
+                                                <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="getStaffRank(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
+                                                <?php if(strpos($mypermission,'delete') !== false){ ?><td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'staffranks')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
+                                                </td><?php } ?>
                                             </tr>
                                         <?php } ?>
                                         </tbody>
@@ -6717,7 +6808,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 
                     <!-- User profile -->
                     <div class="row">
-                        <div class="col-lg-3">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6">
                             <div class="thumbnail">
                                 <div class="thumb thumb-rounded thumb-slide">
                                     <img src="assets/images/logo.png" alt="">
@@ -6733,7 +6824,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-9">
+                        <div class="col-lg-9 col-md-9 col-sm-6 col-xs-6">
                             <div class="tabbable">
                                 <div class="tab-content">
                                     <div class="tab-pane fade in active" id="activity">
@@ -7131,11 +7222,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             <div class="panel-heading">
                                 <h6 class="panel-title">System Users</h6>
                             </div>
+                            <?php if(strpos($mypermission,'create') !== false){ ?>
                             <div class="row" style="margin: 20px;">
                                 <div class="col-md-6">
                                     <div align="left"><a onclick="toggle('add_new_user','view_users')" class="btn btn-lg btn-default"><span class="icon icon-plus3"></span>   Add New User</a></div>
                                 </div>
                             </div>
+                            <?php } ?>
 
                             <div class="row">
                                 <div class="col-md-12">
@@ -7184,8 +7277,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                     <!--<td><button type="button" class="btn btn-default btn-rounded"><i class="position-left" style="background-color: "><?php echo $acronym; ?></i> <b style="color: #000000;">|</b> <?php echo $rolename; ?></button></td>-->
                                                     <td><button type="button" class="btn bg-slate btn-labeled btn-rounded"><b><?php echo $acronym; ?></b> <?php echo $rolename; ?></button></td>
                                                     <td>
-                                                        <a class="btn" href="dashboard.php?user_edit=<?php echo $id; ?>" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;
-                                                        <?php if($status == "Active"){ ?>&nbsp;<a class="btn" onclick="deleteModal(<?php echo $id; ?>,'users')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
+                                                        <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" href="dashboard.php?user_edit=<?php echo $id; ?>" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                        <?php if(strpos($mypermission,'delete') !== false){ if($status == "Active"){ ?>&nbsp;<a class="btn" onclick="deleteModal(<?php echo $id; ?>,'users')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php }} ?>
                                                     </td>
                                                 </tr>
                                             <?php } ?>
@@ -7207,6 +7300,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     $selrun = $conn->query($dbcon,$sel);
                     $data = $conn->fetch($selrun);
                     $email = $data['email'];
+                    $inst = $data['institution'];
+                    $acctype = $data['account_type'];
+                    $role = $data['roleid'];
                 ?>
                     <div class="content-wrapper">
                         <!-- Page header -->
@@ -7267,9 +7363,9 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                 <div class="form-group">
                                                     <label>Institution:<b class="rqd">*</b></label>
                                                     <select name="institution" id="institutionedit" data-placeholder="Select User Institution" class="select">
-                                                        <option  value="<?php echo $data['institution']; ?>"><?php echo getInstitution($data['institution']); ?></option>
+                                                        <option  value="<?php echo $inst; ?>"><?php echo getInstitution($inst); ?></option>
                                                         <?php
-                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' AND institution_code <> '$inst' ORDER BY name ASC";
                                                         $selrun = $conn->query($dbcon,$sel);
                                                         while($row = $conn->fetch($selrun)){
                                                             ?>
@@ -7291,8 +7387,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                     <label>Account Type:<b class="rqd">*</b></label>
                                                     <select name="account-type" id="actypeedit" data-placeholder="Choose Account Type" class="select">
                                                         <option value="<?php echo $data['account_type']; ?>"><?php echo $data['account_type']; ?></option>
-                                                        <option value="GTEC">GTEC</option>
-                                                        <option value="Institution">Institution</option>
+                                                        <option value="<?php if($acctype == 'GTEC'){echo 'Institution';}else{echo 'GTEC';} ?>"><?php if($acctype == 'GTEC'){echo 'Institution';}else{echo 'GTEC';} ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -7302,7 +7397,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                     <select name="experience-from-month" id="roleedit" data-placeholder="Select User Role" class="select">
                                                         <option value="<?php echo $data['roleid']; ?>"><?php echo getRole($data['roleid']); ?></option>
                                                         <?php
-                                                        $sel = "SELECT role, id FROM roles WHERE status = 'Active' ORDER BY role ASC";
+                                                        $sel = "SELECT role, id FROM roles WHERE status = 'Active' AND id <> $role ORDER BY role ASC";
                                                         $selrun = $conn->query($dbcon,$sel);
                                                         while($row = $conn->fetch($selrun)){
                                                             ?>
