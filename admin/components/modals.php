@@ -98,8 +98,8 @@
         <div class="modal-content">
             <div class="modal-body">
                 <div class="row">
-                    <input type="text" id="rejectId" />
-                    <input type="text" id="rejectStatus" />
+                    <input type="hidden" id="rejectId" />
+                    <input type="hidden" id="rejectStatus" />
                     <div class="col-md-12" align="center">
                         <img src="../admin/assets/images/pnotify/warning.PNG" style="width: 80px; height: 80px;" class="img-responsive" />
                     </div>

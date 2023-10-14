@@ -6,7 +6,7 @@ if(isset($_GET['userid'])){
     $uname = $_GET['userid'];
     $msg = "Signed out";
     $log = date("Y-m-d H:i:s")." Username:".$uname." Message:".$msg.PHP_EOL;
-    logrequest($log,"System Logs");
+    logrequest($log,"System Logs",1);
 }
 ?>
 <!DOCTYPE html>
