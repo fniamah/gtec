@@ -203,6 +203,53 @@ if(isset($_GET['genderParityIndex'])){
     $conn->close($dbcon);
 }
 
+if(isset($_GET['summaryDataChart'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    //ISCED BAR CHARTS PER ENROLLMENTS
+    $iscedQry = "SELECT name, code FROM isceds WHERE status='Active'";
+    $iscedQryRun = $conn->query($dbcon,$iscedQry);
+
+    $iscedData = array();
+
+    while($data = $conn->fetch($iscedQryRun)){
+        $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
+        array_push($iscedData,
+            array(
+                'value'        => $percentageEnrollmentsByIsced,
+                'name'        =>$data['name'],
+
+            )
+        );
+    }
+
+    //GENDER PARITY
+    $parityQry = "SELECT DISTINCT year FROM enrollments";
+    $parityQryRun = $conn->query($dbcon,$parityQry);
+    $parityData = array();
+
+    while($data = $conn->fetch($parityQryRun)){
+        $obj = json_decode(getGPIDetails($data['year']));
+        array_push($parityData,
+            array(
+                'year'        =>$data['year'],
+                'parityIndex'        => $obj->gpi,
+            )
+        );
+    }
+
+    //SUMMARIZE RESPONSES
+    $feedback = array();
+    array_push($feedback,array(
+        "iscedDataCounts" => $iscedData,
+        "parityData" => $parityData,
+    ));
+    print json_encode($feedback);
+
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['getEnrollmentByCountry'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -509,13 +556,23 @@ if(isset($_POST['updateRank'])){
     $id = mysqli_real_escape_string($dbcon,$_POST['updateRank']);
     $rank = mysqli_real_escape_string($dbcon,$_POST['rank']);
     $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+    $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
-    //UPDATE
-    $upd = "UPDATE staffranks SET status = '$status',rank = '$rank' WHERE id =$id";
-    $conn->query($dbcon,$upd);
+    $chk = "SELECT SUM(target) AS targets FROM staffranks WHERE id <> $id";
+    $chkrun = $conn->query($dbcon,$chk);
+    $chkdata = $conn->fetch($chkrun);
+    if(($chkdata['targets'] + $target) <= 100.00) {
+        //UPDATE
+        $upd = "UPDATE staffranks SET status = '$status',rank = '$rank', target = $target WHERE id =$id";
+        $conn->query($dbcon, $upd);
+        $response['errorCode'] = "0";
+        $response['errorMsg'] = "Rank Updated Successfully";
+    }else{
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "Staff rank target of 100% is exceeded. Kindly rectify and try again";
+    }
 
-    $response['errorCode'] = "0";
-    $response['errorMsg'] = "Rank Updated Successfully";
+
 
     print json_encode($response);
     $conn->close($dbcon);
@@ -689,7 +746,7 @@ if(isset($_POST['addStaffCategory'])){
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO staffcategory(staff_type, ranks, status) VALUES('$name','$rank','Active')";
+        $user = "INSERT INTO staffcategory(staff_type, ranks, status, default_type) VALUES('$name','$rank','Active','None')";
         $conn->query($dbcon,$user);
 
         $response['errorCode'] = "0";
@@ -706,21 +763,49 @@ if(isset($_POST['addStaffCategory'])){
     $conn->close($dbcon);
 }
 
+if(isset($_POST['editStaffCategory'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $name = mysqli_real_escape_string($dbcon,$_POST['name']);
+    $id = mysqli_real_escape_string($dbcon,$_POST['catid']);
+    $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+    $rank = $_POST['rank'];
+
+    //ADD THE USER RECORDS AS WELL AS THE PASSWORD
+    $user = "UPDATE staffcategory SET staff_type = '$name', ranks = '$rank', status = '$status' WHERE id=$id";
+    $conn->query($dbcon,$user);
+
+    $response['errorCode'] = "0";
+    $response['errorMsg'] = "Staff Category Updated Successfully";
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
 if(isset($_POST['addStaffRank'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $rank = mysqli_real_escape_string($dbcon,$_POST['addStaffRank']);
+    $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
     $chkuname = "SELECT id FROM staffranks WHERE rank = '$rank'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
-        //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO staffranks(rank, status) VALUES('$rank','Active')";
-        $conn->query($dbcon,$user);
-
-        $response['errorCode'] = "0";
-        $response['errorMsg'] = "Staff Rank Created Successfully";
+        //CHECK PERCENTAGE TARGET
+        $chk = "SELECT SUM(target) AS targets FROM staffranks";
+        $chkrun = $conn->query($dbcon,$chk);
+        $chkdata = $conn->fetch($chkrun);
+        if(($chkdata['targets'] + $target) > 100.00){
+            $response['errorCode'] = "1";
+            $response['errorMsg'] = "Staff rank target of 100% is exceeded. Kindly rectify and try again";
+        }else{
+            //ADD THE USER RECORDS AS WELL AS THE PASSWORD
+            $user = "INSERT INTO staffranks(rank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
+            $conn->query($dbcon,$user);
+            $response['errorCode'] = "0";
+            $response['errorMsg'] = "Staff Rank Created Successfully";
+        }
 
     }else{
         $response['errorCode'] = "1";
@@ -1585,7 +1670,7 @@ if(isset($_GET['sortDataTableStudents'])){
     }else{
         print $data."</tbody></table>";
     }
-
+    print_r(getallheaders());
     $conn->close($dbcon);
 
 }
@@ -2119,7 +2204,7 @@ if(isset($_GET['getStaffRank'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT rank, status FROM staffranks WHERE id = $id";
+    $sel = "SELECT rank, status, target, default_type FROM staffranks WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -2128,9 +2213,8 @@ if(isset($_GET['getStaffRank'])){
 
         $status = $rows['status'];
         $otheroption = "Active";
-        if($status == "Active"){
-            $otheroption = "Inactive";
-        }
+        $readonly = $rows['default_type'] == "default" ? "readonly" : "";
+        $otheroption = $status == "Active" ? "Inactive" : "";
 
         $data = "
         <form class='stepy-clickable'>
@@ -2143,7 +2227,15 @@ if(isset($_GET['getStaffRank'])){
                     <div class='col-md-4' align='right'><label>Rank Name:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
-                            <input type='text' id='rankedit' value='".$rows['rank']."' class='form-control' placeholder='Rank Name' />
+                            <input type='text' id='rankedit'".$readonly." value='".$rows['rank']."' class='form-control' placeholder='Rank Name' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>% Percentage Target To Staff Pyramid:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='targetedit' value='".$rows['target']."' class='form-control' />
                         </div>
                     </div>
                 </div>
@@ -2240,6 +2332,86 @@ if(isset($_GET['getInstitutionCategory'])){
                 </div>
             </fieldset>
             <button type='submit' class='btn btn-primary stepy-finish' style='visibility: hidden'>Submit <i class='icon-check position-right'></i></button>
+        </form>
+        ";
+        print $data;
+    }
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getStaffCategory'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $id = $_GET['getStaffCategory'];
+    $response =array();
+
+    //FETCH THE ROLE RECORDS
+    $sel = "SELECT * FROM staffcategory WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) == 0){
+        print "Not Found";
+    }else{
+        $rows = $conn->fetch($selrun);
+
+        $status = $rows['status'];
+        $rank = $rows['ranks'];
+
+        $otheroption = "Active";
+        $readonly = $rows['default_type'] == "default" ? "readonly" : "";
+        $visibility = $rows['default_type'] == "default" ? "hidden" : "";
+        $otheroption = $status == "Active" ? "Inactive" : "";
+
+
+        $rankDetails = "<select id='ranknameedit'  data-placeholder='Select Rank' multiple='multiple' class='select'><div class='form-group'>";
+        $obj = explode(",",$rank);
+        for($i=0; $i < count($obj); $i++){
+            $rankDetails.="<option value='".$obj[$i]."' selected>".getRank($obj[$i])."</option>";
+        }
+
+        $sel = "SELECT rank, id FROM staffranks WHERE id NOT IN (".$rank.") ORDER BY rank ASC";
+        $selrun = $conn->query($dbcon,$sel);
+        while($row = $conn->fetch($selrun)){
+            $rankDetails.="<option value='".$row['id']."'>".$row['rank']."</option>";
+        }
+        $rankDetails.="</div></select>";
+        $data = "
+        <form class='stepy-clickable'>
+            <fieldset title='1'>
+                <legend class='text-semibold'>Staff Category Details</legend>
+
+                <div class='row' align='center'>
+                <input type='hidden' id='catid' readonly value='".$id."'/>
+                    <div class='col-md-4' align='right'><label>Category Name:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input ".$readonly." type='text' id='catnameedit' value='".$rows['staff_type']."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Ranks:</label></div>
+                    <div class='col-md-8'>
+                        ".$rankDetails."
+                    </div>
+                </div>
+                <div class='row $visibility'>
+                    <div class='col-md-4' align='right'><label>Category Status:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select id='catstatusedit' class='form-control'> 
+                                <option value='".$status."'>".$status."</option>
+                                <option value='".$otheroption."'>".$otheroption."</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-12' align='center'>
+                        <button class='btn btn-sm btn-primary' type='button' onclick='updateStaffCategory()'>Update  </button>
+                    </div>
+                </div>
+            </fieldset>
         </form>
         ";
         print $data;

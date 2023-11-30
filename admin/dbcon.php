@@ -230,6 +230,106 @@ function getProgram($id){
     return $response;
 }
 
+function getActualTargetPyramid($id){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE TOTAL ONUMBER OF STAFF OF THE STAFF TYPE
+    $getStfType="SELECT COUNT(staff_id) AS total FROM staff WHERE rank = '$id'";
+    $getStfTypeRun = $conn->query($dbcon,$getStfType);
+    $getStfTypeData = $conn->fetch($getStfTypeRun);
+    $singleCount = $getStfTypeData['total'];
+
+    $getStfTypeTgt="SELECT COUNT(staff_id) AS total FROM staff WHERE rank IN('1','2','3','4')";
+    $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
+    $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
+    $allCount = $getStfTypeDataTgt['total'];
+
+    $actualTarget = 100*($singleCount / $allCount);
+    return $actualTarget;
+
+    $conn->close($dbcon);
+}
+
+function getFemaleStaffEnrollments($year){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE TOTAL ONUMBER OF FEMALE TEACHING STAFF
+    $getStfType="SELECT COUNT(staff_id) AS total FROM staff WHERE year = '$year' AND gender = 'Female' AND rank IN('1','2','3','4')";
+    $getStfTypeRun = $conn->query($dbcon,$getStfType);
+    $getStfTypeData = $conn->fetch($getStfTypeRun);
+    $singleCount = $getStfTypeData['total'];
+
+    $getStfTypeTgt="SELECT COUNT(staff_id) AS total FROM staff WHERE year = '$year' AND rank IN('1','2','3','4')";
+    $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
+    $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
+    $allCount = $getStfTypeDataTgt['total'];
+
+    $actualTarget = $allCount == 0 ? 0 : number_format(100*($singleCount / $allCount),2);
+    return $actualTarget;
+
+    $conn->close($dbcon);
+}
+
+function getPercentageDistribution($year,$isced,$type="enrollments"){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE TOTAL ONUMBER OF FEMALE TEACHING STAFF
+    $getStfType="SELECT COUNT(e.applicant_id) AS total FROM $type e INNER JOIN programmes p ON e.programme_offered = p.prog_code WHERE p.prog_isced = '$isced' AND e.year = '$year'";
+    $getStfTypeRun = $conn->query($dbcon,$getStfType);
+    $getStfTypeData = $conn->fetch($getStfTypeRun);
+    $singleCount = $getStfTypeData['total'];
+
+    $getStfTypeTgt="SELECT COUNT(applicant_id) AS total FROM $type WHERE year = '$year'";
+    $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
+    $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
+    $allCount = $getStfTypeDataTgt['total'];
+
+    $actualTarget = $allCount == 0 ? 0 : number_format(100*($singleCount / $allCount),2);
+    return $actualTarget;
+
+    $conn->close($dbcon);
+}
+
+function getPercentageEnrollments($inst){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE TOTAL ONUMBER OF FEMALE TEACHING STAFF
+    $getStfType="SELECT COUNT(e.first_name) AS total FROM enrollments e INNER JOIN institutes i ON e.institution = i.institution_code INNER JOIN institute_categories c ON c.id = i.category_id WHERE i.category_id = '$inst' AND e.status = 'Active'";
+    $getStfTypeRun = $conn->query($dbcon,$getStfType);
+    $getStfTypeData = $conn->fetch($getStfTypeRun);
+    $singleCount = $getStfTypeData['total'];
+
+    $getStfTypeTgt="SELECT COUNT(first_name) AS total FROM enrollments WHERE status = 'Active'";
+    $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
+    $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
+    $allCount = $getStfTypeDataTgt['total'];
+
+    $actualTarget = $allCount == 0 ? 0 : number_format(100*($singleCount / $allCount),2);
+    return $actualTarget;
+
+    $conn->close($dbcon);
+}
+
+function getPercentageStaffInPrivate($inst){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    //GET THE TOTAL ONUMBER OF FEMALE TEACHING STAFF
+    $getStfType="SELECT COUNT(e.first_name) AS total FROM staff e INNER JOIN institutes i ON e.institution = i.institution_code INNER JOIN institute_categories c ON c.id = i.category_id WHERE i.category_id = '$inst' AND e.status = 'Active'";
+    $getStfTypeRun = $conn->query($dbcon,$getStfType);
+    $getStfTypeData = $conn->fetch($getStfTypeRun);
+    $singleCount = $getStfTypeData['total'];
+
+    $getStfTypeTgt="SELECT COUNT(first_name) AS total FROM staff WHERE status = 'Active'";
+    $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
+    $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
+    $allCount = $getStfTypeDataTgt['total'];
+
+    $actualTarget = $allCount == 0 ? 0 : number_format(100*($singleCount / $allCount),2);
+    return $actualTarget;
+
+    $conn->close($dbcon);
+}
+
 function getGPIDetails($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -249,7 +349,7 @@ function getGPIDetails($year){
     }
     $resp['male'] = $male;
     $resp['female'] = $female;
-    $resp['gpi'] = $gpi;
+    $resp['gpi'] = number_format($gpi,2);
 
     return json_encode($resp);
     $conn->close($dbcon);
@@ -336,6 +436,25 @@ function getEnrollmentQuota($year){
     $conn->close($dbcon);
 }
 
+function getEnrollmentByIsced($iscedCode){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selPart = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON e.programme_offered = p.prog_code WHERE p.prog_isced = '$iscedCode' AND e.status = 'Active'";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+    $iscedEnrollments = $selPartData['TotalCount'];
+
+    $selPart2 = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active'";
+    $selPartRun2 = $conn->query($dbcon,$selPart2);
+    $selPartData2 = $conn->fetch($selPartRun2);
+    $totalstudents = $selPartData2['TotalCount'];
+
+
+   return $iscedEnrollments;
+
+    $conn->close($dbcon);
+}
+
 function getSTR2Details($code,$target){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -362,11 +481,24 @@ function getSTR2Details($code,$target){
     $conn->close($dbcon);
 }
 
+function getRequestHeaders() {
+    $headers = array();
+    foreach($_SERVER as $key => $value) {
+        if (substr($key, 0, 5) <> 'HTTP_') {
+            continue;
+        }
+        $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+        $headers[$header] = $value;
+    }
+    return $headers;
+}
+
 function logrequest($log,$folder,$index = 0){
     //TODAY'S DATE WILL BE THE NAME OF THE FILE
     $fname="";
     if($index == 0){
         $fname = "../assets/Logs/".$folder."/".date("Ymd").".log";
+
     }else{
         $fname = "assets/Logs/".$folder."/".date("Ymd").".log";
     }
