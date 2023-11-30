@@ -1171,7 +1171,7 @@ body #header nav.mega-menu .mega-menu-signin ul.dropdown-menu li a, body #header
 	#header .nav-main-collapse {
 		top: 8px;
 		position: relative;
-		background: #CD5C5C;
+		background: #000;
 		max-height: none;
 		width: 100%;
 		overflow: hidden;
@@ -1344,7 +1344,7 @@ body #header nav.mega-menu .mega-menu-signin ul.dropdown-menu li a, body #header
 
 	/* Responsive Button Nav */
 	.btn-responsive-nav {
-		background: #CD5C5C;
+		background: #000;
 		top: 55px;
 		display: block;
 		position: absolute;
@@ -1354,7 +1354,7 @@ body #header nav.mega-menu .mega-menu-signin ul.dropdown-menu li a, body #header
 	}
 
 	.btn-responsive-nav:hover, .btn-responsive-nav:active, .btn-responsive-nav:focus {
-		color: #CCC;
+		color: #FFDC0A;
 		outline: none;
 	}
 

@@ -17,12 +17,8 @@ if (!isset($_SESSION['uname'])) {
     $actype = $_SESSION['actype'];
     $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 }
-//GET THE CURRENT URL PAGE
-$URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-//UPDATE THE LOG IN
-//$updtime = "UPDATE users SET last_login = '$dateTime', last_page = '$URL' WHERE userid = '$stfID'";
-//$conn->query($dbcon,$updtime);
-//$conn->close($dbcon);
+print_r($_SERVER['PHP_SELF']);
+
 ?>
 
 <!DOCTYPE html>
@@ -198,7 +194,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
         }
 
         .btnrqd{
-            background-color: rgba(223,246,221,0.98);
+            background-color: rgba(255,248,235,0.98);
+            border: rgba(255,199,180,0.98) thin solid;
         }
 
         .clicklink{
@@ -220,6 +217,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 
         #small{
             color: rgba(107,129,105,0.98);
+        }
+
+        .phead-sum{
+            font-weight: bolder;
+            color: #FFDC0A;
+            font-size: xx-large;
         }
     </style>
 
@@ -426,10 +429,6 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
         <?php $conn->close($dbcon);}elseif(isset($_GET['isced'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
-            $status = "";
-            if(isset($_GET['status'])){
-                $status = $_GET['status'];
-            }
             ?>
             <div class="content-wrapper">
                 <!-- Page header -->
@@ -452,19 +451,19 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             <h6 class="panel-title">Create ISCED for institutions</h6>
                         </div>
 
-                        <form class="stepy-clickable">
+                        <form class="stepy-clickable" id="createIscedForm">
                             <fieldset title="1">
                                 <legend class="text-semibold">ISCED Details</legend>
 
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="ititle" class="form-control" placeholder="ISCED Title" />
+                                            <input type="text" id="icode" class="form-control btnrqd" placeholder="ISCED CODE" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="icode" class="form-control" placeholder="ISCED CODE" />
+                                            <input type="text" id="ititle" class="form-control btnrqd" placeholder="ISCED Name" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -479,7 +478,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="number" id="itarget" class="form-control" placeholder="Student-Teacher Ratio Target" />
+                                            <input type="number" min="0" id="itarget" class="form-control btnrqd" placeholder="Student-Teacher Ratio Target" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -628,12 +627,12 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="date" id="instaccredit" class="form-control btnrqd" placeholder="Date Of First Accreditation" />
+                                            <input type="text" id="instaccredit" class="form-control btnrqd" placeholder="Date Of First Accreditation"  onfocus="(this.type = 'date')"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="date" id="instexpire" class="form-control btnrqd" placeholder="Date Accreditation Expires" />
+                                            <input type="text" id="instexpire" class="form-control btnrqd" placeholder="Date Accreditation Expires"  onfocus="(this.type = 'date')"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -1105,7 +1104,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             <div class="row">
 
                                 <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
-                                    No Institution Details Found
+                                    No Student Details Found
                                 </div>
                             </div>
                         </div>
@@ -2145,32 +2144,19 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     <!-- Clickable title -->
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">1</p>
                             <h5 class="panel-title">International Standard Classification of Education(ISCED)<br/><small id="small">mapping programmes run by Tertiary Education Institutions by ISCED fields of study</small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
-                            <?php
-                            $sel = "SELECT name FROM isceds WHERE status = 'Active'";
-                            $selrun = $conn->query($dbcon,$sel);
-                            if($conn->sqlnum($selrun) == 0){
-                            ?>
-                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
-                                    No records Found
-                                </div>
-                            <?php }else{ ?>
-                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
-                                <?php
-                                    while($data = $conn->fetch($selrun)){ ?>
-                                    <p style="font-weight: bold"><?php echo $data['name']; ?></p>
-                                <?php } ?>
+                            <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12 content-group" id="iscedInfor"></div>
+                            <div class="col-md-8 col-lg-8 col-sm-12 col-xs-12 content-group">
+                                <div id="iscedstats" style="width: auto;height:400px;"></div>
                             </div>
-                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
-                                Bar graph will bebhere
-                            </div>
-                            <?php } ?>
                         </div>
                     </div>
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">2</p>
                             <h5 class="panel-title">Gender Parity Index (GPI)<br/><small id="small">GPI= [Total Female Student Enrolment in Tertiary Education] ÷ [Total Male Enrolment in Tertiary Education</small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
@@ -2179,11 +2165,11 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             $selrun = $conn->query($dbcon,$sel);
                             if($conn->sqlnum($selrun) == 0){
                             ?>
-                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <div class="col-md-5 col-lg-5 col-sm-5 col-xs-5 content-group">
                                     No records Found
                                 </div>
                             <?php }else{ ?>
-                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                            <div class="col-md-5 col-lg-5 col-sm-5 col-xs-5 content-group">
                                 <table class="table table-responsive">
                                     <thead>
                                         <tr>
@@ -2210,12 +2196,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </tbody>
                                 </table>
                             </div>
-                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
+                                <div class="col-md-7 col-lg-7 col-sm-7 col-xs-7 content-group" id="parityIndexChart" style="width: 700px;height:500px;"></div>
                             <?php } ?>
                         </div>
                     </div>
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">3</p>
                             <h5 class="panel-title">Science To Humanitites Ratio<br/><small id="small">Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
@@ -2257,13 +2244,14 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </tbody>
                                 </table>
                             </div>
-                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group"></div>
                             <?php } ?>
                         </div>
                     </div>
 
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">4</p>
                             <h5 class="panel-title">Equivalence Of Part and Full-Time Staff (EPFS)<br/>
                             <small id="small">Total number of teaching staff = (number of part-staff/3) +Number of full time staff</small></h5>
                         </div>
@@ -2313,6 +2301,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">5</p>
                             <h5 class="panel-title">Student-Teacher Ratio 1<br/>
                             <small id="small">STR1= Number of students/number of staff</small></h5>
                         </div>
@@ -2348,6 +2337,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     </div>
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">6</p>
                             <h5 class="panel-title">Student-Teacher Ratio 2<br/>
                             <small id="small">Formula: STR for a field of Subject = [Total Number of Students in the Field of Subject ÷ Total
                                 Number of Teaching Staff/Lecturer] : [Total Number of Teaching Staff/Lecturer÷ Total Number of Teaching Staff/Lecturer]</small></h5>
@@ -2388,6 +2378,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                     </div>
                     <div class="panel panel-white">
                         <div class="panel-heading">
+                            <p class="phead-sum">7</p>
                             <h5 class="panel-title">Enrollment Quota<br/>
                                 <small id="small"> Quota of Postgraduate Enrolment = 100 x [Total number of Postgraduate Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small><br/>
                                 <small id="small"> Quota of International students = 100 x [Total number of International Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small><br/>
@@ -2418,6 +2409,301 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <td><?php echo $obj->postgraduates; ?> %</td>
                                             <td><?php echo $obj->international; ?> %</td>
                                             <td><?php echo $obj->feepaying; ?> %</td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">8</p>
+                            <h5 class="panel-title">Academic Staff Pyramid<br/><small id="small">Target Staff Type can be any of the following types: Professors, Associate Professors, Senior Lecturers and Lecturers<br/>Formula: 100 x [Total Number of Target Staff Type ÷ (Total Number of Professors + Total Number of Associate Professors + Total Number of Senior Lecturers + Total Number of Lecturers)] </small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Staff Type</th>
+                                        <th>Target %</th>
+                                        <th>Actual %</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT rank, target, id FROM staffranks WHERE default_type='default'";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['rank'];
+                                        $target = $data['target'];
+                                        $id = $data['id'];
+                                        $actual_target = getActualTargetPyramid($id);
+                                        ?>
+                                        <tr>
+                                            <td><?php echo $name; ?></td>
+                                            <td><?php echo $target; ?></td>
+                                            <td><?php echo number_format($actual_target,2); ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">9</p>
+                            <h5 class="panel-title">Percentage Of Female Teachers<br/>
+                                <small id="small">Percentage of Female Teachers = 100 x [Total Number of Female Teachers/Lecturers ÷ Total Number of Teachers/Lecturers (Male and Female)] </small><br/>
+                            </h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead style="background-color: #000; color: #ffffff; font-weight: bold;">
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Percentage Of Female Teachers</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $curryear = date("Y");
+                                    for($i=$curryear; $i >= ($curryear - 5); $i--){
+                                        $str1 = getFemaleStaffEnrollments($i);
+
+                                        ?>
+                                        <tr>
+                                            <td><?php echo $i; ?></td>
+                                            <td><?php echo $str1; ?> %</td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">10</p>
+                            <h5 class="panel-title">Percentage Distribution of Students in Tertiary Education by ISCED Fields of Education.<br/>
+                                <small id="small">Formula: Divide the number of students enrolled in each field of education by total enrolment in tertiary education in a specific academic-year and multiply the result by 100.</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 5); $i--){
+                                        ?>
+                                        <th><?php echo $i; ?></th>
+                                    <?php } ?>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT code, name FROM isceds WHERE status='Active' ORDER BY name ASC";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['code'];
+
+                                        ?>
+                                        <tr>
+                                            <td><b><?php echo $name; ?></b></td>
+                                            <?php
+                                                $curryear = date("Y");
+                                                for($i=$curryear; $i >= ($curryear - 5); $i--){
+                                                $calc = getPercentageDistribution($i,$code);
+                                                ?>
+                                                    <th><?php echo $calc; ?></th>
+                                            <?php } ?>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">11</p>
+                            <h5 class="panel-title">Percentage Distribution of Graduates by ISCED Fields of Education at the Tertiary Level<br/>
+                                <small id="small">Formula: Divide the number of graduates in each field of education by the total number of graduates in tertiary education in a given academic-year and multiply the result by 100</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <?php
+                                        $curryear = date("Y");
+                                        for($i=$curryear; $i >= ($curryear - 5); $i--){
+                                        ?>
+                                        <th><?php echo $i; ?></th>
+                                    <?php } ?>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT code, name FROM isceds WHERE status='Active' ORDER BY name ASC";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['code'];
+
+                                        ?>
+                                        <tr>
+                                            <td><b><?php echo $name; ?></b></td>
+                                            <?php
+                                                $curryear = date("Y");
+                                                for($i=$curryear; $i >= ($curryear - 5); $i--){
+                                                $calc = getPercentageDistribution($i,$code,'graduates');
+                                                ?>
+                                                    <th><?php echo $calc; ?></th>
+                                            <?php } ?>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">12</p>
+                            <h5 class="panel-title">Percentage of Private Enrolment<br/>
+                                <small id="small">Formula: Divide the number of students enrolled in private tertiary educational institutions by total student enrolment (public and private) and multiply the result by 100.</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Institution Category</th>
+                                        <th>Percentage Enrollment</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['id'];
+
+                                        ?>
+                                        <tr>
+                                            <td><b><?php echo $name; ?></b></td>
+                                            <td><?php echo $calc = getPercentageEnrollments($code); ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">13</p>
+                            <h5 class="panel-title">Percentage of Public Enrolment<br/>
+                                <small id="small">Formula: Divide the number of students enrolled in public tertiary educational institutions by total student enrolment (public and private) and multiply the result by 100.</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Institution Category</th>
+                                        <th>Percentage Enrollment</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Public%' OR name LIKE '%public%') ORDER BY name ASC";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['id'];
+
+                                        ?>
+                                        <tr>
+                                            <td><b><?php echo $name; ?></b></td>
+                                            <td><?php echo $calc = getPercentageEnrollments($code); ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">14</p>
+                            <h5 class="panel-title">Percentage of Teaching Staff in Private Educational Institution<br/>
+                                <small id="small">Formula: Divide the number of teachers/lecturers in the private tertiary educational institutions by the total number of teachers/lecturers (in both public and private tertiary educational institutions) and multiply the result by 100.</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Institution Category</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['id'];
+
+                                        ?>
+                                        <tr>
+                                            <td><b><?php echo $name; ?></b></td>
+                                            <td><?php echo $calc = getPercentageStaffInPrivate($code); ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-white">
+                        <div class="panel-heading">
+                            <p class="phead-sum">15</p>
+                            <h5 class="panel-title">Percentage of Teaching Staff in Public Educational Institution<br/>
+                                <small id="small">Formula: Divide the number of teachers/lecturers in the public tertiary educational institutions by the total number of teachers/lecturers (in both public and private tertiary educational institutions) and multiply the result by 100.</small></h5>
+                        </div>
+                        <div class="row" style="margin: 10px;">
+                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                                <table class="table table-responsive">
+                                    <thead>
+                                    <tr>
+                                        <th>Institution Category</th>
+                                        <th>Percentage</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Public%' OR name LIKE '%public%') ORDER BY name ASC";
+                                    $selrun = $conn->query($dbcon,$sel);
+                                    while($data = $conn->fetch($selrun)){
+                                        $name = $data['name'];
+                                        $code = $data['id'];
+
+                                        ?>
+                                        <tr>
+                                            <td><b><?php echo $name; ?></b></td>
+                                            <td><?php echo $calc = getPercentageStaffInPrivate($code); ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -2491,7 +2777,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text"  id="stfdob" class="form-control btnrqd" placeholder="Date Of Birth (YYYY-MM-DD)" />
+                                            <input type="text"  id="stfdob" class="form-control btnrqd" placeholder="Date Of Birth (YYYY-MM-DD)"  onfocus="(this.type = 'date')"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -6562,36 +6848,29 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                             <fieldset title="1">
                                 <legend class="text-semibold">Category Details</legend>
                                 <div class="row">
-                                    <div class="col-md-4" id="catrank"></div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3" id="catrank"></div>
+                                    <div class="col-md-5">
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <select class="form-control" id="stcatname">
-                                                        <option value="">Select Category</option>
-                                                        <option value="Non-Teaching">Non-Teaching Staff</option>
-                                                        <option value="Research">Research Staff</option>
-                                                        <option value="Teaching">Teaching Staff</option>
-                                                    </select>
+                                                    <input placeholder="Staff Category Name" type="text" id="stcatname" class="form-control btnrqd" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-10">
+                                            <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <select id="strankname"  data-placeholder="Select Rank" class="select btnrqd">
-                                                        <option value=""></option>
+                                                    <select id="strankname"  data-placeholder="Select Rank" multiple="multiple" class="select">
                                                         <?php
                                                         $sel = "SELECT rank, id FROM staffranks ORDER BY rank ASC";
                                                         $selrun = $conn->query($dbcon,$sel);
                                                         while($row = $conn->fetch($selrun)){
                                                             ?>
-                                                            <option value="<?php echo $row['id']."*".$row['rank']; ?>"><?php echo $row['rank']; ?></option>
+                                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['rank']; ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2" align="left"><button type="button" onclick="addRank()" class="btn" style="background-color: rgba(2,47,173,0.98); color: #ffffff;">Add</button></div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12" align="center">
@@ -6630,6 +6909,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             <th>#</th>
                                             <th>Name</th>
                                             <th>Rank(s)</th>
+                                            <th>Default Type</th>
                                             <th>Status</th>
                                             <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
                                             <?php if(strpos($mypermission,'delete') !== false){ ?><th>&nbsp;</th><?php } ?>
@@ -6638,7 +6918,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <tbody>
                                         <?php
                                         $count= 0;
-                                        $sel = "SELECT id, staff_type, ranks, status FROM staffcategory WHERE status='Active' ORDER BY staff_type ASC";
+                                        $sel = "SELECT id, staff_type, ranks, status, default_type FROM staffcategory WHERE status='Active' ORDER BY staff_type ASC";
                                         $selrun = $conn->query($dbcon,$sel);
                                         while($row = $conn->fetch($selrun)){
                                             $count++;
@@ -6648,6 +6928,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                             if($status == "Inactive"){
                                                 $color = "#6B8139";
                                             }
+                                            $deft= $row['default_type'] == "default" ? "<span class='label label-flat label-rounded border-success text-success-600'>Default</span>" : "";
                                             ?>
                                             <tr style="color: <?php echo $color; ?>">
                                                 <td><?php echo $count; ?></td>
@@ -6659,12 +6940,13 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                                         $obj = explode(",",$dranks);
                                                         for($i=0; $i < count($obj); $i++){
                                                             //print $obj[$i]."<br/>";
-                                                            print "<span class='badge badge-flat border-green-800 text-green-800' style='font-size: small;'>".getRank($obj[$i])."</span>&nbsp;&nbsp;";
+                                                            print "<span class='badge badge-flat border-blue-800 text-blue-800' style='font-size: small;'>".getRank($obj[$i])."</span>&nbsp;&nbsp;";
                                                         }
                                                     ?>
                                                 </td>
+                                                <td><?php echo $deft; ?></td>
                                                 <td><?php echo $row['status']; ?></td>
-                                                <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
+                                                <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="getStaffCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
                                                 <?php if(strpos($mypermission,'delete') !== false){ ?><td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'staffcategory')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
                                                 </td><?php } ?>
                                             </tr>
@@ -6718,6 +7000,14 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="col-md-4">&nbsp;</div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <input type="number" id="dpercentage" class="form-control" placeholder="% Percentage Target To Staff Pyramid" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-12" align="center">
                                         <button class="btn btn-sm btn-primary" type="button" onclick="createRank()">Submit  </button>
                                     </div>
@@ -6749,6 +7039,8 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <tr>
                                             <th>#</th>
                                             <th>Rank</th>
+                                            <th>Target</th>
+                                            <th>Default Type</th>
                                             <th>Status</th>
                                             <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
                                             <?php if(strpos($mypermission,'delete') !== false){ ?><th>&nbsp;</th><?php } ?>
@@ -6757,26 +7049,33 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         <tbody>
                                         <?php
                                         $count= 0;
-                                        $sel = "SELECT id, rank, status FROM staffranks ORDER BY rank ASC";
+                                        $sel = "SELECT id, rank, status, target, default_type FROM staffranks ORDER BY rank ASC";
                                         $selrun = $conn->query($dbcon,$sel);
+                                        $totalTarget = 0;
                                         while($row = $conn->fetch($selrun)){
                                             $count++;
+                                            $target = $row['target'];
+                                            $totalTarget+=$target;
                                             $id = $row['id'];
                                             $status = $row['status'];
                                             $color = "#000000";
                                             if($status == "Inactive"){
                                                 $color = "#6B8139";
                                             }
+                                            $deft= $row['default_type'] == "default" ? "<span class='label label-flat label-rounded border-success text-success-600'>Default</span>" : "";
                                             ?>
                                             <tr style="color: <?php echo $color; ?>">
                                                 <td><?php echo $count; ?></td>
                                                 <td><?php echo $row['rank']; ?></td>
+                                                <td><?php echo $row['target']; ?></td>
+                                                <td><?php echo $deft; ?></td>
                                                 <td><?php echo $row['status']; ?></td>
                                                 <?php if(strpos($mypermission,'update') !== false){ ?><td align="right"><a class="btn" onclick="getStaffRank(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a></td><?php } ?>
                                                 <?php if(strpos($mypermission,'delete') !== false){ ?><td align="left"><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'staffranks')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a>
                                                 </td><?php } ?>
                                             </tr>
                                         <?php } ?>
+                                        <tr><td colspan="2">&nbsp;</td><td colspan="6" style="font-weight: bold; font-size: large;"><?php echo number_format($totalTarget,2); ?></td></tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -7060,25 +7359,25 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                     <legend class="text-semibold">Personal data</legend>
 
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <input type="text" id="fname" class="form-control btnrqd" required placeholder="First Name"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <input type="text" id="lname" class="form-control btnrqd" placeholder="Last Name" required />
                                             </div>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <input type="text" id="contact" placeholder="Phone Number" class="form-control btnrqd" required />
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <input type="text" id="email" class="form-control btnrqd" required placeholder="E-mail" />
+                                                <input type="text" id="email" class="form-control btnrqd" placeholder="E-mail" />
                                             </div>
                                         </div>
 
@@ -7101,7 +7400,7 @@ $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
                                         </div>
                                         <div class="col-md-4 hidden" id="unhideinst">
                                             <div class="form-group">
-                                                <select name="institution" id="institution" data-placeholder="Select User Institution" class="select">
+                                                <select name="institution" id="institution" data-placeholder="Select User Institution" class="select btnrqd">
                                                     <option></option>
                                                     <?php
                                                     $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
