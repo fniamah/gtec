@@ -108,8 +108,8 @@
                                     <a href="#"><i class="icon-pie-chart5"></i> <span>Analytics</span></a>
                                     <ul>
                                         <li><a href="../admin/dashboard.php?isced_report">ISCED</a></li>
-                                        <li><a href="starters/1_col.html">Gross Enrollment Ratio</a></li>
-                                        <li><a href="starters/2_col.html">Gender Parity Index</a></li>
+                                        <li><a href="../admin/dashboard.php?ger_report">Gross Enrollment Ratio</a></li>
+                                        <li><a href="../admin/dashboard.php?gpi_report">Gender Parity Index</a></li>
                                         <li><a href="starters/2_col.html">Science To Humanities Ratio</a></li>
                                         <li><a href="starters/2_col.html">Equivalence of part and full-time staff.</a></li>
                                         <li><a href="starters/2_col.html">Student-Teacher Ratio 1</a></li>
@@ -140,7 +140,7 @@
                             <?php if(str_contains($access,'User Roles')){?><li><a href="../admin/dashboard.php?user_roles"><i class="icon-user-check"></i><span>User Roles</span></a></li><?php } ?>
                         </ul>
                     </li>
-                    <?php } if((str_contains($access,'Archive')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?archive"><i class="icon-archive"></i> <span>Archive</span></a></li><?php } ?>
+                    <!--<?php } if((str_contains($access,'Archive')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?archive"><i class="icon-archive"></i> <span>Archive</span></a></li><?php } ?>-->
                     <?php if((str_contains($access,'Logs')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?log_details"><i class="icon-newspaper2"></i> <span>Logs</span></a></li><?php } ?>
 
 

@@ -206,46 +206,142 @@ if(isset($_GET['genderParityIndex'])){
 if(isset($_GET['summaryDataChart'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
+    $chartType = $_GET['summaryDataChart'];
+    if($chartType == "dashboard"){
+        //ISCED BAR CHARTS PER ENROLLMENTS
+        $iscedQry = "SELECT name, code FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $iscedQryRun = $conn->query($dbcon,$iscedQry);
 
-    //ISCED BAR CHARTS PER ENROLLMENTS
-    $iscedQry = "SELECT name, code FROM isceds WHERE status='Active'";
-    $iscedQryRun = $conn->query($dbcon,$iscedQry);
+        $iscedData = array();
 
-    $iscedData = array();
+        while($data = $conn->fetch($iscedQryRun)){
+            $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
+            array_push($iscedData,
+                array(
+                    'value'        => $percentageEnrollmentsByIsced,
+                    'name'        =>$data['name'],
 
-    while($data = $conn->fetch($iscedQryRun)){
-        $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
-        array_push($iscedData,
-            array(
-                'value'        => $percentageEnrollmentsByIsced,
-                'name'        =>$data['name'],
+                )
+            );
+        }
 
-            )
-        );
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM enrollments ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+        $parityData = array();
+
+        while($data = $conn->fetch($parityQryRun)){
+            $obj = json_decode(getGPIDetails($data['year']));
+            array_push($parityData,
+                array(
+                    'year'        =>$data['year'],
+                    'parityIndex'        => $obj->gpi,
+                )
+            );
+        }
+
+        //ACADEMIC STAFF PYRAMID
+        $pyramidData = array();
+        $pyr = "SELECT drank, target, id FROM staffranks WHERE default_type='default' ORDER BY drank ASC";
+        $pyrRun = $conn->query($dbcon,$pyr);
+        while($data = $conn->fetch($pyrRun)) {
+            $name = $data['drank'];
+            $target = $data['target'];
+            $id = $data['id'];
+            $actual_target = getActualTargetPyramid($id);
+            array_push($pyramidData,
+                array(
+                    'name'        =>$data['drank'],
+                    'target'        =>$data['target'],
+                    'value'        => number_format($actual_target,2),
+                )
+            );
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "iscedDataCounts" => $iscedData,
+            "parityData" => $parityData,
+            "pyramidData" => $pyramidData,
+        ));
+        print json_encode($feedback);
     }
+    elseif($chartType == "isced"){
+        //ISCED BAR CHARTS PER ENROLLMENTS
+        $iscedQry = "SELECT name, code FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $iscedQryRun = $conn->query($dbcon,$iscedQry);
 
-    //GENDER PARITY
-    $parityQry = "SELECT DISTINCT year FROM enrollments";
-    $parityQryRun = $conn->query($dbcon,$parityQry);
-    $parityData = array();
+        $iscedData = array();
 
-    while($data = $conn->fetch($parityQryRun)){
-        $obj = json_decode(getGPIDetails($data['year']));
-        array_push($parityData,
-            array(
-                'year'        =>$data['year'],
-                'parityIndex'        => $obj->gpi,
-            )
-        );
+        while($data = $conn->fetch($iscedQryRun)){
+            $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
+            array_push($iscedData,
+                array(
+                    'value'        => $percentageEnrollmentsByIsced,
+                    'name'        =>$data['name'],
+
+                )
+            );
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "iscedDataCounts" => $iscedData,
+        ));
+        print json_encode($feedback);
     }
+    elseif($chartType == "gpi"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM enrollments WHERE year BETWEEN '$sdate' AND '$edate' ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+        $parityData = array();
 
-    //SUMMARIZE RESPONSES
-    $feedback = array();
-    array_push($feedback,array(
-        "iscedDataCounts" => $iscedData,
-        "parityData" => $parityData,
-    ));
-    print json_encode($feedback);
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th> Year </th>
+                                            <th>Total Male Enrollment</th>
+                                            <th>Total Female Enrollment</th>
+                                            <th>GPI</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $obj = json_decode(getGPIDetails($data['year']));
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['year']."</td>
+                            <td>".$obj->male."</td>
+                            <td>".$obj->female."</td>
+                            <td>".$obj->gpi."</td>
+                        </tr>";
+            array_push($parityData,
+                array(
+                    'year'        =>$data['year'],
+                    'male'        =>$obj->male,
+                    'female'        =>$obj->female,
+                    'parityIndex'        => $obj->gpi,
+                )
+            );
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='4'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "gpiData" => $parityData,
+            "dataTable" => $dataTable,
+        ));
+        print json_encode($feedback);
+    }
 
     $conn->close($dbcon);
 }
@@ -563,7 +659,7 @@ if(isset($_POST['updateRank'])){
     $chkdata = $conn->fetch($chkrun);
     if(($chkdata['targets'] + $target) <= 100.00) {
         //UPDATE
-        $upd = "UPDATE staffranks SET status = '$status',rank = '$rank', target = $target WHERE id =$id";
+        $upd = "UPDATE staffranks SET status = '$status',drank = '$rank', target = $target WHERE id =$id";
         $conn->query($dbcon, $upd);
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Rank Updated Successfully";
@@ -746,7 +842,7 @@ if(isset($_POST['addStaffCategory'])){
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO staffcategory(staff_type, ranks, status, default_type) VALUES('$name','$rank','Active','None')";
+        $user = "INSERT INTO staffcategory(staff_type, dranks, status, default_type) VALUES('$name','$rank','Active','None')";
         $conn->query($dbcon,$user);
 
         $response['errorCode'] = "0";
@@ -772,7 +868,7 @@ if(isset($_POST['editStaffCategory'])){
     $rank = $_POST['rank'];
 
     //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-    $user = "UPDATE staffcategory SET staff_type = '$name', ranks = '$rank', status = '$status' WHERE id=$id";
+    $user = "UPDATE staffcategory SET staff_type = '$name', dranks = '$rank', status = '$status' WHERE id=$id";
     $conn->query($dbcon,$user);
 
     $response['errorCode'] = "0";
@@ -789,7 +885,7 @@ if(isset($_POST['addStaffRank'])){
     $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
-    $chkuname = "SELECT id FROM staffranks WHERE rank = '$rank'";
+    $chkuname = "SELECT id FROM staffranks WHERE drank = '$rank'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //CHECK PERCENTAGE TARGET
@@ -801,7 +897,7 @@ if(isset($_POST['addStaffRank'])){
             $response['errorMsg'] = "Staff rank target of 100% is exceeded. Kindly rectify and try again";
         }else{
             //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-            $user = "INSERT INTO staffranks(rank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
+            $user = "INSERT INTO staffranks(drank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
             $conn->query($dbcon,$user);
             $response['errorCode'] = "0";
             $response['errorMsg'] = "Staff Rank Created Successfully";
@@ -1670,7 +1766,6 @@ if(isset($_GET['sortDataTableStudents'])){
     }else{
         print $data."</tbody></table>";
     }
-    print_r(getallheaders());
     $conn->close($dbcon);
 
 }
@@ -1990,9 +2085,9 @@ if(isset($_GET['sortDataTableStaff'])){
     }
     if($rank != 'All'){
         if($clause == ""){
-            $clause = $clause." WHERE rank = '$rank'";
+            $clause = $clause." WHERE drank = '$rank'";
         }else{
-            $clause = $clause."AND rank = '$rank'";
+            $clause = $clause."AND drank = '$rank'";
         }
     }
     if($cat != 'All'){
@@ -2028,7 +2123,7 @@ if(isset($_GET['sortDataTableStaff'])){
                         <td>".getInstitution($row['institution'])."</td>
                         <td>".$row['qualification']."</td>
                         <td>".getStaffCategory($row['staff_type'])."</td>
-                        <td>".getStaffRank($row['rank'])."</td>
+                        <td>".getStaffRank($row['drank'])."</td>
                         <td>".$row['employment_type']."</td>
                         <td>".$row['nationality']."</td>
                         <td>".$row['gender']."</td>
@@ -2204,7 +2299,7 @@ if(isset($_GET['getStaffRank'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT rank, status, target, default_type FROM staffranks WHERE id = $id";
+    $sel = "SELECT drank, status, target, default_type FROM staffranks WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -2227,7 +2322,7 @@ if(isset($_GET['getStaffRank'])){
                     <div class='col-md-4' align='right'><label>Rank Name:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
-                            <input type='text' id='rankedit'".$readonly." value='".$rows['rank']."' class='form-control' placeholder='Rank Name' />
+                            <input type='text' id='rankedit'".$readonly." value='".$rows['drank']."' class='form-control' placeholder='Rank Name' />
                         </div>
                     </div>
                 </div>
@@ -2369,10 +2464,10 @@ if(isset($_GET['getStaffCategory'])){
             $rankDetails.="<option value='".$obj[$i]."' selected>".getRank($obj[$i])."</option>";
         }
 
-        $sel = "SELECT rank, id FROM staffranks WHERE id NOT IN (".$rank.") ORDER BY rank ASC";
+        $sel = "SELECT drank, id FROM staffranks WHERE id NOT IN (".$rank.") ORDER BY drank ASC";
         $selrun = $conn->query($dbcon,$sel);
         while($row = $conn->fetch($selrun)){
-            $rankDetails.="<option value='".$row['id']."'>".$row['rank']."</option>";
+            $rankDetails.="<option value='".$row['id']."'>".$row['drank']."</option>";
         }
         $rankDetails.="</div></select>";
         $data = "
@@ -2423,14 +2518,14 @@ if(isset($_GET['getRankDetails'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $rankid = $_GET['getRankDetails'];
-    $sel = "SELECT ranks FROM staffcategory WHERE id=$rankid";
+    $sel = "SELECT dranks FROM staffcategory WHERE id=$rankid";
     $selrun = $conn->query($dbcon,$sel);
     $msg="";
     if($conn->sqlnum($selrun) == 0){
         $msg = "<option value=''>Empty Ranks</option>";
     }else{
         $row = $conn->fetch($selrun);
-        $ranks = $row['ranks'];
+        $ranks = $row['dranks'];
         $explode = explode(",",$ranks);
         for($i=0; $i < count($explode);$i++){
             $msg=$msg."<option value='".$explode[$i]."'>".getRank($explode[$i])."</option>";
@@ -2488,7 +2583,7 @@ if(isset($_POST['addNewStaff'])){
     $chkrun = $conn->query($dbcon,$chk);
     if($conn->sqlnum($chkrun) == 0){
         $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
-birth_date, gender, nationality, qualification, designation, rank, staff_type, college, department, faculty, employment_type, disability, 
+birth_date, gender, nationality, qualification, designation, drank, staff_type, college, department, faculty, employment_type, disability, 
 disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
 ,'$dept','$faculty','$emptype','$disable','$distype')";
         $insrun = $conn->query($dbcon,$ins);
@@ -2537,7 +2632,7 @@ if(isset($_POST['updateStaff'])){
 
         $ins = "UPDATE staff SET year='$acad', title='$title', national_id_type='$idtype', national_id_number='$idnum', institution='$inst',
  first_name='$fname', surname='$lname', other_names='$oname', birth_date='$dob', gender='$sex', nationality='$nat',
-  qualification='$edu', designation='$desig', rank='$rank', staff_type='$stftype', college='$college', department='$dept', faculty='$faculty',
+  qualification='$edu', designation='$desig', drank='$rank', staff_type='$stftype', college='$college', department='$dept', faculty='$faculty',
    employment_type='$emptype', disability='$disable', disability_type = '$distype' WHERE staff_id = '$stfid'";
         $insrun = $conn->query($dbcon,$ins);
         if($insrun){
