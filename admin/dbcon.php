@@ -100,11 +100,11 @@ function getRank($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $response="N/A";
-    $sel="SELECT rank FROM staffranks WHERE id = $id";
+    $sel="SELECT drank FROM staffranks WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
         $data = $conn->fetch($selrun);
-        $response = $data['rank'];
+        $response = $data['drank'];
     }
     return $response;
 }
@@ -112,7 +112,7 @@ function getRank($id){
 function getInstitution($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $response="N/A";
+    $response=$id;
     $sel="SELECT name FROM institutes WHERE institution_code = '$id'";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
@@ -208,11 +208,11 @@ function getStaffRank($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $response="N/A";
-    $sel="SELECT rank FROM staffranks WHERE id = $id";
+    $sel="SELECT drank FROM staffranks WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
         $data = $conn->fetch($selrun);
-        $response = $data['rank'];
+        $response = $data['drank'];
     }
     return $response;
 }
@@ -234,12 +234,12 @@ function getActualTargetPyramid($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     //GET THE TOTAL ONUMBER OF STAFF OF THE STAFF TYPE
-    $getStfType="SELECT COUNT(staff_id) AS total FROM staff WHERE rank = '$id'";
+    $getStfType="SELECT COUNT(staff_id) AS total FROM staff WHERE drank = '$id'";
     $getStfTypeRun = $conn->query($dbcon,$getStfType);
     $getStfTypeData = $conn->fetch($getStfTypeRun);
     $singleCount = $getStfTypeData['total'];
 
-    $getStfTypeTgt="SELECT COUNT(staff_id) AS total FROM staff WHERE rank IN('1','2','3','4')";
+    $getStfTypeTgt="SELECT COUNT(staff_id) AS total FROM staff WHERE drank IN('1','2','3','4')";
     $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
     $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
     $allCount = $getStfTypeDataTgt['total'];
@@ -254,12 +254,12 @@ function getFemaleStaffEnrollments($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     //GET THE TOTAL ONUMBER OF FEMALE TEACHING STAFF
-    $getStfType="SELECT COUNT(staff_id) AS total FROM staff WHERE year = '$year' AND gender = 'Female' AND rank IN('1','2','3','4')";
+    $getStfType="SELECT COUNT(staff_id) AS total FROM staff WHERE year = '$year' AND gender = 'Female' AND drank IN('1','2','3','4')";
     $getStfTypeRun = $conn->query($dbcon,$getStfType);
     $getStfTypeData = $conn->fetch($getStfTypeRun);
     $singleCount = $getStfTypeData['total'];
 
-    $getStfTypeTgt="SELECT COUNT(staff_id) AS total FROM staff WHERE year = '$year' AND rank IN('1','2','3','4')";
+    $getStfTypeTgt="SELECT COUNT(staff_id) AS total FROM staff WHERE year = '$year' AND drank IN('1','2','3','4')";
     $getStfTypeRunTgt = $conn->query($dbcon,$getStfTypeTgt);
     $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
     $allCount = $getStfTypeDataTgt['total'];
@@ -368,7 +368,7 @@ function getPartToFullTimeStaff($year){
     $selFullData = $conn->fetch($selFullRun);
     $fulltime = $selFullData['TotalCount'];
 
-    $CalculateTotal = ($parttime/3)+$fulltime;
+    $CalculateTotal = ceil(($parttime/3)+$fulltime);
 
     $resp['parttime'] = $parttime;
     $resp['fulltime'] = $fulltime;
@@ -458,12 +458,15 @@ function getEnrollmentByIsced($iscedCode){
 function getSTR2Details($code,$target){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $selPart = "SELECT COUNT(applicant_id) AS TotalCount FROM enrollments WHERE status = 'Active' AND year = '$year'";
+
+    //TOTAL STUDENTS IN THE FIELD OF SUBJECT
+    $selPart = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON e.programme_offered = p.prog_code WHERE p.prog_isced = '$code'";
     $selPartRun = $conn->query($dbcon,$selPart);
     $selPartData = $conn->fetch($selPartRun);
     $students = $selPartData['TotalCount'];
 
-    $selFull = "SELECT COUNT(staff_id) AS TotalCount FROM staff WHERE status = 'Active' AND year = '$year'";
+    //TOTAL NUMBER OF STAFF
+    $selFull = "SELECT COUNT(s.staff_id) AS TotalCount FROM staff s INNER JOIN staffcategory c ON c.id = s.staff_type WHERE s.status = 'Active' AND s.staff_type = '16'";
     $selFullRun = $conn->query($dbcon,$selFull);
     $selFullData = $conn->fetch($selFullRun);
     $staff = $selFullData['TotalCount'];
@@ -475,7 +478,8 @@ function getSTR2Details($code,$target){
 
     $resp['students'] = $students;
     $resp['staff'] = $staff;
-    $resp['str1'] = $CalculateRatio;
+    $resp['actual'] = ceil($CalculateRatio)." : 1";
+    $resp['deficit'] = ceil($target - $CalculateRatio)." : 1";
 
     return json_encode($resp);
     $conn->close($dbcon);
@@ -607,7 +611,7 @@ function checkAccess($type,$user){
 function getStaff($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $response="N/A";
+    $response=$id;
     $sel="SELECT title, first_name, surname, other_names  FROM staff WHERE staff_id = '$id'";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
@@ -701,4 +705,5 @@ function sendEmail($recipient,$msg,$sender,$subject){
 
     //echo "<script>alert('Mail sent successfully');</script>";
 }
+
 ?>

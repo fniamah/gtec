@@ -10,6 +10,7 @@ define("DB_HOST",'localhost');
 define("DB_USER",'root');
 define("DB_PASSWORD",'');
 define("DB_NAME",'fptec');
+define("BULK_UPLOAD_LIMIT",1000);
 define("TIMESTAMP",date("Y-m-d H:i:s"));
 define("GOOGLE_API_KEY","AIzaSyCCumSa1SxK_bh-OSLAgaVzK5DskXXOWEo");
 

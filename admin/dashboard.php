@@ -1,6 +1,10 @@
 <?php
 include("dbcon.php");
 include("Classes/Dashboard.php");
+//include("Classes/RedisConnect.php");
+
+//$redisConn =  new RedisConnect;
+//print_r($redisConn->textRedis());
 
 if (!isset($_SESSION['uname'])) {
     header("location: index.php");
@@ -17,7 +21,6 @@ if (!isset($_SESSION['uname'])) {
     $actype = $_SESSION['actype'];
     $URL = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 }
-print_r($_SERVER['PHP_SELF']);
 
 ?>
 
@@ -75,7 +78,7 @@ print_r($_SERVER['PHP_SELF']);
 
     <script type="text/javascript" src="assets/js/plugins/forms/tags/tagsinput.min.js"></script>
     <script type="text/javascript" src="assets/js/plugins/forms/tags/tokenfield.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/form_tags_input.js"></script>
+    <!--<script type="text/javascript" src="assets/js/pages/form_tags_input.js"></script>-->
     <!-- /theme JS files -->
     <!-- DATA TABLES-->
     <link href="https://cdn.datatables.net/v/dt/jszip-3.10.1/dt-1.13.6/b-2.4.2/b-html5-2.4.2/b-print-2.4.2/sc-2.2.0/datatables.min.css" rel="stylesheet">
@@ -518,9 +521,9 @@ print_r($_SERVER['PHP_SELF']);
                                         <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>ISCED</th>
-                                            <th>ISCED Code</th>
-                                            <th>ISCED Description</th>
+                                            <th>Name</th>
+                                            <th>Code</th>
+                                            <th>Description</th>
                                             <th>Classification</th>
                                             <th>STR Target</th>
                                             <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
@@ -1842,7 +1845,7 @@ print_r($_SERVER['PHP_SELF']);
                                         <li><span style="font-weight: bold;">Academic Year</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['year']; ?></li></li>
                                         <li><span style="font-weight: bold;">Employment Type</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['employment_type']; ?></li></li>
                                         <li><span style="font-weight: bold;">Staff Type</span>:&nbsp;&nbsp;&nbsp; <?php echo getCategory($rows['staff_type']); ?></li></li>
-                                        <li><span style="font-weight: bold;">Staff Rank</span>:&nbsp;&nbsp;&nbsp; <?php echo getRank($rows['rank']); ?></li></li>
+                                        <li><span style="font-weight: bold;">Staff Rank</span>:&nbsp;&nbsp;&nbsp; <?php echo getRank($rows['drank']); ?></li></li>
                                         <li><span style="font-weight: bold;">Designation</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['designation']; ?></li></li>
                                         <li><span style="font-weight: bold;">College</span>:&nbsp;&nbsp;&nbsp; <?php echo getCollege($rows['college']); ?></li></li>
                                         <li><span style="font-weight: bold;">Faculty</span>:&nbsp;&nbsp;&nbsp; <?php echo getFaculty($rows['faculty']); ?></li></li>
@@ -2038,7 +2041,7 @@ print_r($_SERVER['PHP_SELF']);
                                         <div class="col-md-4" id="ranklisthide">
                                             <div class="form-group">
                                                 <select name="institution" id="ranklist" data-placeholder="Select Rank" class="select">
-                                                    <option value="<?php echo $rows['rank']; ?>"><?php echo getRank($rows['rank']); ?></option>
+                                                    <option value="<?php echo $rows['drank']; ?>"><?php echo getRank($rows['rank']); ?></option>
                                                 </select>
                                             </div>
                                         </div>
@@ -2161,7 +2164,7 @@ print_r($_SERVER['PHP_SELF']);
                         </div>
                         <div class="row" style="margin: 10px;">
                             <?php
-                            $sel = "SELECT DISTINCT year FROM enrollments WHERE status = 'Active'";
+                            $sel = "SELECT DISTINCT year FROM enrollments WHERE status = 'Active' ORDER BY year DESC";
                             $selrun = $conn->query($dbcon,$sel);
                             if($conn->sqlnum($selrun) == 0){
                             ?>
@@ -2203,11 +2206,11 @@ print_r($_SERVER['PHP_SELF']);
                     <div class="panel panel-white">
                         <div class="panel-heading">
                             <p class="phead-sum">3</p>
-                            <h5 class="panel-title">Science To Humanitites Ratio<br/><small id="small">Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</small></h5>
+                            <h5 class="panel-title">Science To Humanities Ratio<br/><small id="small">Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
                             <?php
-                            $sel = "SELECT DISTINCT year FROM enrollments";
+                            $sel = "SELECT DISTINCT year FROM enrollments ORDER BY year DESC";
                             $selrun = $conn->query($dbcon,$sel);
                             if($conn->sqlnum($selrun) == 0){
                             ?>
@@ -2257,7 +2260,7 @@ print_r($_SERVER['PHP_SELF']);
                         </div>
                         <div class="row" style="margin: 10px;">
                             <?php
-                            $sel = "SELECT DISTINCT year FROM staff";
+                            $sel = "SELECT DISTINCT year FROM staff ORDER BY year DESC";
                             $selrun = $conn->query($dbcon,$sel);
                             if($conn->sqlnum($selrun) == 0){
                             ?>
@@ -2294,7 +2297,6 @@ print_r($_SERVER['PHP_SELF']);
                                     </tbody>
                                 </table>
                             </div>
-                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">Bar Graph will be here</div>
                             <?php } ?>
                         </div>
                     </div>
@@ -2327,7 +2329,7 @@ print_r($_SERVER['PHP_SELF']);
                                         <td><?php echo $i; ?></td>
                                         <td><?php echo $obj->students; ?></td>
                                         <td><?php echo $obj->staff; ?></td>
-                                        <td><?php echo $obj->str1; ?></td>
+                                        <td><?php echo number_format($obj->str1,2); ?></td>
                                     </tr>
                                     <?php } ?>
                                     </tbody>
@@ -2348,6 +2350,8 @@ print_r($_SERVER['PHP_SELF']);
                                     <thead>
                                     <tr>
                                         <th>Subject</th>
+                                        <th>Total Students</th>
+                                        <th>Total Staff</th>
                                         <th>Target</th>
                                         <th>Actual</th>
                                         <th>Deficit</th>
@@ -2355,20 +2359,22 @@ print_r($_SERVER['PHP_SELF']);
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $sel = "SELECT name, code, target FROM isceds WHERE status='Active'";
+                                    $sel = "SELECT name, code, target FROM isceds WHERE status='Active' ORDER BY name ASC";
                                     $selrun = $conn->query($dbcon,$sel);
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
                                         $code = $data['code'];
                                         $target = $data['target'];
-                                        /*$str1 = getSTR2Details($code,$target);
-                                        $obj = json_decode($str1);*/
+                                        $str2 = getSTR2Details($code,$target);
+                                        $obj = json_decode($str2);
                                     ?>
                                     <tr>
                                         <td><?php echo $name; ?></td>
+                                        <td><?php echo $obj->students; ?></td>
+                                        <td><?php echo $obj->staff; ?></td>
                                         <td><?php echo $target." : 1"; ?></td>
-                                        <td><?php echo ""; ?></td>
-                                        <td><?php echo ""; ?></td>
+                                        <td><?php echo $obj->actual; ?></td>
+                                        <td><?php echo $obj->deficit; ?></td>
                                     </tr>
                                     <?php } ?>
                                     </tbody>
@@ -2422,7 +2428,7 @@ print_r($_SERVER['PHP_SELF']);
                             <h5 class="panel-title">Academic Staff Pyramid<br/><small id="small">Target Staff Type can be any of the following types: Professors, Associate Professors, Senior Lecturers and Lecturers<br/>Formula: 100 x [Total Number of Target Staff Type ÷ (Total Number of Professors + Total Number of Associate Professors + Total Number of Senior Lecturers + Total Number of Lecturers)] </small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
-                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 content-group">
+                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group">
                                 <table class="table table-responsive">
                                     <thead>
                                     <tr>
@@ -2433,10 +2439,10 @@ print_r($_SERVER['PHP_SELF']);
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $sel = "SELECT rank, target, id FROM staffranks WHERE default_type='default'";
+                                    $sel = "SELECT drank, target, id FROM staffranks WHERE default_type='default' ORDER BY drank ASC";
                                     $selrun = $conn->query($dbcon,$sel);
                                     while($data = $conn->fetch($selrun)){
-                                        $name = $data['rank'];
+                                        $name = $data['drank'];
                                         $target = $data['target'];
                                         $id = $data['id'];
                                         $actual_target = getActualTargetPyramid($id);
@@ -2450,6 +2456,7 @@ print_r($_SERVER['PHP_SELF']);
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6 content-group" id="pyramidChart" style="width: 600px;height:500px;"></div>
                         </div>
                     </div>
                     <div class="panel panel-white">
@@ -2601,7 +2608,7 @@ print_r($_SERVER['PHP_SELF']);
                                         ?>
                                         <tr>
                                             <td><b><?php echo $name; ?></b></td>
-                                            <td><?php echo $calc = getPercentageEnrollments($code); ?></td>
+                                            <td><?php echo $calc = number_format(getPercentageEnrollments($code),2); ?>  %</td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -2635,7 +2642,7 @@ print_r($_SERVER['PHP_SELF']);
                                         ?>
                                         <tr>
                                             <td><b><?php echo $name; ?></b></td>
-                                            <td><?php echo $calc = getPercentageEnrollments($code); ?></td>
+                                            <td><?php echo $calc = number_format(getPercentageEnrollments($code),2); ?>  %</td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -2669,7 +2676,7 @@ print_r($_SERVER['PHP_SELF']);
                                         ?>
                                         <tr>
                                             <td><b><?php echo $name; ?></b></td>
-                                            <td><?php echo $calc = getPercentageStaffInPrivate($code); ?></td>
+                                            <td><?php echo $calc = number_format(getPercentageStaffInPrivate($code),2); ?>  %</td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -2699,11 +2706,10 @@ print_r($_SERVER['PHP_SELF']);
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
                                         $code = $data['id'];
-
                                         ?>
                                         <tr>
                                             <td><b><?php echo $name; ?></b></td>
-                                            <td><?php echo $calc = getPercentageStaffInPrivate($code); ?></td>
+                                            <td><?php echo $calc = number_format(getPercentageStaffInPrivate($code),2); ?>  %</td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>
@@ -4445,44 +4451,44 @@ print_r($_SERVER['PHP_SELF']);
                                 </div>
                                 <div class="col-md-3">
                                     <label>Application Type</label>
-                                        <select id="studentapptype" data-placeholder="Application Type" class="select">
-                                            <option value="All">All</option>
-                                            <option value="Undergraduate">Undergraduate</option>
-                                            <option value="Postgraduate">Postgraduate</option>
-                                            <option value="International">Scholarship</option>
-                                        </select>
+                                    <select id="studentapptype" data-placeholder="Application Type" class="select">
+                                        <option value="All">All</option>
+                                        <option value="Undergraduate">Undergraduate</option>
+                                        <option value="Postgraduate">Postgraduate</option>
+                                        <option value="International">Scholarship</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label>Programme Type</label>
-                                        <select name="institution" id="studentprogtype" data-placeholder="Programme Type" class="select">
-                                            <option value="All">All</option>
-                                            <option value="distance">distance</option>
-                                            <option value="evening">evening</option>
-                                            <option value="regular">regular</option>
-                                            <option value="weekend">weekend</option>
-                                        </select>
+                                    <select name="institution" id="studentprogtype" data-placeholder="Programme Type" class="select">
+                                        <option value="All">All</option>
+                                        <option value="distance">distance</option>
+                                        <option value="evening">evening</option>
+                                        <option value="regular">regular</option>
+                                        <option value="weekend">weekend</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label>Student Level</label>
-                                        <select id="studentproglevel" data-placeholder="Level Admitted To" class="select">
-                                            <option value="All">All</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                            <option value="4">4</option>
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                        </select>
+                                    <select id="studentproglevel" data-placeholder="Level Admitted To" class="select">
+                                        <option value="All">All</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label>Fee Payment Type</label>
-                                        <select id="studentfeepay" data-placeholder="Fee Payment Type" class="select">
-                                            <option value="All">All</option>
-                                            <option value="Full Fee-Paying">Full Fee-Paying</option>
-                                            <option value="Government Subsidized">Government Subsidized</option>
-                                            <option value="Scholarship">Scholarship</option>
-                                        </select>
+                                    <select id="studentfeepay" data-placeholder="Fee Payment Type" class="select">
+                                        <option value="All">All</option>
+                                        <option value="Full Fee-Paying">Full Fee-Paying</option>
+                                        <option value="Government Subsidized">Government Subsidized</option>
+                                        <option value="Scholarship">Scholarship</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row" style="margin: 20px">
@@ -4510,6 +4516,122 @@ print_r($_SERVER['PHP_SELF']);
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+                </div>
+                <!-- /content area -->
+
+            </div>
+            <?php $conn->close($dbcon);}elseif(isset($_GET['analytics_report'])){
+            $conn=new Db_connect;
+            $dbcon=$conn->conn();
+            $status = "";
+            ?>
+            <div class="content-wrapper">
+                <!-- Page header -->
+                <div class="page-header">
+                    <div class="breadcrumb-line">
+                        <ul class="breadcrumb" style="font-size: medium;">
+                            <li style="font-weight: bold; font-size: x-large">Analytics Report </li>
+                        </ul>
+                        <?php include("components/back_n_forward_buttons.php"); ?>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /page header -->
+                <!-- Content area -->
+                <div class="content">
+                    <!-- Clickable title -->
+                    <div class="panel panel-white" id="add_new_staff">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-md-6" align="left"><h6 class="panel-title">Select Criteria</h6></div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                            <div class="col-md-4">
+                                    <label>Select Report Type</label>
+                                    <select id="gpimodule" class="select" onchange="showOrHideDates(this.value)">
+                                        <option value=""></option>
+                                        <option value="pyramid">Academic Staff Pyramid</option>
+                                        <option value="quota">Enrollment Quota</option>
+                                        <option value="epfs">Equivalence of Part And Full-time Staff</option>
+                                        <option value="gpi">Gender Parity Index</option>
+                                        <option value="isced">International Standard Classification of Education</option>
+                                        <option value="females">Percentage Of Female Teachers</option>
+                                        <option value="pdstiie">Percentage Distribution of Students in Tertiary Institutions by ISCED Field Of Education</option>
+                                        <option value="pdgtiie">Percentage Distribution of Graduates by ISCED Fields of Education at the Tertiary Level</option>
+                                        <option value="privateenrol">Percentage Of Private Enrollment</option>
+                                        <option value="publicenrol">Percentage Of Public Enrollment</option>
+                                        <option value="ptsprivate">Percentage of Teaching Staff in Private Educational Institution</option>
+                                        <option value="ptspublic">Percentage of Teaching Staff in Public Educational Institution</option>
+                                        <option value="science">Science To Humanities Ratio</option>
+                                        <option value="str1">Student Teacher Ratio </option>
+                                        <option value="str2">Student Teacher Ratio For Field Of Subject</option>
+                                    </select>
+                                </div>
+                                <div id="date_range" class="hidden">
+                                    <div class="col-md-4">
+                                        <label>Start Year</label>
+                                        <select id="gpiyr1" class="form-control">
+                                            <?php
+                                            $curryear = date("Y");
+                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                ?>
+                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>End Year</label>
+                                        <select id="gpiyr2" class="form-control">
+                                            <?php
+                                            $curryear = date("Y");
+                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                ?>
+                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 20px">
+                                <div class="col-md-12" align="center">
+                                    <button class="btn btn-lg btn-success" onclick="getGPIDetails()"><span class="icon icon-search4"></span> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /clickable title -->
+
+                    <!-- Clickable title -->
+                    <div class="panel panel-white hidden" id="view_studenttable">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-md-10 printhide" align="left">
+                                    <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                                </div>
+                                <div class="col-md-2 printhide" align="right"><button type="button" class="btn btn-default btn-lg heading-btn" href="javascript:void(0);" onclick="javascript:window.print();"><i class="icon-printer position-left"></i> Print</button></div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin: 20px;">
+                            <div class="col-md-12" id="formula" align="left">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-flat">
+                                    <div class="col-md-12" style="margin: 10px; overflow-x:auto;" id="filterResult"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="panel panel-flat" id="panelChart">
+                                    <div style="width: auto;height:400px;" id="gpiChart"></div>
                                 </div>
                             </div>
                         </div>
@@ -4611,11 +4733,11 @@ print_r($_SERVER['PHP_SELF']);
                                     <select name="institution" id="staffrank" class="form-control">
                                         <option value="All">All</option>
                                         <?php
-                                        $sel = "SELECT id, rank FROM staffranks WHERE status = 'Active' ORDER BY rank ASC";
+                                        $sel = "SELECT id, drank FROM staffranks WHERE status = 'Active' ORDER BY drank ASC";
                                         $selrun = $conn->query($dbcon,$sel);
                                         while($row = $conn->fetch($selrun)){
                                             ?>
-                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['rank']; ?></option>
+                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['drank']; ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -4656,198 +4778,6 @@ print_r($_SERVER['PHP_SELF']);
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /clickable title -->
-                </div>
-                <!-- /content area -->
-
-            </div>
-            <?php $conn->close($dbcon);}elseif(isset($_GET['isced_report'])){
-            $conn=new Db_connect;
-            $dbcon=$conn->conn();
-            $status = "";
-            ?>
-            <div class="content-wrapper">
-                <!-- Page header -->
-                <div class="page-header">
-                    <div class="breadcrumb-line">
-                        <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Analytics Report </li>
-                            <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">ISCED Report</a></li>
-                        </ul>
-                        <?php include("components/back_n_forward_buttons.php"); ?>
-                        </ul>
-                    </div>
-                </div>
-                <!-- /page header -->
-                <!-- Content area -->
-                <div class="content">
-                    <!-- Clickable title -->
-                    <div class="panel panel-white" id="add_new_staff">
-                        <div class="panel-heading">
-                            <h6 class="panel-title">Select Criteria</h6>
-                        </div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <label>Admission Year</label>
-                                    <div class="form-group">
-                                        <label>Basic example</label>
-                                        <input type="text" class="form-control tokenfield" value="These,are,tokens">
-                                    </div>
-                                    <select name="institution" id="studentyear1" class="form-control">
-                                        <option value="All">All</option>
-                                        <?php
-                                        $curryear = date("Y");
-                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                            ?>
-                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Institution</label>
-                                    <select name="institution" id="studentinst1" class="form-control">
-                                        <?php
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                            $selrun = $conn->query($dbcon,$sel);
-                                            while($row = $conn->fetch($selrun)){
-                                                ?>
-                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                            <?php }?>
-                                            <option selected value="All">All</option>
-                                        <?php }else{?>
-                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Programme</label>
-                                    <select name="institution" id="studentprog1" class="form-control">
-                                        <option value="All">All</option>
-                                        <?php
-                                        $sel = "SELECT prog_code, programme FROM programmes WHERE status = 'Active' ORDER BY programme ASC";
-                                        $selrun = $conn->query($dbcon,$sel);
-                                        while($row = $conn->fetch($selrun)){
-                                            ?>
-                                            <option value="<?php echo $row['prog_code']; ?>"><?php echo $row['programme']; ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Application Type</label>
-                                    <select id="studentapptype" data-placeholder="Application Type" class="select">
-                                        <option value="All">All</option>
-                                        <option value="Undergraduate">Undergraduate</option>
-                                        <option value="Postgraduate">Postgraduate</option>
-                                        <option value="International">Scholarship</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Programme Type</label>
-                                    <select name="institution" id="studentprogtype" data-placeholder="Programme Type" class="select">
-                                        <option value="All">All</option>
-                                        <option value="distance">distance</option>
-                                        <option value="evening">evening</option>
-                                        <option value="regular">regular</option>
-                                        <option value="weekend">weekend</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Student Level</label>
-                                    <select id="studentproglevel" data-placeholder="Level Admitted To" class="select">
-                                        <option value="All">All</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Fee Payment Type</label>
-                                    <select id="studentfeepay" data-placeholder="Fee Payment Type" class="select">
-                                        <option value="All">All</option>
-                                        <option value="Full Fee-Paying">Full Fee-Paying</option>
-                                        <option value="Government Subsidized">Government Subsidized</option>
-                                        <option value="Scholarship">Scholarship</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" style="margin: 20px">
-                                <div class="col-md-12" align="center">
-                                    <button class="btn btn-lg btn-success" onclick="getStudentDetailsFromSearch()"><span class="icon icon-search4"></span> Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /clickable title -->
-
-                    <!-- Clickable title -->
-                    <div class="panel panel-white hidden" id="view_studenttable">
-                        <div class="panel-heading">
-                            <h6 class="panel-title">Students List</h6>
-                        </div>
-                        <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div align="right">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-info btn-rounded"><i class="icon-database-export position-left"></i> Export</button>
-                                        <button type="button" class="btn btn-info btn-rounded dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="#"><i class="icon-book"></i> CSV</a></li>
-                                            <li><a href="#"><i class="icon-file-excel"></i> Excel</a></li>
-                                            <li><a href="#"><i class="icon-file-pdf"></i> PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;">
-                                    <table class="table table-hover datatable-basic">
-                                        <thead>
-                                        <tr>
-                                            <th> Student/Reference Number </th>
-                                            <th>Student Name</th>
-                                            <th>Gender</th>
-                                            <th>Date of Birth</th>
-                                            <th>Country Of Birth</th>
-                                            <th>Nationality</th>
-                                            <th>Religion</th>
-                                            <th>Hometown</th>
-                                            <th>Home Region</th>
-                                            <th>Institution</th>
-                                            <th>Application Year </th>
-                                            <th> National ID Type</th>
-                                            <th> National ID Number</th>
-                                            <th>Senior High School Attended </th>
-                                            <th> SHS Programme Offered  </th>
-                                            <th> Name Of Programme Applied</th>
-                                            <th> Name Of Programme Offered</th>
-                                            <th> Admission Level</th>
-                                            <th> Mode of Study</th>
-                                            <th> Fee Paying Status</th>
-                                            <th> Indicate if Applicant has Special Education Needs (indicate Yes or No) </th>
-                                            <th> Indicate the Special Education Needs (e.g. Physically Challenged, Visually Impaired)</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -5009,24 +4939,7 @@ print_r($_SERVER['PHP_SELF']);
                                         <?php } ?>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <label>Institution</label>
-                                    <select id="pubbinst" class="form-control" onchange="sortDataTablePublication()">
-                                        <option></option>
-                                        <?php
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                            $selrun = $conn->query($dbcon,$sel);
-                                            while($row = $conn->fetch($selrun)){
-                                                ?>
-                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                            <?php }?>
-                                            <option selected value="All">All</option>
-                                        <?php }else{?>
-                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
+
                                 <div class="col-md-4">
                                     <label>Publication Type</label>
                                     <select id="pubbtype" class="form-control" onchange="sortDataTablePublication()">
@@ -5040,7 +4953,7 @@ print_r($_SERVER['PHP_SELF']);
                                 </div>
                             </div>
                             <div class="row" style="margin: 20px">
-                                <div class="col-md-12" align="center">
+                                <div class="col-md-8" align="center">
                                     <button class="btn btn-lg btn-success" onclick="getPublicationsFromSearch()"><span class="icon icon-search4"></span> Search</button>
                                 </div>
                             </div>
@@ -5051,7 +4964,7 @@ print_r($_SERVER['PHP_SELF']);
                     <!-- Clickable title -->
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Staff List</h6>
+                            <h6 class="panel-title">Publications</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
@@ -5099,41 +5012,11 @@ print_r($_SERVER['PHP_SELF']);
                         </div>
 
                         <form class="stepy-clickable">
+
                             <fieldset title="1">
                                 <legend class="text-semibold">Publication Details</legend>
 
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <select name="institution" id="pubinst" data-placeholder="Select Institution" class="select btnrqd" onchange="getStaffDetails(this.value)">
-                                                <option></option>
-                                                <?php
-                                                if($actype == "GTEC"){
-                                                    $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                    $selrun = $conn->query($dbcon,$sel);
-                                                    if($conn->sqlnum($selrun) == 0){
-                                                        ?>
-                                                        <option value="">No Records Found</option>
-                                                    <?php }else{
-                                                        while($data = $conn->fetch($selrun)){
-                                                            ?>
-                                                            <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
-                                                        <?php }}}else{?>
-                                                    <option value="<?php  echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 hidden" align="left">
-                                        <div id="staffdetailsloader"><img src="assets/images/spinner.gif" style="width: 30px; height: 30px" /></div>
-                                    </div>
-                                    <div class="col-md-6" id="stafflisthide">
-                                        <div class="form-group">
-                                            <select id="stafflist" data-placeholder="Select Staff" class="select">
-                                                <option></option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <select id="pubtype" class="form-control btnrqd">
@@ -5170,12 +5053,53 @@ print_r($_SERVER['PHP_SELF']);
                                         </div>
                                     </div>
                                 </div>
+                            </fieldset>
+                            <fieldset title="2">
+                                <legend class="text-semibold">Publishers</legend>
+                                <input type="hidden" value="0" id="rowcounterwh"/>
+                                <div class="staffPublishers" id="stfpublishers">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="pubinst[]" data-placeholder="Select Institution" class="select btnrqd pubinst" onchange="getStaffDetails(this.value,0)">
+                                                    <option></option>
+                                                    <option value="Other">Other Institutions</option>
+                                                    <?php
+                                                    if($actype == "GTEC"){
+                                                        $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        if($conn->sqlnum($selrun) > 0){
+                                                            while($data = $conn->fetch($selrun)){
+                                                                ?>
+                                                                <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
+                                                            <?php }}}else{?>
+                                                        <option value="<?php  echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 hidden" id="nstf0"><input type="text" class="form-control stfnameext" id="stfname" name="stfnameext[]" placeholder="Name Of Publisher" /></div>
+                                        <div class="col-md-3 hidden" id="ninst0"><input type="text" class="form-control stfinstext" id="stfinst" name = "stfinstext[]" placeholder="Institution Of Publisher"/></div>
+                                        <div class="col-md-6 hidden" id="stafflisthide0">
+                                            <div class="form-group">
+                                                <select id="stafflist0" name="staffid[]" data-placeholder="Select Publisher" class="select staffid">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-lg btn-success" onclick="addNewPublisher('<?php echo $actype; ?>','<?php echo $institution; ?>')"><span class="icon icon-add"></span> Add Publisher</button>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-12" align="center" style="margin-bottom: 20px">
                                         <button class="btn btn-sm btn-primary" type="button" onclick="createPublicationRecord()">Submit  </button>
                                     </div>
                                 </div>
                             </fieldset>
+
                             <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
                         </form>
                     </div>
@@ -5308,7 +5232,7 @@ print_r($_SERVER['PHP_SELF']);
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <select id="confinst" data-placeholder="Select Institution" class="select btnrqd" onchange="getStaffDetails(this.value)">
+                                            <select id="confinst" data-placeholder="Select Institution" class="select btnrqd" onchange="getStaffDetailsSingle(this.value)">
                                                 <option></option>
                                                 <?php
                                                 if($actype == "GTEC"){
@@ -5326,9 +5250,6 @@ print_r($_SERVER['PHP_SELF']);
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 hidden" align="left">
-                                        <div id="staffdetailsloader"><img src="assets/images/spinner.gif" style="width: 30px; height: 30px" /></div>
                                     </div>
                                     <div class="col-md-6" id="stafflisthide">
                                         <div class="form-group">
@@ -6451,7 +6372,7 @@ print_r($_SERVER['PHP_SELF']);
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
                                                     <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
-                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'users')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
+                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_categories')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -6862,11 +6783,11 @@ print_r($_SERVER['PHP_SELF']);
                                                 <div class="form-group">
                                                     <select id="strankname"  data-placeholder="Select Rank" multiple="multiple" class="select">
                                                         <?php
-                                                        $sel = "SELECT rank, id FROM staffranks ORDER BY rank ASC";
+                                                        $sel = "SELECT drank, id FROM staffranks ORDER BY drank ASC";
                                                         $selrun = $conn->query($dbcon,$sel);
                                                         while($row = $conn->fetch($selrun)){
                                                             ?>
-                                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['rank']; ?></option>
+                                                            <option value="<?php echo $row['id']; ?>"><?php echo $row['drank']; ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -6918,7 +6839,7 @@ print_r($_SERVER['PHP_SELF']);
                                         <tbody>
                                         <?php
                                         $count= 0;
-                                        $sel = "SELECT id, staff_type, ranks, status, default_type FROM staffcategory WHERE status='Active' ORDER BY staff_type ASC";
+                                        $sel = "SELECT id, staff_type, dranks, status, default_type FROM staffcategory WHERE status='Active' ORDER BY staff_type ASC";
                                         $selrun = $conn->query($dbcon,$sel);
                                         while($row = $conn->fetch($selrun)){
                                             $count++;
@@ -6935,7 +6856,7 @@ print_r($_SERVER['PHP_SELF']);
                                                 <td><?php echo $row['staff_type']; ?></td>
                                                 <td>
                                                     <?php
-                                                        $dranks = $row['ranks'];
+                                                        $dranks = $row['dranks'];
                                                         //GET THE ARRAY LENGTH
                                                         $obj = explode(",",$dranks);
                                                         for($i=0; $i < count($obj); $i++){
@@ -7049,7 +6970,7 @@ print_r($_SERVER['PHP_SELF']);
                                         <tbody>
                                         <?php
                                         $count= 0;
-                                        $sel = "SELECT id, rank, status, target, default_type FROM staffranks ORDER BY rank ASC";
+                                        $sel = "SELECT id, drank, status, target, default_type FROM staffranks ORDER BY drank ASC";
                                         $selrun = $conn->query($dbcon,$sel);
                                         $totalTarget = 0;
                                         while($row = $conn->fetch($selrun)){
@@ -7066,7 +6987,7 @@ print_r($_SERVER['PHP_SELF']);
                                             ?>
                                             <tr style="color: <?php echo $color; ?>">
                                                 <td><?php echo $count; ?></td>
-                                                <td><?php echo $row['rank']; ?></td>
+                                                <td><?php echo $row['drank']; ?></td>
                                                 <td><?php echo $row['target']; ?></td>
                                                 <td><?php echo $deft; ?></td>
                                                 <td><?php echo $row['status']; ?></td>
@@ -7388,7 +7309,6 @@ print_r($_SERVER['PHP_SELF']);
                                     <legend class="text-semibold">Account Details</legend>
 
                                     <div class="row">
-
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <select name="account-type" id="actype" data-placeholder="Choose Account Type" class="select" onchange="unhideInstitution(this.value)">
@@ -7426,6 +7346,8 @@ print_r($_SERVER['PHP_SELF']);
                                                 </select>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <input type="password" id="password" class="form-control btnrqd" placeholder="Password" required />
@@ -7537,6 +7459,7 @@ print_r($_SERVER['PHP_SELF']);
                                             <tr>
                                                 <th>#</th>
                                                 <th>Name</th>
+                                                <th>Account Type</th>
                                                 <th>Phone</th>
                                                 <th>E-mail</th>
                                                 <th>Status</th>
@@ -7570,6 +7493,7 @@ print_r($_SERVER['PHP_SELF']);
                                                 <tr style="color: <?php echo $color; ?>">
                                                     <td><?php echo $count; ?></td>
                                                     <td><?php echo $row['first_name']." ".$row['last_name']; ?></td>
+                                                    <td><?php echo $row['account_type']; ?></td>
                                                     <td><?php echo $row['phone']; ?></td>
                                                     <td><?php echo $row['email']; ?></td>
                                                     <td><?php echo $row['status']; ?></td>
@@ -7658,21 +7582,7 @@ print_r($_SERVER['PHP_SELF']);
                                                     <input type="text" value="<?php echo $data['phone']; ?>" id="contactedit" class="form-control" required />
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label>Institution:<b class="rqd">*</b></label>
-                                                    <select name="institution" id="institutionedit" data-placeholder="Select User Institution" class="select">
-                                                        <option  value="<?php echo $inst; ?>"><?php echo getInstitution($inst); ?></option>
-                                                        <?php
-                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' AND institution_code <> '$inst' ORDER BY name ASC";
-                                                        $selrun = $conn->query($dbcon,$sel);
-                                                        while($row = $conn->fetch($selrun)){
-                                                            ?>
-                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                                        <?php } ?>
-                                                    </select>
-                                                </div>
-                                            </div>
+
                                         </div>
                                     </fieldset>
 
@@ -7684,9 +7594,24 @@ print_r($_SERVER['PHP_SELF']);
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Account Type:<b class="rqd">*</b></label>
-                                                    <select name="account-type" id="actypeedit" data-placeholder="Choose Account Type" class="select">
+                                                    <select name="account-type" id="actypeedit" data-placeholder="Choose Account Type" class="select" onchange="unhideInstitution(this.value)">
                                                         <option value="<?php echo $data['account_type']; ?>"><?php echo $data['account_type']; ?></option>
                                                         <option value="<?php if($acctype == 'GTEC'){echo 'Institution';}else{echo 'GTEC';} ?>"><?php if($acctype == 'GTEC'){echo 'Institution';}else{echo 'GTEC';} ?></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" id="unhideinst">
+                                                <div class="form-group">
+                                                    <label>Institution:<b class="rqd">*</b></label>
+                                                    <select name="institution" id="institutionedit" data-placeholder="Select User Institution" class="select">
+                                                        <option  value="<?php echo $inst; ?>"><?php echo getInstitution($inst); ?></option>
+                                                        <?php
+                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' AND institution_code <> '$inst' ORDER BY name ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        while($row = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                                        <?php } ?>
                                                     </select>
                                                 </div>
                                             </div>

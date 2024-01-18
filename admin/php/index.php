@@ -23,7 +23,7 @@ if(isset($_GET['validateUser'])){
     $response =array();
 
     if($pword == "" || $uname == ""){
-        $response['erroCode'] = "1";
+        $response['errorCode'] = "1";
         $response['errorMsg'] = "Missing username or password";
 
         $log = date("Y-m-d H:i:s")." Response: Missing username or password".PHP_EOL;
@@ -98,6 +98,117 @@ if(isset($_GET['getStudentsGraphData'])){
 
     print json_encode($yearData);
     //print_r($yearData);
+
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getTheBulkFields'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    //DECLARE THE FIELD RESULTS ARRAY
+    $progIsced = array();
+    $programs = array();
+    $institutions = array();
+    $colleges = array();
+    $faculty = array();
+    $dept = array();
+    $rank = array();
+    $category = array();
+
+    $selIsced = "SELECT code, name FROM isceds WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $progIsced,
+            ["code" => $data['code'],"name" => $data['name']]
+        );
+    }
+
+    $selIsced = "SELECT prog_code, programme FROM programmes WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $programs,
+            ["code" => $data['prog_code'],"name" => $data['programme']]
+        );
+    }
+
+    if($_SESSION['actype'] == "Institution"){
+        array_push(
+            $institutions,
+            ["code" => $_SESSION['institution'],"name" => getInstitution($_SESSION['institution'])]
+        );
+    }else{
+        $selIsced = "SELECT institution_code, name FROM institutes WHERE status = 'Active'";
+        $selIscedRun = $conn->query($dbcon,$selIsced);
+        while($data = $conn->fetch($selIscedRun)){
+            array_push(
+                $institutions,
+                ["code" => $data['institution_code'],"name" => $data['name']]
+            );
+        }
+    }
+
+
+    $selIsced = "SELECT id, name FROM institute_colleges WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $colleges,
+            ["code" => $data['id'],"name" => $data['name']]
+        );
+    }
+
+    $selIsced = "SELECT id, name FROM institute_faculties WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $faculty,
+            ["code" => $data['id'],"name" => $data['name']]
+        );
+    }
+
+    $selIsced = "SELECT id, name FROM institute_departments WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $dept,
+            ["code" => $data['id'],"name" => $data['name']]
+        );
+    }
+
+    $selIsced = "SELECT id, drank FROM staffranks WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $rank,
+            ["code" => $data['id'],"name" => $data['drank']]
+        );
+    }
+
+    $selIsced = "SELECT id, staff_type FROM staffcategory WHERE status = 'Active'";
+    $selIscedRun = $conn->query($dbcon,$selIsced);
+    while($data = $conn->fetch($selIscedRun)){
+        array_push(
+            $category,
+            ["code" => $data['id'],"name" => $data['staff_type']]
+        );
+    }
+
+    $feedback = array();
+    array_push($feedback,array(
+        "isced" => $progIsced,
+        "programs" => $programs,
+        "institutions" => $institutions,
+        "colleges" => $colleges,
+        "faculty" => $faculty,
+        "dept" => $dept,
+        "rank" => $rank,
+        "category" => $category,
+    ));
+    print json_encode($feedback);
+
 
     $conn->close($dbcon);
 }
@@ -206,46 +317,742 @@ if(isset($_GET['genderParityIndex'])){
 if(isset($_GET['summaryDataChart'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
+    $chartType = $_GET['summaryDataChart'];
+    if($chartType == "dashboard"){
+        //ISCED BAR CHARTS PER ENROLLMENTS
+        $iscedQry = "SELECT name, code FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $iscedQryRun = $conn->query($dbcon,$iscedQry);
 
-    //ISCED BAR CHARTS PER ENROLLMENTS
-    $iscedQry = "SELECT name, code FROM isceds WHERE status='Active'";
-    $iscedQryRun = $conn->query($dbcon,$iscedQry);
+        $iscedData = array();
 
-    $iscedData = array();
+        while($data = $conn->fetch($iscedQryRun)){
+            $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
+            array_push($iscedData,
+                array(
+                    'value'        => $percentageEnrollmentsByIsced,
+                    'name'        =>$data['name'],
 
-    while($data = $conn->fetch($iscedQryRun)){
-        $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
-        array_push($iscedData,
-            array(
-                'value'        => $percentageEnrollmentsByIsced,
-                'name'        =>$data['name'],
+                )
+            );
+        }
 
-            )
-        );
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM enrollments ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+        $parityData = array();
+
+        while($data = $conn->fetch($parityQryRun)){
+            $obj = json_decode(getGPIDetails($data['year']));
+            array_push($parityData,
+                array(
+                    'year'        =>$data['year'],
+                    'parityIndex'        => $obj->gpi,
+                )
+            );
+        }
+
+        //ACADEMIC STAFF PYRAMID
+        $pyramidData = array();
+        $pyr = "SELECT drank, target, id FROM staffranks WHERE default_type='default' ORDER BY drank ASC";
+        $pyrRun = $conn->query($dbcon,$pyr);
+        while($data = $conn->fetch($pyrRun)) {
+            $name = $data['drank'];
+            $target = $data['target'];
+            $id = $data['id'];
+            $actual_target = getActualTargetPyramid($id);
+            array_push($pyramidData,
+                array(
+                    'name'        =>$data['drank'],
+                    'target'        =>$data['target'],
+                    'value'        => number_format($actual_target,2),
+                )
+            );
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "iscedDataCounts" => $iscedData,
+            "parityData" => $parityData,
+            "pyramidData" => $pyramidData,
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "isced"){
+        //ISCED BAR CHARTS PER ENROLLMENTS
+        $iscedQry = "SELECT name, code FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $iscedQryRun = $conn->query($dbcon,$iscedQry);
+
+        $iscedData = array();
+
+        while($data = $conn->fetch($iscedQryRun)){
+            $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
+            array_push($iscedData,
+                array(
+                    'value'        => $percentageEnrollmentsByIsced,
+                    'name'        =>$data['name'],
+
+                )
+            );
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "iscedDataCounts" => $iscedData,
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "gpi"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM enrollments WHERE year BETWEEN '$sdate' AND '$edate' ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+        $parityData = array();
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th> Year </th>
+                                            <th>Total Male Enrollment</th>
+                                            <th>Total Female Enrollment</th>
+                                            <th>GPI</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $obj = json_decode(getGPIDetails($data['year']));
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['year']."</td>
+                            <td>".$obj->male."</td>
+                            <td>".$obj->female."</td>
+                            <td>".$obj->gpi."</td>
+                        </tr>";
+            array_push($parityData,
+                array(
+                    'year'        =>$data['year'],
+                    'male'        =>$obj->male,
+                    'female'        =>$obj->female,
+                    'parityIndex'        => $obj->gpi,
+                )
+            );
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='4'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "gpiData" => $parityData,
+            "dataTable" => $dataTable,
+        ));
+        print json_encode($feedback);
     }
 
-    //GENDER PARITY
-    $parityQry = "SELECT DISTINCT year FROM enrollments";
-    $parityQryRun = $conn->query($dbcon,$parityQry);
-    $parityData = array();
+    $conn->close($dbcon);
+}
 
-    while($data = $conn->fetch($parityQryRun)){
-        $obj = json_decode(getGPIDetails($data['year']));
-        array_push($parityData,
-            array(
-                'year'        =>$data['year'],
-                'parityIndex'        => $obj->gpi,
-            )
-        );
+if(isset($_GET['analyticDataChart'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $chartType = $_GET['module'];
+    if($chartType == "isced"){
+        //ISCED BAR CHARTS PER ENROLLMENTS
+        $iscedQry = "SELECT name, code FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $iscedQryRun = $conn->query($dbcon,$iscedQry);
+
+        $iscedData = array();
+
+        while($data = $conn->fetch($iscedQryRun)){
+
+            $percentageEnrollmentsByIsced = getEnrollmentByIsced($data['code']);
+            array_push($iscedData,
+                array(
+                    'value'        => $percentageEnrollmentsByIsced,
+                    'name'        =>$data['name'],
+                )
+            );
+
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "iscedDataCounts" => $iscedData,
+            "formula" => "<h5  class='panel-title'>International Standard Classification of Education(ISCED)</h5><p>mapping programmes run by Tertiary Education Institutions by ISCED fields of study</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "gpi"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM enrollments WHERE year BETWEEN '$sdate' AND '$edate' ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+        $parityData = array();
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th> Year </th>
+                                            <th>Total Male Enrollment</th>
+                                            <th>Total Female Enrollment</th>
+                                            <th>GPI</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $obj = json_decode(getGPIDetails($data['year']));
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['year']."</td>
+                            <td>".$obj->male."</td>
+                            <td>".$obj->female."</td>
+                            <td>".$obj->gpi."</td>
+                        </tr>";
+            array_push($parityData,
+                array(
+                    'year'        =>$data['year'],
+                    'male'        =>$obj->male,
+                    'female'        =>$obj->female,
+                    'parityIndex'        => $obj->gpi,
+                )
+            );
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='4'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "gpiData" => $parityData,
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Gender Parity Index</h5><p>GPI= [Total Female Student Enrolment in Tertiary Education] ÷ [Total Male Enrolment in Tertiary Education</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "pyramid"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT drank, target, id FROM staffranks WHERE default_type='default' ORDER BY drank ASC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+        $pyramidData = array();
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Staff Type</th>
+                                            <th>Target %</th>
+                                            <th>Actual %</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $name = $data['drank'];
+            $target = $data['target'];
+            $id = $data['id'];
+            $actual_target = getActualTargetPyramid($id);
+            $dataTable = $dataTable."<tr>
+                            <td>".$name."</td>
+                            <td>".$target."</td>
+                            <td>".number_format($actual_target,2)."</td>
+                        </tr>";
+            array_push($pyramidData,
+                array(
+                    'name'        =>$data['drank'],
+                    'target'        =>$data['target'],
+                    'value'        => number_format($actual_target,2),
+                )
+            );
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='3'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "pyramidData" => $pyramidData,
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Academic Staff Pyramid</h5><p>Target Staff Type can be any of the following types: Professors, Associate Professors, Senior Lecturers and Lecturers<br/>Formula: 100 x [Total Number of Target Staff Type ÷ (Total Number of Professors + Total Number of Associate Professors + Total Number of Senior Lecturers + Total Number of Lecturers)]</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "science"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM enrollments WHERE year BETWEEN '$sdate' AND '$edate' ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Humanities Enrollments</th>
+                                            <th>Science Enrollments</th>
+                                            <th>Total Enrollments</th>
+                                            <th>S.T.R.1</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $yr = $data['year'];
+            $response = getScienceToHumanitiesRatio($yr);
+            $obj = json_decode($response);
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['year']."</td>
+                            <td>".$obj->sciences."</td>
+                            <td>".$obj->humanities."</td>
+                            <td>".($obj->humanities + $obj->sciences)."</td>
+                            <td>".$obj->str1."</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='5'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Science To Humanities Ratio</h5><p>Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "pdstiie"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT code, name FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+
+        $dataTable ="<table class='table table-hover'><thead>
+                                        <tr>
+                                        <th>Subject</th>";
+
+                                        for($i=$edate; $i >= $sdate; $i--){
+                                            $dataTable.="<th>$i</th>";
+                                        }
+                                    $dataTable.="</tr></thead><tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $name = $data['name'];
+            $code = $data['code'];
+            $dataTable = $dataTable."<tr>
+                                        <td><b>".$name."</b></td>";
+                                            for($i=$edate; $i >= $sdate; $i--){
+                                            $calc = getPercentageDistribution($i,$code);
+                                            $dataTable.="<th>".$calc."</th>";
+                                        }
+                                    $dataTable.="</tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='5'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage Distribution of Students in Tertiary Education by ISCED Fields of Education.</h5><p>Formula: Divide the number of students enrolled in each field of education by total enrolment in tertiary education in a specific academic-year and multiply the result by 100.</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "pdgtiie"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT code, name FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+
+        $dataTable ="<table class='table table-hover'><thead>
+                                        <tr>
+                                        <th>Subject</th>";
+
+                                        for($i=$edate; $i >= $sdate; $i--){
+                                            $dataTable.="<th>$i</th>";
+                                        }
+                                    $dataTable.="</tr></thead><tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $name = $data['name'];
+            $code = $data['code'];
+            $dataTable = $dataTable."<tr>
+                                        <td><b>".$name."</b></td>";
+                                            for($i=$edate; $i >= $sdate; $i--){
+                                            $calc = getPercentageDistribution($i,$code,'graduates');
+                                            $dataTable.="<th>".$calc."</th>";
+                                        }
+                                    $dataTable.="</tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='5'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage Distribution of Graduates by ISCED Fields of Education at the Tertiary Level</h5><p>Formula: Divide the number of graduates in each field of education by the total number of graduates in tertiary education in a given academic-year and multiply the result by 100</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "epfs"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+        //GENDER PARITY
+        $parityQry = "SELECT DISTINCT year FROM staff WHERE year BETWEEN '$sdate' AND '$edate' ORDER BY year DESC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Part Time Staff</th>
+                                            <th>Full Time Staff</th>
+                                            <th>Total Staff</th>
+                                            <th>EPFS</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $yr = $data['year'];
+            $response = getPartToFullTimeStaff($yr);
+            $obj = json_decode($response);
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['year']."</td>
+                            <td>".$obj->parttime."</td>
+                            <td>".$obj->fulltime."</td>
+                            <td>".($obj->parttime + $obj->fulltime)."</td>
+                            <td>".floor($obj->epfs)."</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='5'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Science To Humanities Ratio</h5><p>Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "str2"){
+        //GENDER PARITY
+        $parityQry = "SELECT name, code, target FROM isceds WHERE status='Active' ORDER BY name ASC";
+        $parityQryRun = $conn->query($dbcon,$parityQry);
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Total Students</th>
+                                            <th>Total Staff</th>
+                                            <th>Target</th>
+                                            <th>Actual</th>
+                                            <th>Deficit</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($parityQryRun)){
+            $name = $data['name'];
+            $code = $data['code'];
+            $target = $data['target'];
+            $str2 = getSTR2Details($code,$target);
+            $obj = json_decode($str2);
+            $dataTable = $dataTable."<tr>
+                            <td>".$name."</td>
+                            <td>".$obj->students."</td>
+                            <td>".$obj->staff."</td>
+                            <td>".$target." : 1"."</td>
+                            <td>".$obj->actual."</td>
+                            <td>".$obj->deficit."</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='6'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Student Teacher Ratio For Field Of Subject</h5><p>Formula: STR for a field of Subject = [Total Number of Students in the Field of Subject ÷ Total
+                                Number of Teaching Staff/Lecturer] : [Total Number of Teaching Staff/Lecturer÷ Total Number of Teaching Staff/Lecturer]</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "str1"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Total Students</th>
+                                            <th>Total Staff</th>
+                                            <th>STR 1</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        for($i=$edate; $i >= $sdate; $i--){
+            $str1 = getSTR1Details($i);
+            $obj = json_decode($str1);
+            $dataTable = $dataTable."<tr>
+                            <td>".$i."</td>
+                            <td>".$obj->students."</td>
+                            <td>".$obj->staff."</td>
+                            <td>".number_format($obj->str1,2)."</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='4'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Student Teacher Ratio 1</h5><p>STR1= Number of students/number of staff</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "privateenrol"){
+        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+        $selrun = $conn->query($dbcon,$sel);
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Institution Category</th>
+                                            <th>Percentage Enrollment</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($selrun)){
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['name']."</td>
+                            <td>".$calc = number_format(getPercentageEnrollments($data['id']),2)." %</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='2'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage Of Private Enrollment</h5><p>Formula: Divide the number of students enrolled in private tertiary educational institutions by total student enrolment (public and private) and multiply the result by 100.</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "publicenrol"){
+        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Public%' OR name LIKE '%public%') ORDER BY name ASC";
+        $selrun = $conn->query($dbcon,$sel);
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Institution Category</th>
+                                            <th>Percentage Enrollment</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($selrun)){
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['name']."</td>
+                            <td>".$calc = number_format(getPercentageEnrollments($data['id']),2)." %</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='2'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage Of Public Enrollment</h5><p>Formula: Divide the number of students enrolled in public tertiary educational institutions by total student enrolment (public and private) and multiply the result by 100.</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "ptsprivate"){
+        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+        $selrun = $conn->query($dbcon,$sel);
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Institution Category</th>
+                                            <th>Percentage</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($selrun)){
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['name']."</td>
+                            <td>".$calc = number_format(getPercentageStaffInPrivate($data['id']),2)." %</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='2'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage of Teaching Staff in Private Educational Institution</h5><p>Formula: Divide the number of teachers/lecturers in the private tertiary educational institutions by the total number of teachers/lecturers (in both public and private tertiary educational institutions) and multiply the result by 100.</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "ptspublic"){
+        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Public%' OR name LIKE '%public%') ORDER BY name ASC";
+        $selrun = $conn->query($dbcon,$sel);
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>Institution Category</th>
+                                            <th>Percentage</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        while($data = $conn->fetch($selrun)){
+            $dataTable = $dataTable."<tr>
+                            <td>".$data['name']."</td>
+                            <td>".$calc = number_format(getPercentageStaffInPrivate($data['id']),2)." %</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='2'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage of Teaching Staff in Public Educational Institution</h5><p>Formula: Divide the number of teachers/lecturers in the public tertiary educational institutions by the total number of teachers/lecturers (in both public and private tertiary educational institutions) and multiply the result by 100.</p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "quota"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead style='background-color: #000; color: #ffffff; font-weight: bold;'>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Postgraduate Enrolment <br/><small style='color: rgba(243,149,3,0.98);'>Target is 25% of total enrolment.</small></th>
+                                            <th>International Students <br/><small style='color: rgba(243,149,3,0.98);'>Target is 10% of total enrolment.</small></th>
+                                            <th>Fee-Paying Students <br/><small style='color: rgba(243,149,3,0.98);'>Target is 5% of total enrolment.</small></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        for($i=$sdate; $i <= $edate; $i++){
+            $str1 = getEnrollmentQuota($i);
+            $obj = json_decode($str1);
+            $dataTable = $dataTable."<tr>
+                            <td>".$i."</td>
+                            <td>".$obj->postgraduates." %</td>
+                            <td>".$obj->international." %</td>
+                            <td>".$obj->feepaying." %</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='4'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Enrollment Quota</h5><p><small id='small'> Quota of Postgraduate Enrolment = 100 x [Total number of Postgraduate Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small><br/>
+                                <small id='small'> Quota of International students = 100 x [Total number of International Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small><br/>
+                                <small id='small'> Quota of Fee-Paying students = 100 x [Total number of Fee-paying Students ÷ Total Number of Students (i.e., undergraduate + postgraduate)] </small></p>",
+        ));
+        print json_encode($feedback);
+    }
+    elseif($chartType == "females"){
+        $sdate = $_GET['sdate'];
+        $edate = $_GET['edate'];
+
+        $dataTable ="<table class='table table-hover' id='gpiDatatable'>
+                                        <thead>
+                                            <tr>
+                                            <th>Year</th>
+                                            <th>Percentage Of Female Teachers</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+        for($i=$sdate; $i <= $edate; $i++){
+            $str1 = getFemaleStaffEnrollments($i);
+            $dataTable = $dataTable."<tr>
+                            <td>".$i."</td>
+                            <td>".$str1." %</td>
+                        </tr>";
+        }
+
+        if($dataTable == ""){
+            $dataTable = $dataTable."<tr><td colspan='2'>No Records Found</td></tr></tbody></table>";
+        }else{
+            $dataTable = $dataTable."</tbody></table>";
+        }
+
+        //SUMMARIZE RESPONSES
+        $feedback = array();
+        array_push($feedback,array(
+            "dataTable" => $dataTable,
+            "formula" => "<h5  class='panel-title'>Percentage Of Female Teachers</h5><p>Percentage of Female Teachers = 100 x [Total Number of Female Teachers/Lecturers ÷ Total Number of Teachers/Lecturers (Male and Female)]</p>",
+        ));
+        print json_encode($feedback);
     }
 
-    //SUMMARIZE RESPONSES
-    $feedback = array();
-    array_push($feedback,array(
-        "iscedDataCounts" => $iscedData,
-        "parityData" => $parityData,
-    ));
-    print json_encode($feedback);
 
     $conn->close($dbcon);
 }
@@ -338,7 +1145,7 @@ VALUES('$fname','$lname','$institution','$email','$contact','$actype','Active','
             logrequest($log,"System Logs");
         }else{
             $response['erroCode'] = "1";
-            $response['errorMsg'] = "Account creation failed. Contact the systems administrators for assistance";
+            $response['errorMsg'] = "Account creatwion failed. Contact the systems administrators for assistance";
         }
 
 
@@ -362,6 +1169,7 @@ if(isset($_POST['updateUserDetails'])){
     $actype = mysqli_real_escape_string($dbcon,$_POST['actype']);
     $role = mysqli_real_escape_string($dbcon,$_POST['role']);
     $institution = mysqli_real_escape_string($dbcon,$_POST['institution']);
+    $institution = $actype == "Institution" ? $institution : "";
 
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
 
@@ -380,6 +1188,7 @@ if(isset($_POST['updateUserDetails'])){
     $conn->close($dbcon);
 }
 
+
 if(isset($_POST['resetPassword'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -393,7 +1202,7 @@ if(isset($_POST['resetPassword'])){
     }else{
 
         //GENERATE THE RANDOM PASSWORD
-        $random_characters = 3;
+        $random_characters = 4;
 
         $lower_case = "abcdefghijklmnopqrstuvwxyz";
         $upper_case = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -408,17 +1217,17 @@ if(isset($_POST['resetPassword'])){
         $random_password = substr($lower_case, 0, $random_characters);
         $random_password .= substr($upper_case, 0, $random_characters);
         $random_password .= substr($numbers, 0, $random_characters);
-        $random_password .= substr($symbols, 0, $random_characters);
+        //$random_password .= substr($symbols, 0, $random_characters);
 
         $password = str_shuffle($random_password);
         $hash = password_hash($password, PASSWORD_ARGON2I);
 
         //UPDATE THE PASSWORD
-        $upd ="UPDATE users SET password = '$hash' WHERE email = '$email'";
+        $upd ="UPDATE users SET password = '$hash', updatedat = '".date("Y-m-d H:i:s")."' WHERE email = '$email'";
         $conn->query($dbcon,$upd);
 
         //SEND EMAIL
-        sendEmail($email,"Your account password has been reset. Your Auto Generated Password is <b>$password</b> . Kindly change your password after logging in successfully.",'no-reply@gtec.com','Account Password Update');
+        sendEmail($email,"Your account password has been reset. Your Auto Generated Password is <b>$password</b>. Kindly change your password after logging in successfully.",'no-reply@gtec.com','Account Password Update');
 
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Password updated successfully. Kindly check your e-mail for the autogenerated password";
@@ -526,6 +1335,31 @@ if(isset($_POST['updateIsced'])){
     $conn->close($dbcon);
 }
 
+if(isset($_GET['getInstitutionsStaff'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $actype = mysqli_real_escape_string($dbcon,$_GET['getInstitutionsStaff']);
+    $inst = mysqli_real_escape_string($dbcon,$_GET['inst']);
+    $counter = $_GET['counter'];
+    $data = "<select name='pubinst[]' data-placeholder='Select Institution' class='pubinst form-control' onchange='getStaffDetails(this.value,".$counter.")'>
+                <option value=''>Select Institution</option><option value='Other'>Other Institutions</option>";
+    if($actype == "Institution"){
+        $data.="<option value='".$inst."'>".getInstitution($inst)."</option>";
+    }else{
+        $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+        $selrun = $conn->query($dbcon,$sel);
+        while($seldata = $conn->fetch($selrun)){
+            $instcode = $seldata['institution_code'];
+            $inst = $seldata['name'];
+            $data.="<option value='".$instcode."'>".$inst."</option>";
+        }
+    }
+    $data.="</select>";
+
+    print $data;
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['getInstitutePrograms'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -563,7 +1397,7 @@ if(isset($_POST['updateRank'])){
     $chkdata = $conn->fetch($chkrun);
     if(($chkdata['targets'] + $target) <= 100.00) {
         //UPDATE
-        $upd = "UPDATE staffranks SET status = '$status',rank = '$rank', target = $target WHERE id =$id";
+        $upd = "UPDATE staffranks SET status = '$status',drank = '$rank', target = $target WHERE id =$id";
         $conn->query($dbcon, $upd);
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Rank Updated Successfully";
@@ -746,7 +1580,7 @@ if(isset($_POST['addStaffCategory'])){
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO staffcategory(staff_type, ranks, status, default_type) VALUES('$name','$rank','Active','None')";
+        $user = "INSERT INTO staffcategory(staff_type, dranks, status, default_type) VALUES('$name','$rank','Active','None')";
         $conn->query($dbcon,$user);
 
         $response['errorCode'] = "0";
@@ -772,7 +1606,7 @@ if(isset($_POST['editStaffCategory'])){
     $rank = $_POST['rank'];
 
     //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-    $user = "UPDATE staffcategory SET staff_type = '$name', ranks = '$rank', status = '$status' WHERE id=$id";
+    $user = "UPDATE staffcategory SET staff_type = '$name', dranks = '$rank', status = '$status' WHERE id=$id";
     $conn->query($dbcon,$user);
 
     $response['errorCode'] = "0";
@@ -789,7 +1623,7 @@ if(isset($_POST['addStaffRank'])){
     $target = mysqli_real_escape_string($dbcon,$_POST['target']);
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
-    $chkuname = "SELECT id FROM staffranks WHERE rank = '$rank'";
+    $chkuname = "SELECT id FROM staffranks WHERE drank = '$rank'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //CHECK PERCENTAGE TARGET
@@ -801,7 +1635,7 @@ if(isset($_POST['addStaffRank'])){
             $response['errorMsg'] = "Staff rank target of 100% is exceeded. Kindly rectify and try again";
         }else{
             //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-            $user = "INSERT INTO staffranks(rank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
+            $user = "INSERT INTO staffranks(drank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
             $conn->query($dbcon,$user);
             $response['errorCode'] = "0";
             $response['errorMsg'] = "Staff Rank Created Successfully";
@@ -1413,7 +2247,6 @@ if(isset($_GET['sortDataTablePublication'])){
     $dbcon=$conn->conn();
 
     $year = $_GET['year'];
-    $inst = $_GET['inst'];
     $type = $_GET['type'];
 
     $clause = "";
@@ -1422,13 +2255,6 @@ if(isset($_GET['sortDataTablePublication'])){
             $clause = $clause." WHERE publication_year = '$year'";
         }else{
             $clause = $clause."AND publication_year = '$year'";
-        }
-    }
-    if($inst != 'All'){
-        if($clause == ""){
-            $clause = $clause." WHERE institution_id = '$inst'";
-        }else{
-            $clause = $clause."AND institution_id = '$inst'";
         }
     }
     if($type != 'All'){
@@ -1443,34 +2269,36 @@ if(isset($_GET['sortDataTablePublication'])){
     $qry = "SELECT * FROM publication $clause";
     $qryrun = $conn->query($dbcon,$qry);
     $data ="<table class='table table-striped table-responsive' id='publications'><thead><tr>
-                                            <th>Staff ID</th>
-                                            <th>Staff Name</th>
                                             <th>Publication Type</th>
                                             <th>Publication Title</th>
                                             <th>Publication Year</th>
                                             <th>Publisher Of Publication</th>
-                                            <th>Institution</th>
+                                            <th>&nbsp;</th>
                                         </tr>
                                         </thead>
                                         <tbody>";
+    $count=0;
     while($row = $conn->fetch($qryrun)){
+        $count++;
         $id = $row['id'];
         $data = $data."<tr>
-                            <td>".$row['staff_id']."</td>
-                            <td>".getStaff($row['staff_id'])."</td>
                             <td>".$row['publication_type']."</td>
                             <td>".$row['title']."</td>
                             <td>".$row['publication_year']."</td>
                             <td>".$row['publisher']."</td>
-                            <td>".getInstitution($row['institution_id'])."</td>
+                            <td><a class='btn btn-info' onclick='getPublishers(".$id.")'>view publishers</a></td>
                          </tr>";
     }
-
-    if($data == ""){
-        print("<tr><td colspan='7'>No Records Found</td></tr></tbody></table>");
-    }else{
-        print $data."</tbody></table>";
+    $data.="</tbody></table>";
+   $errorcode = "1";
+    if($count > 0){
+        $errorcode = "0";
     }
+
+    $response['errorCode'] = $errorcode;
+    $response['msg'] = $data;
+    print json_encode($response);
+
 
     $conn->close($dbcon);
 
@@ -1621,13 +2449,15 @@ if(isset($_GET['sortDataTableStudents'])){
                                             <th>Religion</th>
                                             <th>Hometown</th>
                                             <th>Home Region</th>
+                                            <th>Institution Code</th>
                                             <th>Institution</th>
                                             <th>Application Year </th>
                                             <th> National ID Type</th>
                                             <th> National ID Number</th>
                                             <th>Senior High School Attended </th>
                                             <th> SHS Programme Offered  </th>
-                                            <th> Name Of Programme Offered</th>
+                                            <th> Programme Offered</th>
+                                            <th> Programme Code</th>
                                             <th> Admission Level</th>
                                             <th> Mode of Study</th>
                                             <th> Fee Paying Status</th>
@@ -1649,6 +2479,7 @@ if(isset($_GET['sortDataTableStudents'])){
                             <td>".$row['religion']."</td>
                             <td>".$row['home_town']."</td>
                             <td>".$row['home_region']."</td>
+                            <td>".$row['institution']."</td>
                             <td>".getInstitution($row['institution'])."</td>
                             <td>".$row['year']."</td>
                             <td>".$row['applicant_id_type']."</td>
@@ -1656,6 +2487,7 @@ if(isset($_GET['sortDataTableStudents'])){
                             <td>".$row['high_school']."</td>
                             <td>".$row['high_school_program']."</td>
                             <td>".getProgram($row['programme_offered'])."</td>
+                            <td>".$row['programme_offered']."</td>
                             <td>".$row['admission_level']."</td>
                             <td>".$row['programme_type']."</td>
                             <td>".$row['fee_type']."</td>
@@ -1670,7 +2502,6 @@ if(isset($_GET['sortDataTableStudents'])){
     }else{
         print $data."</tbody></table>";
     }
-    print_r(getallheaders());
     $conn->close($dbcon);
 
 }
@@ -1990,9 +2821,9 @@ if(isset($_GET['sortDataTableStaff'])){
     }
     if($rank != 'All'){
         if($clause == ""){
-            $clause = $clause." WHERE rank = '$rank'";
+            $clause = $clause." WHERE drank = '$rank'";
         }else{
-            $clause = $clause."AND rank = '$rank'";
+            $clause = $clause."AND drank = '$rank'";
         }
     }
     if($cat != 'All'){
@@ -2028,7 +2859,7 @@ if(isset($_GET['sortDataTableStaff'])){
                         <td>".getInstitution($row['institution'])."</td>
                         <td>".$row['qualification']."</td>
                         <td>".getStaffCategory($row['staff_type'])."</td>
-                        <td>".getStaffRank($row['rank'])."</td>
+                        <td>".getStaffRank($row['drank'])."</td>
                         <td>".$row['employment_type']."</td>
                         <td>".$row['nationality']."</td>
                         <td>".$row['gender']."</td>
@@ -2204,7 +3035,7 @@ if(isset($_GET['getStaffRank'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT rank, status, target, default_type FROM staffranks WHERE id = $id";
+    $sel = "SELECT drank, status, target, default_type FROM staffranks WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -2227,7 +3058,7 @@ if(isset($_GET['getStaffRank'])){
                     <div class='col-md-4' align='right'><label>Rank Name:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
-                            <input type='text' id='rankedit'".$readonly." value='".$rows['rank']."' class='form-control' placeholder='Rank Name' />
+                            <input type='text' id='rankedit'".$readonly." value='".$rows['drank']."' class='form-control' placeholder='Rank Name' />
                         </div>
                     </div>
                 </div>
@@ -2259,6 +3090,32 @@ if(isset($_GET['getStaffRank'])){
             <button type='submit' class='btn btn-primary stepy-finish' style='visibility: hidden'>Submit <i class='icon-check position-right'></i></button>
         </form>
         ";
+        print $data;
+    }
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getPublishersDetails'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $id = $_GET['getPublishersDetails'];
+
+    //FETCH THE ROLE RECORDS
+    $sel = "SELECT * FROM publishers WHERE pubid = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) == 0){
+        print "Not Found";
+    }else{
+        $data = "<table class='table table-striped table-responsive'><thead><tr><th>Publisher Name</th><th>Institution</th></tr></thead><tbody>";
+        while($row = $conn->fetch($selrun)){
+            $stfid = $row['staff_id'];
+            $inst = $row['institution_id'];
+
+            $data.="<tr><td>".getStaff($stfid)."</td><td>".getInstitution($inst)."</td></tr>";
+        }
+        $data.="</tbody></table>";
+
         print $data;
     }
     $conn->close($dbcon);
@@ -2369,10 +3226,10 @@ if(isset($_GET['getStaffCategory'])){
             $rankDetails.="<option value='".$obj[$i]."' selected>".getRank($obj[$i])."</option>";
         }
 
-        $sel = "SELECT rank, id FROM staffranks WHERE id NOT IN (".$rank.") ORDER BY rank ASC";
+        $sel = "SELECT drank, id FROM staffranks WHERE id NOT IN (".$rank.") ORDER BY drank ASC";
         $selrun = $conn->query($dbcon,$sel);
         while($row = $conn->fetch($selrun)){
-            $rankDetails.="<option value='".$row['id']."'>".$row['rank']."</option>";
+            $rankDetails.="<option value='".$row['id']."'>".$row['drank']."</option>";
         }
         $rankDetails.="</div></select>";
         $data = "
@@ -2423,14 +3280,14 @@ if(isset($_GET['getRankDetails'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $rankid = $_GET['getRankDetails'];
-    $sel = "SELECT ranks FROM staffcategory WHERE id=$rankid";
+    $sel = "SELECT dranks FROM staffcategory WHERE id=$rankid";
     $selrun = $conn->query($dbcon,$sel);
     $msg="";
     if($conn->sqlnum($selrun) == 0){
         $msg = "<option value=''>Empty Ranks</option>";
     }else{
         $row = $conn->fetch($selrun);
-        $ranks = $row['ranks'];
+        $ranks = $row['dranks'];
         $explode = explode(",",$ranks);
         for($i=0; $i < count($explode);$i++){
             $msg=$msg."<option value='".$explode[$i]."'>".getRank($explode[$i])."</option>";
@@ -2488,7 +3345,7 @@ if(isset($_POST['addNewStaff'])){
     $chkrun = $conn->query($dbcon,$chk);
     if($conn->sqlnum($chkrun) == 0){
         $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
-birth_date, gender, nationality, qualification, designation, rank, staff_type, college, department, faculty, employment_type, disability, 
+birth_date, gender, nationality, qualification, designation, drank, staff_type, college, department, faculty, employment_type, disability, 
 disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
 ,'$dept','$faculty','$emptype','$disable','$distype')";
         $insrun = $conn->query($dbcon,$ins);
@@ -2537,7 +3394,7 @@ if(isset($_POST['updateStaff'])){
 
         $ins = "UPDATE staff SET year='$acad', title='$title', national_id_type='$idtype', national_id_number='$idnum', institution='$inst',
  first_name='$fname', surname='$lname', other_names='$oname', birth_date='$dob', gender='$sex', nationality='$nat',
-  qualification='$edu', designation='$desig', rank='$rank', staff_type='$stftype', college='$college', department='$dept', faculty='$faculty',
+  qualification='$edu', designation='$desig', drank='$rank', staff_type='$stftype', college='$college', department='$dept', faculty='$faculty',
    employment_type='$emptype', disability='$disable', disability_type = '$distype' WHERE staff_id = '$stfid'";
         $insrun = $conn->query($dbcon,$ins);
         if($insrun){
@@ -2853,18 +3710,39 @@ if(isset($_POST['addPublication'])){
     $title=mysqli_real_escape_string($dbcon,$_POST['title']);
     $publisher=mysqli_real_escape_string($dbcon,$_POST['publisher']);
     $pubyear=mysqli_real_escape_string($dbcon,$_POST['pubyear']);
+    $stfname=mysqli_real_escape_string($dbcon,$_POST['stfname']);
+    $stfinst=mysqli_real_escape_string($dbcon,$_POST['stfinst']);
 
-    $ins = "INSERT INTO publication (institution_id, staff_id, publication_type, publication_year, publisher, title)
- VALUES ('$inst','$stfid','$type','$pubyear','$publisher','$title')";
-    $insrun = $conn->query($dbcon,$ins);
-    if($insrun){
+    $inst = explode(",",$inst);
+    $stfid = explode(",",$stfid);
+    $stfname = explode(",",$stfname);
+    $stfinst = explode(",",$stfinst);
+
+    //INSERT PUBLICATION RECORDS
+    if(count($inst) == 1 && empty($inst[0])){
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "No publisher Attached";
+    }else{
+        $ins = "INSERT INTO publication (publication_type, publication_year, publisher, title)
+                 VALUES ('$type','$pubyear','$publisher','$title')";
+        $insrun = $conn->query($dbcon,$ins);
+        $id = mysqli_insert_id($dbcon);
+
+        for($i=0; $i < count($inst); $i++){
+            $stfidc = $stfid[$i];
+            $instc = $inst[$i];
+            $stfnamec = $stfname[$i];
+            $stfinstc = $stfinst[$i];
+            if(!empty($instc)){
+                $ins2 = $instc == "Other" ? "INSERT INTO publishers(pubid, staff_id, institution_id) VALUES ($id, '$stfnamec', '$stfinstc')" : "INSERT INTO publishers(pubid, staff_id, institution_id) VALUES ($id, '$stfidc', '$instc')";
+                $conn->query($dbcon,$ins2);
+            }
+
+        }
+
         $response['errorCode'] = "0";
         $response['errorMsg'] = "Staff Publication Added Successfully";
-    }else{
-        $response['errorCode'] = "1";
-        $response['errorMsg'] = "Staff Publication Could Not Be Created. Please Try Again";
     }
-
 
     print json_encode($response);
 }
@@ -3120,18 +3998,18 @@ if(isset($_POST['updatePassword'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT password FROM users WHERE username = '$username'";
+    $sel = "SELECT password FROM users WHERE email = '$username'";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         $response['errorCode'] = "1";
-        $response['errorMsg'] = "Username Not Found";
+        $response['errorMsg'] = "E-mail Not Found";
     }else{
         $rows = $conn->fetch($selrun);
         $oldhash = $rows['password'];
 
         if(password_verify($currpassword, $oldhash)){
             $hashnew = password_hash($newpassword, PASSWORD_ARGON2I);
-            $upd = "UPDATE users SET password = '$hashnew' WHERE username='$username'";
+            $upd = "UPDATE users SET password = '$hashnew' WHERE email='$username'";
             $conn->query($dbcon,$upd);
 
             $response['errorCode'] = "0";
