@@ -1,6 +1,10 @@
 <?php
 include("dbcon.php");
 include("Classes/Dashboard.php");
+//include("Classes/RedisConnect.php");
+
+//$redisConn =  new RedisConnect;
+//print_r($redisConn->textRedis());
 
 if (!isset($_SESSION['uname'])) {
     header("location: index.php");
@@ -74,7 +78,7 @@ if (!isset($_SESSION['uname'])) {
 
     <script type="text/javascript" src="assets/js/plugins/forms/tags/tagsinput.min.js"></script>
     <script type="text/javascript" src="assets/js/plugins/forms/tags/tokenfield.min.js"></script>
-    <script type="text/javascript" src="assets/js/pages/form_tags_input.js"></script>
+    <!--<script type="text/javascript" src="assets/js/pages/form_tags_input.js"></script>-->
     <!-- /theme JS files -->
     <!-- DATA TABLES-->
     <link href="https://cdn.datatables.net/v/dt/jszip-3.10.1/dt-1.13.6/b-2.4.2/b-html5-2.4.2/b-print-2.4.2/sc-2.2.0/datatables.min.css" rel="stylesheet">
@@ -517,9 +521,9 @@ if (!isset($_SESSION['uname'])) {
                                         <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>ISCED</th>
-                                            <th>ISCED Code</th>
-                                            <th>ISCED Description</th>
+                                            <th>Name</th>
+                                            <th>Code</th>
+                                            <th>Description</th>
                                             <th>Classification</th>
                                             <th>STR Target</th>
                                             <?php if(strpos($mypermission,'update') !== false){ ?><th>&nbsp;</th><?php } ?>
@@ -2202,7 +2206,7 @@ if (!isset($_SESSION['uname'])) {
                     <div class="panel panel-white">
                         <div class="panel-heading">
                             <p class="phead-sum">3</p>
-                            <h5 class="panel-title">Science To Humanitites Ratio<br/><small id="small">Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</small></h5>
+                            <h5 class="panel-title">Science To Humanities Ratio<br/><small id="small">Science to Humanities Ratio = [100 x (Total number of students enrolled in Science Programmes ÷ Total number of students enrolled (Science + Humanities) : 100 x (Total number of students enrolled in Humanities Programmes ÷ Total number of students enrolled (Science + Humanities)]</small></h5>
                         </div>
                         <div class="row" style="margin: 10px;">
                             <?php
@@ -2702,7 +2706,6 @@ if (!isset($_SESSION['uname'])) {
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
                                         $code = $data['id'];
-
                                         ?>
                                         <tr>
                                             <td><b><?php echo $name; ?></b></td>
@@ -4522,7 +4525,7 @@ if (!isset($_SESSION['uname'])) {
                 <!-- /content area -->
 
             </div>
-            <?php $conn->close($dbcon);}elseif(isset($_GET['gpi_report'])){
+            <?php $conn->close($dbcon);}elseif(isset($_GET['analytics_report'])){
             $conn=new Db_connect;
             $dbcon=$conn->conn();
             $status = "";
@@ -4533,7 +4536,6 @@ if (!isset($_SESSION['uname'])) {
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Analytics Report </li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">Gender Parity Index (G.P.I)</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -4551,27 +4553,50 @@ if (!isset($_SESSION['uname'])) {
                         </div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <label>Start Year</label>
-                                    <select id="gpiyr1" class="form-control">
-                                        <?php
-                                        $curryear = date("Y");
-                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                            ?>
-                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                        <?php } ?>
+                            <div class="col-md-4">
+                                    <label>Select Report Type</label>
+                                    <select id="gpimodule" class="select" onchange="showOrHideDates(this.value)">
+                                        <option value=""></option>
+                                        <option value="pyramid">Academic Staff Pyramid</option>
+                                        <option value="quota">Enrollment Quota</option>
+                                        <option value="epfs">Equivalence of Part And Full-time Staff</option>
+                                        <option value="gpi">Gender Parity Index</option>
+                                        <option value="isced">International Standard Classification of Education</option>
+                                        <option value="females">Percentage Of Female Teachers</option>
+                                        <option value="pdstiie">Percentage Distribution of Students in Tertiary Institutions by ISCED Field Of Education</option>
+                                        <option value="pdgtiie">Percentage Distribution of Graduates by ISCED Fields of Education at the Tertiary Level</option>
+                                        <option value="privateenrol">Percentage Of Private Enrollment</option>
+                                        <option value="publicenrol">Percentage Of Public Enrollment</option>
+                                        <option value="ptsprivate">Percentage of Teaching Staff in Private Educational Institution</option>
+                                        <option value="ptspublic">Percentage of Teaching Staff in Public Educational Institution</option>
+                                        <option value="science">Science To Humanities Ratio</option>
+                                        <option value="str1">Student Teacher Ratio </option>
+                                        <option value="str2">Student Teacher Ratio For Field Of Subject</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label>End Year</label>
-                                    <select id="gpiyr2" class="form-control">
-                                        <?php
-                                        $curryear = date("Y");
-                                        for($i=$curryear; $i >= ($curryear - 40); $i--){
-                                            ?>
-                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                        <?php } ?>
-                                    </select>
+                                <div id="date_range" class="hidden">
+                                    <div class="col-md-4">
+                                        <label>Start Year</label>
+                                        <select id="gpiyr1" class="form-control">
+                                            <?php
+                                            $curryear = date("Y");
+                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                ?>
+                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>End Year</label>
+                                        <select id="gpiyr2" class="form-control">
+                                            <?php
+                                            $curryear = date("Y");
+                                            for($i=$curryear; $i >= ($curryear - 40); $i--){
+                                                ?>
+                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row" style="margin: 20px">
@@ -4587,24 +4612,26 @@ if (!isset($_SESSION['uname'])) {
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
                             <div class="row">
-                                <div class="col-md-6 printhide" align="left"><h5 class="panel-title">Gender Parity Index</h5></div>
-                                <div class="col-md-6 printhide" align="right"><button type="button" class="btn btn-default btn-lg heading-btn" href="javascript:void(0);" onclick="javascript:window.print();"><i class="icon-printer position-left"></i> Print</button></div>
+                                <div class="col-md-10 printhide" align="left">
+                                    <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                                </div>
+                                <div class="col-md-2 printhide" align="right"><button type="button" class="btn btn-default btn-lg heading-btn" href="javascript:void(0);" onclick="javascript:window.print();"><i class="icon-printer position-left"></i> Print</button></div>
                             </div>
                         </div>
                         <div class="row" style="margin: 20px;">
-                            <div class="col-md-6">
-                                <div align="left"><a onclick="toggle('add_new_staff','view_studenttable')" class="btn btn-lg btn-default"><span class="icon icon-cog52"></span> Filter</a></div>
+                            <div class="col-md-12" id="formula" align="left">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
-                                    <div class="col-md-12"></div>
+                                <div class="panel panel-flat">
+                                    <div class="col-md-12" style="margin: 10px; overflow-x:auto;" id="filterResult"></div>
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="panel panel-flat"  style="width: auto;height:400px;" id="gpiChart">
+                                <div class="panel panel-flat" id="panelChart">
+                                    <div style="width: auto;height:400px;" id="gpiChart"></div>
                                 </div>
                             </div>
                         </div>
@@ -4752,47 +4779,6 @@ if (!isset($_SESSION['uname'])) {
                             <div class="col-md-12">
                                 <div class="panel panel-flat"   style="margin: 10px; overflow-x:auto;" id="filterResult">
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /clickable title -->
-                </div>
-                <!-- /content area -->
-
-            </div>
-            <?php $conn->close($dbcon);}elseif(isset($_GET['isced_report'])){
-            $conn=new Db_connect;
-            $dbcon=$conn->conn();
-            $status = "";
-            ?>
-            <div class="content-wrapper">
-                <!-- Page header -->
-                <div class="page-header">
-                    <div class="breadcrumb-line">
-                        <ul class="breadcrumb" style="font-size: medium;">
-                            <li style="font-weight: bold; font-size: x-large">Analytics Report </li>
-                            <li class="active"><a href="dashboard.php?student_enrollments">ISCED Report</a></li>
-                        </ul>
-                        <?php include("components/back_n_forward_buttons.php"); ?>
-                        </ul>
-                    </div>
-                </div>
-                <!-- /page header -->
-                <!-- Content area -->
-                <div class="content">
-
-                    <!-- Clickable title -->
-                    <div class="panel panel-white">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-md-6 printhide" align="left"><h5 class="panel-title">International Standard Classification of Education(ISCED)<br/><small id="small">mapping programmes run by Tertiary Education Institutions by ISCED fields of study</small></h5></div>
-                                <div class="col-md-6 printhide" align="right"><button type="button" class="btn btn-default btn-lg heading-btn" href="javascript:void(0);" onclick="javascript:window.print();"><i class="icon-printer position-left"></i> Print</button></div>
-                            </div>
-                        </div>
-                        <div class="row" style="margin: 10px;">
-                            <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12 content-group" id="iscedInfor"></div>
-                            <div class="col-md-8 col-lg-8 col-sm-12 col-xs-12 content-group">
-                                <div id="iscedstats" style="width: auto;height:400px;"></div>
                             </div>
                         </div>
                     </div>
@@ -4953,24 +4939,7 @@ if (!isset($_SESSION['uname'])) {
                                         <?php } ?>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <label>Institution</label>
-                                    <select id="pubbinst" class="form-control" onchange="sortDataTablePublication()">
-                                        <option></option>
-                                        <?php
-                                        if($actype == "GTEC"){
-                                            $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                            $selrun = $conn->query($dbcon,$sel);
-                                            while($row = $conn->fetch($selrun)){
-                                                ?>
-                                                <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                            <?php }?>
-                                            <option selected value="All">All</option>
-                                        <?php }else{?>
-                                            <option selected value="<?php echo $institution; ?>"><?php echo getInstitution($institution); ?></option>
-                                        <?php } ?>
-                                    </select>
-                                </div>
+
                                 <div class="col-md-4">
                                     <label>Publication Type</label>
                                     <select id="pubbtype" class="form-control" onchange="sortDataTablePublication()">
@@ -4984,7 +4953,7 @@ if (!isset($_SESSION['uname'])) {
                                 </div>
                             </div>
                             <div class="row" style="margin: 20px">
-                                <div class="col-md-12" align="center">
+                                <div class="col-md-8" align="center">
                                     <button class="btn btn-lg btn-success" onclick="getPublicationsFromSearch()"><span class="icon icon-search4"></span> Search</button>
                                 </div>
                             </div>
@@ -4995,7 +4964,7 @@ if (!isset($_SESSION['uname'])) {
                     <!-- Clickable title -->
                     <div class="panel panel-white hidden" id="view_studenttable">
                         <div class="panel-heading">
-                            <h6 class="panel-title">Staff List</h6>
+                            <h6 class="panel-title">Publications</h6>
                         </div>
                         <div class="row" style="margin: 20px;">
                             <div class="col-md-6">
@@ -5043,41 +5012,11 @@ if (!isset($_SESSION['uname'])) {
                         </div>
 
                         <form class="stepy-clickable">
+
                             <fieldset title="1">
                                 <legend class="text-semibold">Publication Details</legend>
 
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <select name="institution" id="pubinst" data-placeholder="Select Institution" class="select btnrqd" onchange="getStaffDetails(this.value)">
-                                                <option></option>
-                                                <?php
-                                                if($actype == "GTEC"){
-                                                    $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
-                                                    $selrun = $conn->query($dbcon,$sel);
-                                                    if($conn->sqlnum($selrun) == 0){
-                                                        ?>
-                                                        <option value="">No Records Found</option>
-                                                    <?php }else{
-                                                        while($data = $conn->fetch($selrun)){
-                                                            ?>
-                                                            <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
-                                                        <?php }}}else{?>
-                                                    <option value="<?php  echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 hidden" align="left">
-                                        <div id="staffdetailsloader"><img src="assets/images/spinner.gif" style="width: 30px; height: 30px" /></div>
-                                    </div>
-                                    <div class="col-md-6" id="stafflisthide">
-                                        <div class="form-group">
-                                            <select id="stafflist" data-placeholder="Select Staff" class="select">
-                                                <option></option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <select id="pubtype" class="form-control btnrqd">
@@ -5114,12 +5053,53 @@ if (!isset($_SESSION['uname'])) {
                                         </div>
                                     </div>
                                 </div>
+                            </fieldset>
+                            <fieldset title="2">
+                                <legend class="text-semibold">Publishers</legend>
+                                <input type="hidden" value="0" id="rowcounterwh"/>
+                                <div class="staffPublishers" id="stfpublishers">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <select name="pubinst[]" data-placeholder="Select Institution" class="select btnrqd pubinst" onchange="getStaffDetails(this.value,0)">
+                                                    <option></option>
+                                                    <option value="Other">Other Institutions</option>
+                                                    <?php
+                                                    if($actype == "GTEC"){
+                                                        $sel = "SELECT institution_code, name FROM institutes WHERE status = 'Active' ORDER BY name ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        if($conn->sqlnum($selrun) > 0){
+                                                            while($data = $conn->fetch($selrun)){
+                                                                ?>
+                                                                <option value="<?php echo $data['institution_code'] ?>"><?php echo $data['name']; ?></option>
+                                                            <?php }}}else{?>
+                                                        <option value="<?php  echo $institution; ?>"><?php echo getInstitution($institution) ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 hidden" id="nstf0"><input type="text" class="form-control stfnameext" id="stfname" name="stfnameext[]" placeholder="Name Of Publisher" /></div>
+                                        <div class="col-md-3 hidden" id="ninst0"><input type="text" class="form-control stfinstext" id="stfinst" name = "stfinstext[]" placeholder="Institution Of Publisher"/></div>
+                                        <div class="col-md-6 hidden" id="stafflisthide0">
+                                            <div class="form-group">
+                                                <select id="stafflist0" name="staffid[]" data-placeholder="Select Publisher" class="select staffid">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-lg btn-success" onclick="addNewPublisher('<?php echo $actype; ?>','<?php echo $institution; ?>')"><span class="icon icon-add"></span> Add Publisher</button>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-12" align="center" style="margin-bottom: 20px">
                                         <button class="btn btn-sm btn-primary" type="button" onclick="createPublicationRecord()">Submit  </button>
                                     </div>
                                 </div>
                             </fieldset>
+
                             <button type="submit" class="btn btn-primary stepy-finish" style="visibility: hidden">Submit <i class="icon-check position-right"></i></button>
                         </form>
                     </div>
@@ -5252,7 +5232,7 @@ if (!isset($_SESSION['uname'])) {
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <select id="confinst" data-placeholder="Select Institution" class="select btnrqd" onchange="getStaffDetails(this.value)">
+                                            <select id="confinst" data-placeholder="Select Institution" class="select btnrqd" onchange="getStaffDetailsSingle(this.value)">
                                                 <option></option>
                                                 <?php
                                                 if($actype == "GTEC"){
@@ -5270,9 +5250,6 @@ if (!isset($_SESSION['uname'])) {
                                                 <?php } ?>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 hidden" align="left">
-                                        <div id="staffdetailsloader"><img src="assets/images/spinner.gif" style="width: 30px; height: 30px" /></div>
                                     </div>
                                     <div class="col-md-6" id="stafflisthide">
                                         <div class="form-group">
@@ -6395,7 +6372,7 @@ if (!isset($_SESSION['uname'])) {
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
                                                     <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
-                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'users')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
+                                                    <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_categories')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
                                         <?php } ?>
@@ -7332,7 +7309,6 @@ if (!isset($_SESSION['uname'])) {
                                     <legend class="text-semibold">Account Details</legend>
 
                                     <div class="row">
-
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <select name="account-type" id="actype" data-placeholder="Choose Account Type" class="select" onchange="unhideInstitution(this.value)">
@@ -7370,6 +7346,8 @@ if (!isset($_SESSION['uname'])) {
                                                 </select>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <input type="password" id="password" class="form-control btnrqd" placeholder="Password" required />
@@ -7481,6 +7459,7 @@ if (!isset($_SESSION['uname'])) {
                                             <tr>
                                                 <th>#</th>
                                                 <th>Name</th>
+                                                <th>Account Type</th>
                                                 <th>Phone</th>
                                                 <th>E-mail</th>
                                                 <th>Status</th>
@@ -7514,6 +7493,7 @@ if (!isset($_SESSION['uname'])) {
                                                 <tr style="color: <?php echo $color; ?>">
                                                     <td><?php echo $count; ?></td>
                                                     <td><?php echo $row['first_name']." ".$row['last_name']; ?></td>
+                                                    <td><?php echo $row['account_type']; ?></td>
                                                     <td><?php echo $row['phone']; ?></td>
                                                     <td><?php echo $row['email']; ?></td>
                                                     <td><?php echo $row['status']; ?></td>
@@ -7602,21 +7582,7 @@ if (!isset($_SESSION['uname'])) {
                                                     <input type="text" value="<?php echo $data['phone']; ?>" id="contactedit" class="form-control" required />
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label>Institution:<b class="rqd">*</b></label>
-                                                    <select name="institution" id="institutionedit" data-placeholder="Select User Institution" class="select">
-                                                        <option  value="<?php echo $inst; ?>"><?php echo getInstitution($inst); ?></option>
-                                                        <?php
-                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' AND institution_code <> '$inst' ORDER BY name ASC";
-                                                        $selrun = $conn->query($dbcon,$sel);
-                                                        while($row = $conn->fetch($selrun)){
-                                                            ?>
-                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
-                                                        <?php } ?>
-                                                    </select>
-                                                </div>
-                                            </div>
+
                                         </div>
                                     </fieldset>
 
@@ -7628,9 +7594,24 @@ if (!isset($_SESSION['uname'])) {
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Account Type:<b class="rqd">*</b></label>
-                                                    <select name="account-type" id="actypeedit" data-placeholder="Choose Account Type" class="select">
+                                                    <select name="account-type" id="actypeedit" data-placeholder="Choose Account Type" class="select" onchange="unhideInstitution(this.value)">
                                                         <option value="<?php echo $data['account_type']; ?>"><?php echo $data['account_type']; ?></option>
                                                         <option value="<?php if($acctype == 'GTEC'){echo 'Institution';}else{echo 'GTEC';} ?>"><?php if($acctype == 'GTEC'){echo 'Institution';}else{echo 'GTEC';} ?></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" id="unhideinst">
+                                                <div class="form-group">
+                                                    <label>Institution:<b class="rqd">*</b></label>
+                                                    <select name="institution" id="institutionedit" data-placeholder="Select User Institution" class="select">
+                                                        <option  value="<?php echo $inst; ?>"><?php echo getInstitution($inst); ?></option>
+                                                        <?php
+                                                        $sel = "SELECT name, institution_code FROM institutes WHERE status = 'Active' AND institution_code <> '$inst' ORDER BY name ASC";
+                                                        $selrun = $conn->query($dbcon,$sel);
+                                                        while($row = $conn->fetch($selrun)){
+                                                            ?>
+                                                            <option value="<?php echo $row['institution_code']; ?>"><?php echo $row['name']; ?></option>
+                                                        <?php } ?>
                                                     </select>
                                                 </div>
                                             </div>

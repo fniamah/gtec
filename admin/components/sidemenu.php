@@ -36,10 +36,18 @@
                         <ul>
                             <?php if(str_contains($access,'Programs') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?add_acc_programs"><i class="icon-add-to-list"></i><span>Add Accreditation</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Programs') && strpos($mypermission,'create') !== false){?><li><a onclick="bulkUploads('appadmissions', 'add_accreditation', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Accreditation</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Proposed') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?acc_proposed_programs"><i class="icon-book2"></i><span>Add New Proposal</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?acc_programs"><i class="icon-eye4"></i><span>View Accreditations</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Programs')){?><li><a href="../admin/dashboard.php?view_proposals"><i class="icon-eye4"></i><span>View Proposals</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Programs') && $actype == "GTEC"){?><li><a href="../admin/dashboard.php?programs"><i class="icon-book3"></i><span>Programmes</span></a></li><?php } ?>
+                            <!--<?php if(str_contains($access,'Proposed') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?acc_proposed_programs"><i class="icon-book2"></i><span>Add New Proposal</span></a></li><?php } ?>-->
+                            <?php if(str_contains($access,'Programs')){?>
+
+                                <li>
+                                    <a href="#"><i class="icon-pie-chart5"></i> <span>View</span></a>
+                                    <ul>
+                                        <li><a href="../admin/dashboard.php?acc_programs"><i class="icon-markup"></i><span>Accreditations</span></a></li>
+                                        <!--<li><a href="../admin/dashboard.php?view_proposals"><i class="icon-eye4"></i><span>Proposals</span></a></li>
+                                        <?php if($actype == "GTEC"){?><li><a href="../admin/dashboard.php?programs"><i class="icon-book3"></i><span>Programmes</span></a></li><?php } ?>-->
+                                    </ul>
+                                </li>
+                            <?php } ?>
                         </ul>
                     </li>
                     <?php } if((str_contains($access,'Institution Category') || str_contains($access,'Institution')) && $actype == "GTEC"){?>
@@ -75,7 +83,7 @@
                             </li>
                         </ul>
                     </li>
-                    <?php } if(str_contains($access,'Applications') || str_contains($access,'Enrollments') || str_contains($access,'Graduations')){?>
+                    <?php } /*if(str_contains($access,'Applications') || str_contains($access,'Enrollments') || str_contains($access,'Graduations')){?>
                     <li>
                         <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Application Mgt</span></a>
                         <ul>
@@ -87,9 +95,9 @@
 
                         </ul>
                     </li>
-                        <?php }if(str_contains($access,'Enrollments')) { ?>
+                        <?php }*/if(str_contains($access,'Enrollments')) { ?>
                     <li>
-                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students Mgt</span></a>
+                        <a href="#" class="menu-item"><i class="icon-users4"></i> <span>Students</span></a>
                         <ul>
                             <?php if(str_contains($access,'Enrollments') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?add_student"><i class="icon-user-plus"></i><span>Add Students</span></a></li><?php } ?>
                             <?php if(str_contains($access,'Enrollments') && strpos($mypermission,'create') !== false){?><li><a onclick="bulkUploads('appadmissions', 'add_student', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Student Upload</span></a></li><?php } ?>
@@ -103,31 +111,7 @@
                         <a href="#" class="menu-item"><i class="icon-pie-chart7"></i> <span>Reports</span></a>
                         <ul>
                             <?php if(str_contains($access,'Summary Report')){?><li><a href="../admin/dashboard.php?summary_report"><i class="icon-pie-chart8"></i><span>Summary</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Analytics Report')){?>
-                                <li>
-                                    <a href="#"><i class="icon-pie-chart5"></i> <span>Analytics</span></a>
-                                    <ul>
-                                        <li><a href="../admin/dashboard.php?isced_report">ISCED</a></li>
-                                        <li><a href="../admin/dashboard.php?ger_report">Gross Enrollment Ratio</a></li>
-                                        <li><a href="../admin/dashboard.php?gpi_report">Gender Parity Index</a></li>
-                                        <li><a href="starters/2_col.html">Science To Humanities Ratio</a></li>
-                                        <li><a href="starters/2_col.html">Equivalence of part and full-time staff.</a></li>
-                                        <li><a href="starters/2_col.html">Student-Teacher Ratio 1</a></li>
-                                        <li><a href="starters/2_col.html">Student-Teacher Ratio 2</a></li>
-                                        <li><a href="starters/2_col.html">Enrollment Quota</a></li>
-                                        <li><a href="starters/2_col.html">Academic Staff Pyramid</a></li>
-                                        <li><a href="starters/2_col.html">Percentage Of Female Teachers</a></li>
-                                        <li><a href="starters/2_col.html">Distribution of Students in Tertiary Education by ISCED.</a></li>
-                                        <li><a href="starters/2_col.html">Distribution of Graduates by ISCED</a></li>
-                                        <li><a href="starters/2_col.html">Percentage of private enrollment</a></li>
-                                        <li><a href="starters/2_col.html">Percentage of Teaching Staff in Private Institution</a></li>
-                                        <li><a href="starters/2_col.html">Number of Students in Tertiary Education Per 100,000 Inhabitants</a></li>
-                                        <li><a href="starters/2_col.html">Total Students Enrollment</a></li>
-                                        <li><a href="starters/2_col.html">Total Students Enrollment</a></li>
-                                        <li><a href="starters/2_col.html">Enrollment Vs Graduation</a></li>
-                                    </ul>
-                                </li>
-                            <?php } ?>
+                            <?php if(str_contains($access,'Analytics Report')){?><li><a href="../admin/dashboard.php?analytics_report"><i class="icon-pie-chart8"></i><span>Analytics</span></a></li><?php } ?>
                         </ul>
                     </li>
                     <?php } ?>
@@ -140,8 +124,7 @@
                             <?php if(str_contains($access,'User Roles')){?><li><a href="../admin/dashboard.php?user_roles"><i class="icon-user-check"></i><span>User Roles</span></a></li><?php } ?>
                         </ul>
                     </li>
-                    <!--<?php } if((str_contains($access,'Archive')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?archive"><i class="icon-archive"></i> <span>Archive</span></a></li><?php } ?>-->
-                    <?php if((str_contains($access,'Logs')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?log_details"><i class="icon-newspaper2"></i> <span>Logs</span></a></li><?php } ?>
+                    <?php } if((str_contains($access,'Logs')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?log_details"><i class="icon-newspaper2"></i> <span>Logs</span></a></li><?php } ?>
 
 
                 </ul>

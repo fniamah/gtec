@@ -112,7 +112,7 @@ function getRank($id){
 function getInstitution($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $response="N/A";
+    $response=$id;
     $sel="SELECT name FROM institutes WHERE institution_code = '$id'";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
@@ -611,7 +611,7 @@ function checkAccess($type,$user){
 function getStaff($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $response="N/A";
+    $response=$id;
     $sel="SELECT title, first_name, surname, other_names  FROM staff WHERE staff_id = '$id'";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
@@ -705,4 +705,5 @@ function sendEmail($recipient,$msg,$sender,$subject){
 
     //echo "<script>alert('Mail sent successfully');</script>";
 }
+
 ?>

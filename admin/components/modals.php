@@ -173,6 +173,12 @@
                     <div class="row">
                         <div class="col-md-12" align="center" id="clickinscription"></div>
                     </div>
+                    <div class="row" id="hideBulkFields">
+                        <div class="col-md-12"><p style="font-weight: bold; font-size: large">Please Complete The Below Fields</p></div>
+                    </div>
+                    <div class="row" style="margin: 20px;" id="bulkFields">
+
+                    </div>
                     <div class="row" style="margin: 20px;" id="uploadField">
                         <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6" align="right" id="filedownload"></div>
                         <div class="col-md-6 col-lg-6 col-sm-6 col-xs-6" align="left">
