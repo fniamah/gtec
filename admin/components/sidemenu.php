@@ -10,10 +10,10 @@
                         <span class="media-heading text-semibold" style="color: #FFDC0A; font-weight: bolder; font-size: x-large">Dashboard</span>
                     </div>
 
-                    <div class="media-right media-middle">
+                    <div class="media-left">
                         <ul class="icons-list">
                             <li>
-                                <a href="#" style="color: #FFDC0A; font-weight: bolder;"><i class="icon-cog3"></i></a>
+                                <a href="../admin/dashboard.php?dashboard_ai"><div align="left"><img src="assets/images/ai.png" class="img-responsive" style="width: 50px; height: 50px;" /></div></a>
                             </li>
                         </ul>
                     </div>
@@ -77,8 +77,8 @@
                                 <a href="#"><i class="icon-pie-chart5"></i> <span>View Data</span></a>
                                 <ul>
                                     <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?conferences_and_workshops" id="layout4"><i class="icon-hammer2"></i><span>Conference/Workshop</span></a></li><?php } ?>
-                                    <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff_records" id="layout2"><i class="icon-users4"></i><span>View Staff</span></a></li><?php } ?>
-                                    <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?publication" id="layout3"><i class="icon-newspaper2"></i><span>View Publications</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Staff,')){?><li><a href="../admin/dashboard.php?staff_records" id="layout2"><i class="icon-users4"></i><span>Staff</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Publications')){?><li><a href="../admin/dashboard.php?publication" id="layout3"><i class="icon-newspaper2"></i><span>Publications</span></a></li><?php } ?>
                                 </ul>
                             </li>
                         </ul>
@@ -124,6 +124,13 @@
                             <?php if(str_contains($access,'User Roles')){?><li><a href="../admin/dashboard.php?user_roles"><i class="icon-user-check"></i><span>User Roles</span></a></li><?php } ?>
                         </ul>
                     </li>
+                    <?php }if($actype == "GTEC" ){?>
+                        <li>
+                            <a href="#"class="menu-item"><i class="icon-cog52"></i> <span>AI Configurations</span></a>
+                            <ul>
+                                <li><a onclick="enrollmentTarget()"><i class="icon-user-plus"></i><span>Enrollment Targets</span></a></li>
+                            </ul>
+                        </li>
                     <?php } if((str_contains($access,'Logs')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?log_details"><i class="icon-newspaper2"></i> <span>Logs</span></a></li><?php } ?>
 
 

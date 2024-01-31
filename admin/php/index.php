@@ -196,6 +196,7 @@ if(isset($_GET['getTheBulkFields'])){
         );
     }
 
+
     $feedback = array();
     array_push($feedback,array(
         "isced" => $progIsced,
@@ -289,7 +290,7 @@ if(isset($_GET['genderParityIndex'])){
         $getMaleEnrollments = getEnrollmentsByGenderByInstitution($id,'Male');
         $getFemaleEnrollments = getEnrollmentsByGenderByInstitution($id,'Female');
         $totalPerCat = $getMaleEnrollments + $getFemaleEnrollments;
-        $tabledisp.="<tr><td>".$instname."</td><td>".$getMaleEnrollments."</td><td>".$getFemaleEnrollments."</td><td>".$totalPerCat."</td><td>".(($totalPerCat / $totalEnrollments)*100)."</td></tr>";
+        $tabledisp.="<tr><td>".$instname."</td><td>".$getMaleEnrollments."</td><td>".$getFemaleEnrollments."</td><td>".$totalPerCat."</td><td>".number_format((($totalPerCat / $totalEnrollments)*100),2)."</td></tr>";
         /*array_push($enrollmentData,[
             "category" => $instname,
             "males" => $getMaleEnrollments,
@@ -453,6 +454,179 @@ if(isset($_GET['summaryDataChart'])){
         ));
         print json_encode($feedback);
     }
+
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['dashboardAI'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    //ACADEMIC PYRAMID
+    $parityQry = "SELECT drank, target, id FROM staffranks WHERE default_type='default' ORDER BY drank ASC";
+    $parityQryRun = $conn->query($dbcon,$parityQry);
+    $pyramidData = array();
+
+    $pyramidDataTable ="<div class='panel'><div class='panel-heading bg-green-300'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#academic-staff'>ACADEMIC STAFF PYRAMID</a></h6></div><div id='academic-staff' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover' id='pyramidDatatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th>Staff Type</th>
+                                            <th>Target %</th>
+                                            <th>Actual %</th>
+                                            <th>Variant %</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($data = $conn->fetch($parityQryRun)){
+        $name = $data['drank'];
+        $target = $data['target'];
+        $id = $data['id'];
+        $actual_target = getActualTargetPyramid($id);
+        //COLOR CODES
+        $colorCode = "";
+        $deficitColor = "";
+        $deficit = number_format($actual_target - $target,2);
+        if($target == $actual_target){
+            $colorCode = "bg-blue-800";
+            $deficitColor = "<span class='text-blue-800'><i class='icon-stats-growth position-left'></i>".$deficit."</span>";
+        }elseif($target > $actual_target){
+            $colorCode = "bg-danger";
+            $deficitColor = "<span class='text-danger-800'><i class='icon-stats-decline2 position-left'></i>".$deficit."</span>";
+        }else{
+            $colorCode = "bg-success";
+            $deficitColor = "<span class='text-success-800'><i class='icon-stats-growth2 position-left'></i>".$deficit."</span>";
+        }
+
+
+        $pyramidDataTable = $pyramidDataTable."<tr>
+                            <td><div class='media-left media-middle'><a class='btn $colorCode btn-rounded btn-icon btn-xs'><span class='letter-icon'></span></a></div></td>
+                            <td>".$name."</td>
+                            <td>".$target."</td>
+                            <td>".number_format($actual_target,2)."</td>
+                            <td>".$deficitColor."</td>
+                        </tr>";
+    }
+
+    if($pyramidDataTable == ""){
+        $pyramidDataTable = $pyramidDataTable."<tr><td colspan='5'>No Records Found</td></tr></tbody></table></div></div></div>";
+    }else{
+        $pyramidDataTable = $pyramidDataTable."</tbody></table></div></div></div>";
+    }
+
+    //STUDENT TEACHER RATION BY FIELD OF SUBJECT
+    $parityQry = "SELECT name, code, target FROM isceds WHERE status='Active' ORDER BY name ASC";
+    $parityQryRun = $conn->query($dbcon,$parityQry);
+
+    $STR2dataTable ="<div class='panel'><div class='panel-heading bg-indigo-400'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#student-teacher-ratio'>STUDENT TEACHER RATIO FOR FIELD OF SUBJECT</a></h6></div><div id='student-teacher-ratio' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover' id='str2Datatable'>
+                                        <thead>
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th>Subject</th>
+                                            <th>Total Students</th>
+                                            <th>Total Staff</th>
+                                            <th>Target</th>
+                                            <th>Actual</th>
+                                            <th>Variant</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    while($data = $conn->fetch($parityQryRun)){
+        $name = $data['name'];
+        $code = $data['code'];
+        $target = $data['target'];
+        $str2 = getSTR2Details($code,$target);
+        $obj = json_decode($str2);
+
+        //COLOR CODES
+        $colorCode = "";
+        $deficitColor = "";
+        $actual = $obj->act;
+        $deficit = $obj->deficit;
+        if($target == $actual){
+            $colorCode = "bg-blue-800";
+            $deficitColor = "<span class='text-blue-800'><i class='icon-stats-growth position-left'></i>".$deficit."</span>";
+        }elseif($target > $actual){
+            $colorCode = "bg-danger";
+            $deficitColor = "<span class='text-danger-800'><i class='icon-stats-decline2 position-left'></i>".$deficit."</span>";
+        }else{
+            $colorCode = "bg-success";
+            $deficitColor = "<span class='text-success-800'><i class='icon-stats-growth2 position-left'></i>".$deficit."</span>";
+        }
+
+        $STR2dataTable = $STR2dataTable."<tr>
+                            <td><div class='media-left media-middle'><a class='btn $colorCode btn-rounded btn-icon btn-xs'><span class='letter-icon'></span></a></div></td>
+                            <td>".$name."</td>
+                            <td>".$obj->students."</td>
+                            <td>".$obj->staff."</td>
+                            <td>".$target." : 1"."</td>
+                            <td>".$obj->actual."</td>
+                            <td>".$deficitColor."</td>
+                        </tr>";
+    }
+
+    if($STR2dataTable == ""){
+        $STR2dataTable = $STR2dataTable."<tr><td colspan='6'>No Records Found</td></tr></tbody></table></div></div></div>";
+    }else{
+        $STR2dataTable = $STR2dataTable."</tbody></table></div></div></div>";
+    }
+
+    $sdate = date("Y") - 5;
+    $edate = date("Y");
+    //GET THE ENROLLMENT QUOTA TARGETS
+
+    $enrolltarget = getEnrollmentTarget();
+    $obj = json_decode($enrolltarget);
+    $postgradTarget = $obj->postgrad;
+    $internTarget = $obj->intern;
+    $feepayTarget = $obj->feepay;
+
+    $quotaDataTable ="<div class='panel'><div class='panel-heading bg-danger'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#quota'>ENROLLMENT QUOTA</a></h6></div><div id='quota' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover' id='enrolDatatable'>
+                                        <thead style='background-color: #000; color: #ffffff; font-weight: bold;'>
+                                        <tr>
+                                            <th>Year</th>
+                                            <th>Postgraduate Enrolment <br/><small style='color: rgba(243,149,3,0.98);'>Target is ".$obj->postgrad."% of total enrolment.</small></th>
+                                            <th>International Students <br/><small style='color: rgba(243,149,3,0.98);'>Target is ".$obj->intern."% of total enrolment.</small></th>
+                                            <th>Fee-Paying Students <br/><small style='color: rgba(243,149,3,0.98);'>Target is ".$obj->feepay."% of total enrolment.</small></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>";
+    for($i=$sdate; $i <= $edate; $i++){
+        $str1 = getEnrollmentQuota($i);
+        $obj = json_decode($str1);
+        $currPostgrad = $obj->postgraduates;
+        $currintern = $obj->international;
+        $currFeePay = $obj->feepaying;
+
+        $currPostgrad = $currPostgrad < $postgradTarget ? "<span class='text-danger-800'><i class='icon-stats-decline2 position-left'></i>".$currPostgrad." %</span>" : "<span class='text-success-800'><i class='icon-stats-growth position-left'></i>".$currPostgrad." %</span>";
+        $currintern = $currintern < $internTarget ? "<span class='text-danger-800'><i class='icon-stats-decline2 position-left'></i>".$currintern." %</span>" : "<span class='text-success-800'><i class='icon-stats-growth position-left'></i>".$currintern." %</span>";
+        $currFeePay = $currFeePay < $feepayTarget ? "<span class='text-danger-800'><i class='icon-stats-decline2 position-left'></i>".$currFeePay." %</span>" : "<span class='text-success-800'><i class='icon-stats-growth position-left'></i>".$currFeePay." %</span>";
+
+
+        $quotaDataTable = $quotaDataTable."<tr>
+                            <td>".$i."</td>
+                            <td>".$currPostgrad."</td>
+                            <td>".$currintern."</td>
+                            <td>".$currFeePay."</td>
+                        </tr>";
+    }
+
+    if($quotaDataTable == ""){
+        $quotaDataTable = $quotaDataTable."<tr><td colspan='4'>No Records Found</td></tr></tbody></table></div></div></div>";
+    }else{
+        $quotaDataTable = $quotaDataTable."</tbody></table></div></div></div>";
+    }
+
+    //SUMMARIZE RESPONSES
+    $feedback = array();
+    array_push($feedback,array(
+        "pyramid" => $pyramidDataTable,
+        "str2" => $STR2dataTable,
+        "quota" => $quotaDataTable,
+    ));
+
+    print json_encode($feedback);
+
 
     $conn->close($dbcon);
 }
@@ -1360,6 +1534,22 @@ if(isset($_GET['getInstitutionsStaff'])){
     $conn->close($dbcon);
 }
 
+if(isset($_GET['getEnrollmentTargets'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $sel = "SELECT * FROM enrollment_target";
+    $selrun = $conn->query($dbcon,$sel);
+    $seldata = $conn->fetch($selrun);
+
+    $data = "<div class='row' style='margin: 10px'><div class='col-md-12'><p style='text-align: center; color: rgba(187,21,5,0.98); font-weight: bold; font-size: large;'>STUDENTS ENROLLMENT TARGETS</p></div><div class='col-md-5'><label style='text-align: left;'>Post Graduate Target</label></div><div class='col-md-5'><input type='text' class='form-control' id='postgrad' value='".$seldata['postgrad']."'/></div></div>";
+    $data.= "<div class='row' style='margin: 10px'><div class='col-md-5'><label style='text-align: left;'>International Students Target</label></div><div class='col-md-5'><input type='text' class='form-control' id='intern' value='".$seldata['intern']."'/></div></div>";
+    $data.= "<div class='row' style='margin: 10px'><div class='col-md-5'><label style='text-align: left;'>Fee-Paying Students Target</label></div><div class='col-md-5'><input type='text' class='form-control' id='feepay' value='".$seldata['feepay']."'/></div></div>";
+    $data.= "<div class='row' style='margin: 10px'><div class='col-md-12' align='center'><button type='button' class='btn btn-sm btn-success' onclick='updateEnrollmentTarget()'><span class='icon icon-upload10'></span> Update Target</button></div>";
+    print $data;
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['getInstitutePrograms'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1412,6 +1602,28 @@ if(isset($_POST['updateRank'])){
     $conn->close($dbcon);
 }
 
+if(isset($_POST['updateEnrollTargets'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $postgrad = $_POST['postgrad'];
+    $intern = $_POST['intern'];
+    $feepay = $_POST['feepay'];
+
+    $upd = "UPDATE enrollment_target SET postgrad = $postgrad, intern = $intern, feepay = $feepay";
+    $updrun = $conn->query($dbcon, $upd);
+    if($updrun) {
+        //UPDATE
+        $response['errorCode'] = "0";
+        $response['errorMsg'] = "Enrollment Targets Updated Successfully";
+    }else{
+        $response['errorCode'] = "1";
+        $response['errorMsg'] = "Enrollment Targets Could Not Be Updated. Try Again";
+    }
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
 if(isset($_POST['updateInstitutionCategory'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1426,6 +1638,63 @@ if(isset($_POST['updateInstitutionCategory'])){
 
     $response['errorCode'] = "0";
     $response['errorMsg'] = "Institution Caegory Updated Successfully";
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
+if(isset($_POST['updateInstitutionCollege'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $name = mysqli_real_escape_string($dbcon,$_POST['name']);
+    $id = mysqli_real_escape_string($dbcon,$_POST['id']);
+    $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+
+    //UPDATE
+    $upd = "UPDATE institute_colleges SET status = '$status',name = '$name', description = '$description' WHERE id ='$id'";
+    $conn->query($dbcon,$upd);
+
+    $response['errorCode'] = "0";
+    $response['errorMsg'] = "College Updated Successfully";
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
+if(isset($_POST['updateInstitutionFaculty'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $name = mysqli_real_escape_string($dbcon,$_POST['name']);
+    $id = mysqli_real_escape_string($dbcon,$_POST['id']);
+    $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+
+    //UPDATE
+    $upd = "UPDATE institute_faculties SET status = '$status',name = '$name', description = '$description' WHERE id ='$id'";
+    $conn->query($dbcon,$upd);
+
+    $response['errorCode'] = "0";
+    $response['errorMsg'] = "Faculty Updated Successfully";
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
+if(isset($_POST['updateInstitutionDepartment'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $name = mysqli_real_escape_string($dbcon,$_POST['name']);
+    $id = mysqli_real_escape_string($dbcon,$_POST['id']);
+    $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+
+    //UPDATE
+    $upd = "UPDATE institute_departments SET status = '$status',name = '$name', description = '$description' WHERE id ='$id'";
+    $conn->query($dbcon,$upd);
+
+    $response['errorCode'] = "0";
+    $response['errorMsg'] = "Department Updated Successfully";
 
     print json_encode($response);
     $conn->close($dbcon);
@@ -2035,9 +2304,11 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     $dbcon=$conn->conn();
     $year = $_GET['year'];
     $inst = $_GET['inst'];
+    $title = "Accredited Programs ";
 
     $clause = "";
     if($year != 'All'){
+        $title.=" For The Year, ".$year;
         if($clause == ""){
             $clause = $clause." WHERE accreditation_year = '$year'";
         }else{
@@ -2045,6 +2316,7 @@ if(isset($_GET['sortDataTableAccPrograms'])){
         }
     }
     if($inst != 'All'){
+        $title.=" For ".getInstitution($inst);
         if($clause == ""){
             $clause = $clause." WHERE institution = '$inst'";
         }else{
@@ -2055,7 +2327,11 @@ if(isset($_GET['sortDataTableAccPrograms'])){
 
     $qry = "SELECT * FROM acc_programmes $clause";
     $qryrun = $conn->query($dbcon,$qry);
-    $data ="<table class='table table-striped table-responsive' id='accreditedPrograms'><thead><tr>
+    $data ="<table class='table table-striped table-responsive' id='accreditedPrograms'><thead>
+                                        <tr style='background-color: #ffffff;'>
+                                            <th colspan='16'><p style='font-weight: bolder; color: rgba(2,47,173,0.98); text-align: center; font-size: large'>$title</p></th>
+                                        </tr>
+                                        <tr>
                                             <th>Certificate ID</th>
                                             <th>Name Of Program</th>
                                             <th>Institution</th>
@@ -3196,6 +3472,228 @@ if(isset($_GET['getInstitutionCategory'])){
     $conn->close($dbcon);
 }
 
+if(isset($_GET['getInstitutionCollege'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $id = $_GET['getInstitutionCollege'];
+    $response =array();
+
+    //FETCH THE ROLE RECORDS
+    $sel = "SELECT name, description, status FROM institute_colleges WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) == 0){
+        print "Not Found";
+    }else{
+        $rows = $conn->fetch($selrun);
+
+        $status = $rows['status'];
+        $otheroption = "Active";
+        if($status == "Active"){
+            $otheroption = "Inactive";
+        }
+
+        $data = "
+        <form class='stepy-clickable'>
+            <fieldset title='1'>
+                <legend class='text-semibold'>College Details</legend>
+                <div class='row hidden'>
+                    <div class='col-md-4' align='right'><label>Category Code:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='colid' readonly value='".$id."' class='form-control' placeholder='College ID' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row' align='center'>
+                    <div class='col-md-4' align='right'><label>College Name:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='nameedit' value='".$rows['name']."' class='form-control' placeholder='College Name' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>College Description:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <textarea id='coldescriptedit' placeholder='COLLEGE DESCRIPTION' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>College Status:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select id='colstatusedit' class='form-control'> 
+                                <option value='".$status."'>".$status."</option>
+                                <option value='".$otheroption."'>".$otheroption."</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-12' align='center'>
+                        <button class='btn btn-sm btn-primary' type='button' onclick='updateInstitutionCollege()'>Update  </button>
+                    </div>
+                </div>
+            </fieldset>
+            <button type='submit' class='btn btn-primary stepy-finish' style='visibility: hidden'>Submit <i class='icon-check position-right'></i></button>
+        </form>
+        ";
+        print $data;
+    }
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getInstitutionFaculty'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $id = $_GET['getInstitutionFaculty'];
+    $response =array();
+
+    //FETCH THE ROLE RECORDS
+    $sel = "SELECT name, description, status FROM institute_faculties WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) == 0){
+        print "Not Found";
+    }else{
+        $rows = $conn->fetch($selrun);
+
+        $status = $rows['status'];
+        $otheroption = "Active";
+        if($status == "Active"){
+            $otheroption = "Inactive";
+        }
+
+        $data = "
+        <form class='stepy-clickable'>
+            <fieldset title='1'>
+                <legend class='text-semibold'>Faculty Details</legend>
+                <div class='row hidden'>
+                    <div class='col-md-4' align='right'><label>Category Code:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='colid' readonly value='".$id."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row' align='center'>
+                    <div class='col-md-4' align='right'><label>Faculty Name:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='nameedit' value='".$rows['name']."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Faculty Description:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <textarea id='coldescriptedit' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Status:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select id='colstatusedit' class='form-control'> 
+                                <option value='".$status."'>".$status."</option>
+                                <option value='".$otheroption."'>".$otheroption."</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-12' align='center'>
+                        <button class='btn btn-sm btn-primary' type='button' onclick='updateInstitutionFaculty()'>Update  </button>
+                    </div>
+                </div>
+            </fieldset>
+            <button type='submit' class='btn btn-primary stepy-finish' style='visibility: hidden'>Submit <i class='icon-check position-right'></i></button>
+        </form>
+        ";
+        print $data;
+    }
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getInstitutionDepartment'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $id = $_GET['getInstitutionDepartment'];
+    $response =array();
+
+    //FETCH THE ROLE RECORDS
+    $sel = "SELECT name, description, status FROM institute_departments WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) == 0){
+        print "Not Found";
+    }else{
+        $rows = $conn->fetch($selrun);
+
+        $status = $rows['status'];
+        $otheroption = "Active";
+        if($status == "Active"){
+            $otheroption = "Inactive";
+        }
+
+        $data = "
+        <form class='stepy-clickable'>
+            <fieldset title='1'>
+                <legend class='text-semibold'>Department Details</legend>
+                <div class='row hidden'>
+                    <div class='col-md-4' align='right'><label>Department Code:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='colid' readonly value='".$id."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row' align='center'>
+                    <div class='col-md-4' align='right'><label>Department Name:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='nameedit' value='".$rows['name']."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Department Description:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <textarea id='coldescriptedit' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Status:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select id='colstatusedit' class='form-control'> 
+                                <option value='".$status."'>".$status."</option>
+                                <option value='".$otheroption."'>".$otheroption."</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-12' align='center'>
+                        <button class='btn btn-sm btn-primary' type='button' onclick='updateInstitutionDepartment()'>Update  </button>
+                    </div>
+                </div>
+            </fieldset>
+            <button type='submit' class='btn btn-primary stepy-finish' style='visibility: hidden'>Submit <i class='icon-check position-right'></i></button>
+        </form>
+        ";
+        print $data;
+    }
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['getStaffCategory'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -3212,7 +3710,7 @@ if(isset($_GET['getStaffCategory'])){
         $rows = $conn->fetch($selrun);
 
         $status = $rows['status'];
-        $rank = $rows['ranks'];
+        $rank = $rows['dranks'];
 
         $otheroption = "Active";
         $readonly = $rows['default_type'] == "default" ? "readonly" : "";

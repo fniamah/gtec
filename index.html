@@ -206,7 +206,7 @@
 					<div class="container">
 						<div class="row">
 							<div class="col-md-12">
-								<p style="color: #000000;">© Copyright 2023. GTEC All Rights Reserved.</p>
+								<p style="color: #000000;">© Copyright <span id="currYear"></span>. GTEC All Rights Reserved.</p>
 							</div>
 						</div>
 					</div>
@@ -262,7 +262,10 @@
 		</script>
 		 -->
     <script type="text/javascript">
+
         function dashboardGraphs(){
+            //GET THE CURRENT YEAR FOR THE COPYRIGHT
+			$("#currYear").text(new Date().getFullYear());
                 /*
             THE ECHARTS STARTS HERE
              */
@@ -340,7 +343,7 @@
                             show: true,
                             feature: {
                                 mark: { show: true },
-                                dataView: { show: true, readOnly: false },
+                                dataView: { show: true, readOnly: true },
                                 restore: { show: true },
                                 saveAsImage: { show: true }
                             }

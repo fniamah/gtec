@@ -793,7 +793,7 @@ if (!isset($_SESSION['uname'])) {
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li><a href="dashboard.php?institutions">Institutions</a></li>
+                            <li><a href="dashboard.php?view_institutions">Institutions</a></li>
                             <li class="active">View</li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
@@ -830,35 +830,35 @@ if (!isset($_SESSION['uname'])) {
                             </div>
                             <div class="row" style="margin: 10px;">
 
-                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
+                                <div class="col-md-5 col-lg-5 col-sm-5 col-xs-5 content-group">
                                     <span class="text-muted"><h5>Institution Details:</h5></span>
                                     <ul class="list-condensed list-unstyled">
-                                        <li><span style="font-weight: bold;">Code</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['institution_code']; ?></li>
-                                        <li><span style="font-weight: bold;">Short Name</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['short_name']; ?></li>
-                                        <li><span style="font-weight: bold;">Institution Name</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['name']; ?></li>
-                                        <li><span style="font-weight: bold;">Category</span>:&nbsp;&nbsp;&nbsp;  <?php echo getCategory($rows['category_id']); ?></li>
-                                        <li><span style="font-weight: bold;">Description</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['description']; ?></li>
-                                        <li><span style="font-weight: bold;">Accreditation Date</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['accredit']; ?></li>
-                                        <li><span style="font-weight: bold;">Expiry Date</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['expire']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Code</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['institution_code']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Short Name</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['short_name']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Institution Name</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['name']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Category</span>:&nbsp;&nbsp;&nbsp;  <?php echo getCategory($rows['category_id']); ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Description</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['description']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Accreditation Date</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['accredit']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Expiry Date</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['expire']; ?></li>
                                     </ul>
                                 </div>
-                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
+                                <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3 content-group">
                                     <span class="text-muted"><h5>Contact Details:</h5></span>
                                     <ul class="list-condensed list-unstyled">
-                                        <li><span style="font-weight: bold;">Telephone Contact</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['contact_telephone']; ?></li>
-                                        <li><span style="font-weight: bold;">E-mail</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['contact_email']; ?></li>
-                                        <li><span style="font-weight: bold;">Website</span>:&nbsp;&nbsp;&nbsp;  <a href="<?php echo $rows['url']; ?>" target="new"><?php echo $rows['url']; ?></a></li></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Telephone Contact</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['contact_telephone']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">E-mail</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['contact_email']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Website</span>:&nbsp;&nbsp;&nbsp;  <a href="<?php echo $rows['url']; ?>" target="new"><?php echo $rows['url']; ?></a></li></li>
                                     </ul>
                                 </div>
                                 <div class="col-md-4 col-lg-4 col-sm-4 col-xs-4 content-group">
                                     <span class="text-muted"><h5>Location Details:</h5></span>
                                     <ul class="list-condensed list-unstyled">
-                                        <li><span style="font-weight: bold;">Digital Address</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['digital_address']; ?></li>
-                                        <li><span style="font-weight: bold;">Region</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['region']; ?></li>
-                                        <li><span style="font-weight: bold;">District</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['district']; ?></li></li>
-                                        <li><span style="font-weight: bold;">Town</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['town']; ?></li></li>
-                                        <li><span style="font-weight: bold;">Longitude</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['longitude']; ?></li></li>
-                                        <li><span style="font-weight: bold;">Latitude</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['latitude']; ?></li></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Digital Address</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['digital_address']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Region</span>:&nbsp;&nbsp;&nbsp;  <?php echo $rows['region']; ?></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">District</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['district']; ?></li></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Town</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['town']; ?></li></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Longitude</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['longitude']; ?></li></li>
+                                        <li><span style="font-weight: bold; color: rgba(187,21,5,0.98)">Latitude</span>:&nbsp;&nbsp;&nbsp; <?php echo $rows['latitude']; ?></li></li>
                                     </ul>
                                 </div>
 
@@ -1035,7 +1035,7 @@ if (!isset($_SESSION['uname'])) {
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-group">
-                                                    <label>Laongitude</label>
+                                                    <label>Longitude</label>
                                                     <input type="text" readonly id="diglongt" class="form-control" value="<?php echo $rows['longitude']; ?>" />
                                                 </div>
                                             </div>
@@ -1054,7 +1054,6 @@ if (!isset($_SESSION['uname'])) {
                     <?php } ?>
                 </div>
                 <!-- /content area -->
-
             </div>
             <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo GOOGLE_API_KEY; ?>&callback=initMap&libraries=&v=weekly"async></script>
             <script type="text/javascript">
@@ -1069,7 +1068,7 @@ if (!isset($_SESSION['uname'])) {
                     new google.maps.Marker({
                         position: myLatLng,
                         map,
-                        title: "Hello World!",
+                        title: "Institution Location",
                     });
                 }
 
@@ -6402,7 +6401,7 @@ if (!isset($_SESSION['uname'])) {
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?institution_category">Colleges</a></li>
+                            <li class="active"><a href="dashboard.php?institution_colleges">Colleges</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -6491,7 +6490,7 @@ if (!isset($_SESSION['uname'])) {
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCollege(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
                                                     <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_colleges')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
@@ -6518,7 +6517,7 @@ if (!isset($_SESSION['uname'])) {
                         <ul class="breadcrumb" style="font-size: medium;">
                             <li style="font-weight: bold; font-size: x-large">Institution </li>
                             <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
-                            <li class="active"><a href="dashboard.php?institution_category">Departments</a></li>
+                            <li class="active"><a href="dashboard.php?institution_departments">Departments</a></li>
                         </ul>
                         <?php include("components/back_n_forward_buttons.php"); ?>
                         </ul>
@@ -6607,7 +6606,7 @@ if (!isset($_SESSION['uname'])) {
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionDepartment(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
                                                     <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_departments')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
@@ -6723,7 +6722,7 @@ if (!isset($_SESSION['uname'])) {
                                                 <td><?php echo $row['name']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
-                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
+                                                    <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionFaculty(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
                                                     <?php if(strpos($mypermission,'delete') !== false){ ?><a class="btn" onclick="deleteModal(<?php echo $id; ?>,'institute_faculties')" data-popup="tooltip" title="Delete" data-placement="bottom"><span class="icon icon-trash-alt"></span></a><?php } ?>
                                                 </td>
                                             </tr>
@@ -7714,7 +7713,38 @@ if (!isset($_SESSION['uname'])) {
                         <!-- /clickable title -->
                     </div>
                 </div>
-                <?php $conn->close($dbcon);}else{
+                <?php $conn->close($dbcon);}elseif(isset($_GET['dashboard_ai'])){ ?>
+                    <div class="content-wrapper">
+
+                        <!-- Page header -->
+                        <div class="page-header">
+                            <div class="breadcrumb-line">
+                                <ul class="breadcrumb" style="font-size: medium;">
+                                    <li style="font-weight: bold; font-size: x-large">Dashboard - AI </li>
+                                    <li><a href="dashboard.php"><i class="icon-home2 position-left"></i></a></li>
+                                </ul>
+                                <?php include("components/back_n_forward_buttons.php"); ?>
+                            </div>
+                        </div>
+                        <!-- /page header -->
+
+
+                        <!-- Content area -->
+                        <div class="content">
+                            <div class="row">
+                                <div class="col-md-6" id="str2ai"></div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-12" id="quotaai"></div>
+                                        <div class="col-md-12" id="pyramidai"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /content area -->
+
+                    </div>
+                    <?php }else{
                     $dashboard = new Dashboard();
                 ?>
                     <div class="content-wrapper">
@@ -7745,7 +7775,7 @@ if (!isset($_SESSION['uname'])) {
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large">
-                                            <?php 
+                                            <?php
                                             echo $dashboard::getAccreditationCount($actype,$institution);
                                             ?>
                                             </h3>
@@ -7767,7 +7797,7 @@ if (!isset($_SESSION['uname'])) {
                                             </div>
 
                                             <h3 class="no-margin" style="font-weight: bold; font-size: xx-large">
-                                            <?php 
+                                            <?php
                                             echo $dashboard::getStaffCount($actype,$institution);
                                             ?>
                                             </h3>
@@ -7788,7 +7818,7 @@ if (!isset($_SESSION['uname'])) {
                                                 </ul>
                                             </div>
 
-                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php 
+                                            <h3 class="no-margin" style="font-weight: bold; font-size: xx-large"><?php
                                             echo $dashboard::getInstitutionCount();
                                             ?></h3>
                                             <div  class="dashboard-stats">Institutions</div>
