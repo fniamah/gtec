@@ -197,6 +197,7 @@ if (isset($_POST["uploadType"])) {
 
         }
         elseif($type == "graduated"){
+            $dyear = $_POST['bulkgraduatingyear'];
             if($sheetCount <= BULK_UPLOAD_LIMIT) {
                 if ($highestColumm == "X") {
                     $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[1]['0']);
@@ -211,10 +212,10 @@ if (isset($_POST["uploadType"])) {
                                 if ($conn->sqlnum($admissionRun) == 0 && checkIfEnrollmentExists($stdid) == "Exists") {
                                     $mov = "INSERT INTO graduates(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
                              other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
-                              high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+                              high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type,graduating_yr) 
                               SELECT institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
                              other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
-                              high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type FROM enrollments WHERE applicant_id = '$stdid'";
+                              high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type, '$dyear' FROM enrollments WHERE applicant_id = '$stdid'";
 
                                     $conn->query($dbcon, $mov);
                                     //DELETE THE RECORDS FROM THE APPADMISSIONS TABLE

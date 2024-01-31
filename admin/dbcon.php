@@ -435,6 +435,20 @@ function getEnrollmentQuota($year){
     return json_encode($resp);
     $conn->close($dbcon);
 }
+function getEnrollmentTarget(){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $selPart = "SELECT * FROM enrollment_target";
+    $selPartRun = $conn->query($dbcon,$selPart);
+    $selPartData = $conn->fetch($selPartRun);
+
+    $resp['postgrad'] = $selPartData['postgrad'];
+    $resp['intern'] = $selPartData['intern'];
+    $resp['feepay'] = $selPartData['feepay'];
+
+    return json_encode($resp);
+    $conn->close($dbcon);
+}
 
 function getEnrollmentByIsced($iscedCode){
     $conn=new Db_connect;
@@ -478,8 +492,9 @@ function getSTR2Details($code,$target){
 
     $resp['students'] = $students;
     $resp['staff'] = $staff;
+    $resp['act'] = ceil($CalculateRatio);
     $resp['actual'] = ceil($CalculateRatio)." : 1";
-    $resp['deficit'] = ceil($target - $CalculateRatio)." : 1";
+    $resp['deficit'] = ceil($CalculateRatio - $target)." : 1";
 
     return json_encode($resp);
     $conn->close($dbcon);
