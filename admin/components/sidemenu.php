@@ -30,37 +30,38 @@
 
                     <!-- Main -->
                     <?php if(str_contains($access,'ISCED') && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?isced"><i class="icon-home9"></i> <span>ISCED</span></a></li><?php } ?>
-                    <?php if(str_contains($access,'Contact') || str_contains($access,'Programs') || str_contains($access,'Proposed')){?>
+                    <?php if((str_contains($access,'Institution Category') || str_contains($access,'Institution')) && $actype == "GTEC"){?>
                     <li>
-                        <a href="#"class="menu-item"><i class="icon-medal"></i> <span>Accreditation</span></a>
+                        <a href="#"class="menu-item"><i class="icon-home7"></i> <span>Institutions</span></a>
                         <ul>
-                            <?php if(str_contains($access,'Programs') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?add_acc_programs"><i class="icon-add-to-list"></i><span>Add Accreditation</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Programs') && strpos($mypermission,'create') !== false){?><li><a onclick="bulkUploads('appadmissions', 'add_accreditation', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Accreditation</span></a></li><?php } ?>
+                            <!--<?php if(str_contains($access,'Contact')){?><li><a href="../admin/dashboard.php?acc_contact"><i class="icon-mobile"></i><span>Contact</span></a></li><?php } ?>-->
+                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_category"><i class="icon-mobile"></i><span>Category</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_schools"><i class="icon-mobile"></i><span>Schools</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_colleges"><i class="icon-mobile"></i><span>Colleges</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_faculties"><i class="icon-mobile"></i><span>Faculties</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_departments"><i class="icon-mobile"></i><span>Departments</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?institutions"><i class="icon-book3"></i><span>Add Institutions</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution')){?><li><a href="../admin/dashboard.php?view_institutions"><i class="icon-file-eye2"></i><span>View Institutions</span></a></li><?php } ?>
+                        </ul>
+                    </li>
+                    <?php } if(str_contains($access,'Contact') || str_contains($access,'Programs') || str_contains($access,'Proposed')){?>
+                    <li>
+                        <a href="#"class="menu-item"><i class="icon-medal"></i> <span>Programs</span></a>
+                        <ul>
+                            <?php if(str_contains($access,'Programs') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?add_acc_programs"><i class="icon-add-to-list"></i><span>Add Program Accreditation</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Programs') && strpos($mypermission,'create') !== false){?><li><a onclick="bulkUploads('appadmissions', 'add_accreditation', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Program Accreditation</span></a></li><?php } ?>
                             <!--<?php if(str_contains($access,'Proposed') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?acc_proposed_programs"><i class="icon-book2"></i><span>Add New Proposal</span></a></li><?php } ?>-->
                             <?php if(str_contains($access,'Programs')){?>
 
                                 <li>
                                     <a href="#"><i class="icon-pie-chart5"></i> <span>View</span></a>
                                     <ul>
-                                        <li><a href="../admin/dashboard.php?acc_programs"><i class="icon-markup"></i><span>Accreditations</span></a></li>
+                                        <li><a href="../admin/dashboard.php?acc_programs"><i class="icon-markup"></i><span>Programs</span></a></li>
                                         <!--<li><a href="../admin/dashboard.php?view_proposals"><i class="icon-eye4"></i><span>Proposals</span></a></li>
                                         <?php if($actype == "GTEC"){?><li><a href="../admin/dashboard.php?programs"><i class="icon-book3"></i><span>Programmes</span></a></li><?php } ?>-->
                                     </ul>
                                 </li>
                             <?php } ?>
-                        </ul>
-                    </li>
-                    <?php } if((str_contains($access,'Institution Category') || str_contains($access,'Institution')) && $actype == "GTEC"){?>
-                    <li>
-                        <a href="#"class="menu-item"><i class="icon-home7"></i> <span>Institutions</span></a>
-                        <ul>
-                            <!--<?php if(str_contains($access,'Contact')){?><li><a href="../admin/dashboard.php?acc_contact"><i class="icon-mobile"></i><span>Contact</span></a></li><?php } ?>-->
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_category"><i class="icon-mobile"></i><span>Category</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_colleges"><i class="icon-mobile"></i><span>Colleges</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_faculties"><i class="icon-mobile"></i><span>Faculties</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_departments"><i class="icon-mobile"></i><span>Departments</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?institutions"><i class="icon-book3"></i><span>Add Institutions</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution')){?><li><a href="../admin/dashboard.php?view_institutions"><i class="icon-file-eye2"></i><span>View Institutions</span></a></li><?php } ?>
                         </ul>
                     </li>
                     <?php } if(str_contains($access,'Staff Category') || str_contains($access,'Staff,') || str_contains($access,'Publications')){?>
@@ -129,9 +130,18 @@
                             <a href="#"class="menu-item"><i class="icon-cog52"></i> <span>AI Configurations</span></a>
                             <ul>
                                 <li><a onclick="enrollmentTarget()"><i class="icon-user-plus"></i><span>Enrollment Targets</span></a></li>
+                                <li><a onclick="iscedTarget()"><i class="icon-user-plus"></i><span>ISCED STR Targets</span></a></li>
                             </ul>
                         </li>
-                    <?php } if((str_contains($access,'Logs')) && $actype == "GTEC"){?><li class="menu-item"><a href="../admin/dashboard.php?log_details"><i class="icon-newspaper2"></i> <span>Logs</span></a></li><?php } ?>
+                    <?php } if((str_contains($access,'Logs')) && $actype == "GTEC"){?>
+                        <li>
+                            <a href="#"class="menu-item"><i class="icon-bookmark4"></i> <span>Logs</span></a>
+                            <ul>
+                                <li><a href="../admin/dashboard.php?database_logs"><i class="icon-database"></i> <span>Database</span></a></li>
+                                <li><a href="../admin/dashboard.php?log_details"><i class="icon-newspaper2"></i> <span>System</span></a></li>
+                            </ul>
+                        </li>
+                    <?php } ?>
 
 
                 </ul>
