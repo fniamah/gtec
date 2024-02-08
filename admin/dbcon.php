@@ -221,7 +221,7 @@ function getProgram($id){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $response="N/A";
-    $sel="SELECT programme FROM programmes WHERE prog_code = '$id'";
+    $sel="SELECT programme FROM acc_programmes WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) != 0){
         $data = $conn->fetch($selrun);
@@ -274,7 +274,7 @@ function getPercentageDistribution($year,$isced,$type="enrollments"){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     //GET THE TOTAL ONUMBER OF FEMALE TEACHING STAFF
-    $getStfType="SELECT COUNT(e.applicant_id) AS total FROM $type e INNER JOIN programmes p ON e.programme_offered = p.prog_code WHERE p.prog_isced = '$isced' AND e.year = '$year'";
+    $getStfType="SELECT COUNT(e.applicant_id) AS total FROM $type e INNER JOIN acc_programmes p ON e.programme_offered = p.id WHERE p.isced = '$isced' AND e.year = '$year'";
     $getStfTypeRun = $conn->query($dbcon,$getStfType);
     $getStfTypeData = $conn->fetch($getStfTypeRun);
     $singleCount = $getStfTypeData['total'];
@@ -453,7 +453,7 @@ function getEnrollmentTarget(){
 function getEnrollmentByIsced($iscedCode){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $selPart = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON e.programme_offered = p.prog_code WHERE p.prog_isced = '$iscedCode' AND e.status = 'Active'";
+    $selPart = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN acc_programmes p ON e.programme_offered = p.id WHERE p.isced = '$iscedCode' AND e.status = 'Active'";
     $selPartRun = $conn->query($dbcon,$selPart);
     $selPartData = $conn->fetch($selPartRun);
     $iscedEnrollments = $selPartData['TotalCount'];
@@ -474,7 +474,7 @@ function getSTR2Details($code,$target){
     $dbcon=$conn->conn();
 
     //TOTAL STUDENTS IN THE FIELD OF SUBJECT
-    $selPart = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON e.programme_offered = p.prog_code WHERE p.prog_isced = '$code'";
+    $selPart = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN acc_programmes p ON e.programme_offered = p.id WHERE p.isced = '$code'";
     $selPartRun = $conn->query($dbcon,$selPart);
     $selPartData = $conn->fetch($selPartRun);
     $students = $selPartData['TotalCount'];
@@ -533,12 +533,12 @@ function logrequest($log,$folder,$index = 0){
 function getScienceToHumanitiesRatio($year){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $selHumanities = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON p.prog_code = e.programme_offered INNER JOIN isceds i ON p.prog_isced = i.code  WHERE i.classify='Humanities' AND e.status = 'Active' AND e.year = '$year'";
+    $selHumanities = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN acc_programmes p ON p.id = e.programme_offered INNER JOIN isceds i ON p.isced = i.code  WHERE i.classify='Humanities' AND e.status = 'Active' AND e.year = '$year'";
     $selHumanitiesRun = $conn->query($dbcon,$selHumanities);
     $selHumanitiesdata = $conn->fetch($selHumanitiesRun);
     $humanities = $selHumanitiesdata['TotalCount'];
 
-    $selSciences = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN programmes p ON p.prog_code = e.programme_offered INNER JOIN isceds i ON p.prog_isced = i.code  WHERE i.classify='Sciences' AND e.status = 'Active' AND e.year = '$year'";
+    $selSciences = "SELECT COUNT(e.applicant_id) AS TotalCount FROM enrollments e INNER JOIN acc_programmes p ON p.id = e.programme_offered INNER JOIN isceds i ON p.isced = i.code  WHERE i.classify='Sciences' AND e.status = 'Active' AND e.year = '$year'";
     $selSciencesRun = $conn->query($dbcon,$selSciences);
     $selSciencesdata = $conn->fetch($selSciencesRun);
     $sciences = $selSciencesdata['TotalCount'];

@@ -245,245 +245,217 @@ if (isset($_POST["uploadType"])) {
 
         }
         elseif($type == "add_student"){
-            $inst = $_POST['bulkInstitutions'];
-            $prog = $_POST['bulkprograms'];
-            if(!empty($inst) && !empty($prog)){
-                if($sheetCount <= BULK_UPLOAD_LIMIT) {
-                    if ($highestColumm == "W") {
-                        $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
-                        $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['6']);
-                        $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['17']);
+            if($sheetCount <= BULK_UPLOAD_LIMIT) {
+                if ($highestColumm == "Y") {
+                    $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
+                    $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['6']);
+                    $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['17']);
 
-                        if ($col1 == "Applicant Number" && $col2 == "National ID Type" && $col3 == "Application Type") {
-                            for ($i = 1; $i < $sheetCount; $i++) {
-                                $stdid = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
-                                $fname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
-                                $lname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
-                                $oname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
-                                $dob = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
-                                $sex = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
-                                $idtype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
-                                $idnum = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
-                                $country = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
-                                $birth = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
-                                $disable = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['15']);
-                                $distype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['16']);
-                                $religion = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['10']);
-                                $town = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['11']);
-                                $region = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['12']);
-                                $shs = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['13']);
-                                $shsprog = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['14']);
-                                $status = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['20']);
-                                $feepaying = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['22']);
-                                $year = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['18']);
-                                $progtype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['19']);
-                                $level = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['21']);
-                                $apptype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['17']);
+                    if ($col1 == "Applicant Number" && $col2 == "National ID Type" && $col3 == "Application Type") {
+                        for ($i = 1; $i < $sheetCount; $i++) {
+                            $stdid = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
+                            $fname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
+                            $lname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
+                            $oname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
+                            $dob = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
+                            $sex = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
+                            $idtype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
+                            $idnum = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
+                            $country = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
+                            $birth = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
+                            $disable = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['15']);
+                            $distype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['16']);
+                            $religion = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['10']);
+                            $town = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['11']);
+                            $region = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['12']);
+                            $shs = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['13']);
+                            $shsprog = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['14']);
+                            $status = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['20']);
+                            $feepaying = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['22']);
+                            $year = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['18']);
+                            $progtype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['19']);
+                            $level = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['21']);
+                            $apptype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['17']);
+                            $inst = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['23']);
+                            $prog = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['24']);
 
-                                //IGNORE EMPTY SPACES
-                                if (!empty($stdid) && !empty($status)) {
-                                    //CHECK IF STUDENT DETAILS EXISTS
-                                    if (checkIfStudentExists($stdid) == "Valid") {
-                                        //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
-                                        $ins = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
-                             other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
-                              high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
-                              VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
-                              '$region','$shs','$shsprog','$disable','$distype','$feepaying','$progtype','$prog','Active','$level','$apptype')";
-                                        $insrun = $conn->query($dbcon, $ins);
-                                    } else {
-                                        //LOG THE FAILED HERE
-                                    }
-
+                            //IGNORE EMPTY SPACES
+                            if (!empty($stdid) && !empty($status)) {
+                                //CHECK IF STUDENT DETAILS EXISTS
+                                if (checkIfStudentExists($stdid) == "Valid") {
+                                    //INSERT BASIC RECORDS AND APPLICATION RECORDS OF THE STUDENT
+                                    $ins = "INSERT INTO enrollments(institution, year, applicant_id, applicant_id_type,applicant_national_id, first_name, surname,
+                         other_names, gender, birth_date, birth_country, nationality, religion, home_town, home_region, high_school,
+                          high_school_program, disability, disability_type,fee_type,programme_type,programme_offered, status,admission_level,application_type) 
+                          VALUES ('$inst','$year','$stdid','$idtype','$idnum','$fname','$lname','$oname','$sex','$dob','$birth','$country','$religion','$town',
+                          '$region','$shs','$shsprog','$disable','$distype','$feepaying','$progtype','$prog','Active','$level','$apptype')";
+                                    $insrun = $conn->query($dbcon, $ins);
+                                } else {
+                                    //LOG THE FAILED HERE
                                 }
+
                             }
-                            $response['errorCode'] = "0";
-                            $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
-                            print json_encode($response);
-                        } else {
-                            $response['errorCode'] = "1";
-                            $response['errorMsg'] = "File Validation Failed";
-                            print json_encode($response);
                         }
+                        $response['errorCode'] = "0";
+                        $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
+                        print json_encode($response);
                     } else {
                         $response['errorCode'] = "1";
                         $response['errorMsg'] = "File Validation Failed";
                         print json_encode($response);
                     }
-                }else{
+                } else {
                     $response['errorCode'] = "1";
-                    $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
+                    $response['errorMsg'] = "File Validation Failed";
                     print json_encode($response);
                 }
             }else{
                 $response['errorCode'] = "1";
-                $response['errorMsg'] = "You Have Not Completed All Fields On The Popup. Kindly Do So And Upload The Excel Sheet Again";
+                $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
                 print json_encode($response);
             }
 
 
         }
         elseif($type == "add_staff"){
-            $rank = $_POST['bulkRanks'];
-            $inst = $_POST['bulkInstitutions'];
-            $college = $_POST['bulkcolleges'];
-            $faculty = $_POST['bulkfaculty'];
-            $dept = $_POST['bulkdept'];
-            $stftype = $_POST['bulkcategory'];
-            if(!empty($inst) && !empty($college) && !empty($faculty) && !empty($dept) && !empty($stftype)){
-                if($sheetCount <= BULK_UPLOAD_LIMIT) {
-                    if ($highestColumm == "P") {
-                        $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
-                        $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['9']);
-                        $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['15']);
 
-                        if (trim($col1) == "Staff ID" && trim($col2) == "Highest Qualification" && $col3 == "Designation") {
-                            for ($i = 1; $i < $sheetCount; $i++) {
-                                $stfid = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
-                                $title = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
-                                $fname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
-                                $lname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
-                                $oname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
-                                $dob = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
-                                $sex = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
-                                $idtype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
-                                $idnum = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
-                                $edu = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
-                                $nat = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['10']);
-                                $disable = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['11']);
-                                $distype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['12']);
-                                $acad = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['13']);
-                                $emptype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['14']);
-                                $desig = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['15']);
+            if($sheetCount <= BULK_UPLOAD_LIMIT) {
+                if ($highestColumm == "V") {
+                    $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
+                    $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['9']);
+                    $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['15']);
 
-                                //IGNORE EMPTY SPACES
-                                if (!empty($stfid)) {
-                                    //CHECK IF STAFF ID EXISTS
-                                    $chk = "SELECT first_name FROM staff WHERE staff_id = '$stfid'";
-                                    $chkrun = $conn->query($dbcon, $chk);
-                                    if ($conn->sqlnum($chkrun) == 0) {
-                                        $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
-                                        birth_date, gender, nationality, qualification, designation, drank, staff_type, college, department, faculty, employment_type, disability, 
-                                        disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
-                                        ,'$dept','$faculty','$emptype','$disable','$distype')";
-                                        $insrun = $conn->query($dbcon, $ins);
-                                    } else {
-                                        //log exists here
-                                    }
+                    if (trim($col1) == "Staff ID" && trim($col2) == "Highest Qualification" && $col3 == "Designation") {
+                        for ($i = 1; $i < $sheetCount; $i++) {
+                            $stfid = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
+                            $title = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
+                            $fname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
+                            $lname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
+                            $oname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
+                            $dob = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
+                            $sex = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
+                            $idtype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
+                            $idnum = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
+                            $edu = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
+                            $nat = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['10']);
+                            $disable = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['11']);
+                            $distype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['12']);
+                            $acad = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['13']);
+                            $emptype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['14']);
+                            $desig = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['15']);
+                            $stftype = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['16']);
+                            $inst = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['17']);
+                            $rank = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['18']);
+                            $college = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['19']);
+                            $faculty = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['20']);
+                            $dept = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['21']);
 
+                            //IGNORE EMPTY SPACES
+                            if (!empty($stfid)) {
+                                //CHECK IF STAFF ID EXISTS
+                                $chk = "SELECT first_name FROM staff WHERE staff_id = '$stfid'";
+                                $chkrun = $conn->query($dbcon, $chk);
+                                if ($conn->sqlnum($chkrun) == 0) {
+                                    $ins = "INSERT INTO staff (staff_id, year, title, national_id_type, national_id_number, institution, first_name, surname, other_names, 
+                                    birth_date, gender, nationality, qualification, designation, drank, staff_type, college, department, faculty, employment_type, disability, 
+                                    disability_type) VALUES ('$stfid','$acad','$title','$idtype','$idnum','$inst','$fname','$lname','$oname','$dob','$sex','$nat','$edu','$desig','$rank','$stftype','$college'
+                                    ,'$dept','$faculty','$emptype','$disable','$distype')";
+                                    $insrun = $conn->query($dbcon, $ins);
+                                } else {
+                                    //log exists here
                                 }
+
                             }
-                            $response['errorCode'] = "0";
-                            $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
-                            print json_encode($response);
-                        } else {
-                            $response['errorCode'] = "1";
-                            $response['errorMsg'] = "File Validation Failedddd";
-                            print json_encode($response);
                         }
+                        $response['errorCode'] = "0";
+                        $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
+                        print json_encode($response);
                     } else {
                         $response['errorCode'] = "1";
-                        $response['errorMsg'] = "File Validation Failed";
+                        $response['errorMsg'] = "File Validation Failedddd";
                         print json_encode($response);
                     }
-                }else{
+                } else {
                     $response['errorCode'] = "1";
-                    $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
+                    $response['errorMsg'] = "File Validation Failed";
                     print json_encode($response);
                 }
             }else{
                 $response['errorCode'] = "1";
-                $response['errorMsg'] = "You Have Not Completed All Fields On The Popup. Kindly Do So And Upload The Excel Sheet Again";
+                $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
                 print json_encode($response);
             }
 
 
         }
         elseif($type == "add_accreditation"){
-            $isced = $_POST['bulkisced'];
-            $prog = $_POST['bulkprograms'];
-            $inst = $_POST['bulkInstitutions'];
-            $college = $_POST['bulkcolleges'];
-            $faculty = $_POST['bulkfaculty'];
-            $dept = $_POST['bulkdept'];
-            if(!empty($isced) && !empty($prog) && !empty($inst) && !empty($college) && !empty($faculty) && !empty($dept)){
+            if($sheetCount <= BULK_UPLOAD_LIMIT) {
+                if ($highestColumm == "O") {
+                    $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
+                    $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['1']);
+                    $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['8']);
+                    if (trim($col1) == "Certificate ID" && trim($col2) == "Accreditation Date" && $col3 == "E-mail Of Person Filling Form") {
+                        for ($i = 1; $i < $sheetCount; $i++) {
+                            $certid = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
+                            $accredit = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
+                            $expire = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
+                            $hname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
+                            $hcont = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
+                            $hmail = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
+                            $fname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
+                            $fcont = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
+                            $fmail = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
+                            $prog = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
+                            $isced = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['10']);
+                            $inst = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['11']);
+                            $college = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['12']);
+                            $faculty = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['13']);
+                            $dept = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['14']);
 
-                if($sheetCount <= BULK_UPLOAD_LIMIT) {
-                    if ($highestColumm == "J") {
-                        $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
-                        $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['2']);
-                        $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['9']);
-                        if (trim($col1) == "Certificate ID" && trim($col2) == "Accreditation Date" && $col3 == "E-mail Of Person Filling Form") {
-                            for ($i = 1; $i < $sheetCount; $i++) {
-                                $certid = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
-                                $year = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
-                                $accredit = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
-                                $expire = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
-                                $hname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
-                                $hcont = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
-                                $hmail = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
-                                $fname = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
-                                $fcont = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
-                                $fmail = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
+                            //IGNORE EMPTY SPACES
+                            if (!empty($certid)) {
+                                //CHECK IF ACCREDITATION EXISTS FOR THE PROGRAM
+                                $chk = "SELECT institution FROM acc_programmes WHERE certid = '$certid'";
+                                $chkrun = $conn->query($dbcon, $chk);
 
-                                //IGNORE EMPTY SPACES
-                                if (!empty($certid)) {
-                                    //CHECK IF ACCREDITATION EXISTS FOR THE PROGRAM
-                                    $chk = "SELECT institution FROM acc_programmes WHERE certid = '$certid'";
-                                    $chkrun = $conn->query($dbcon, $chk);
-                                    if ($conn->sqlnum($chkrun) == 0) {
-                                        //ADD PROGRAM TO THE LIST OF PROGRAMS
-                                        $checkprog = "SELECT prog_isced FROM programmes WHERE programme = '$prog'";
-                                        $checkprogrun = $conn->query($dbcon, $checkprog);
-                                        if ($conn->sqlnum($checkprogrun) == 0) {
-                                            $insprog = "INSERT INTO programmes (programme, prog_isced, status) VALUES('$prog','$isced','Active')";
-                                            $conn->query($dbcon, $insprog);
-                                        }
+                                //CHECK IF PROGRAM IS ALREADY ACCREDITED
+                                $chk2="SELECT certid FROM acc_programmes WHERE institution = '$inst' AND programme = '$prog'";
+                                $chkrun2 = $conn->query($dbcon,$chk2);
 
-                                        //GET THE ID OF THE INSERTED PROGRAMME
-                                        $selid = "SELECT prog_code FROM programmes WHERE programme = '$prog'";
-                                        $selidrun = $conn->query($dbcon, $selid);
-                                        $seliddata = $conn->fetch($selidrun);
-                                        $pid = $seliddata['prog_code'];
+                                if ($conn->sqlnum($chkrun) == 0 && $conn->sqlnum($chkrun2) == 0) {
 
-
-                                        $ins = "INSERT INTO acc_programmes (certid,institution, accreditation_year, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
- VALUES ('$certid','$inst','$year','$faculty','$dept','$college','$pid','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
-                                        $insrun = $conn->query($dbcon, $ins);
-                                        if ($insrun) {
-                                            $response['errorCode'] = "0";
-                                            $response['errorMsg'] = "Programme Accreditation Completed Successfully";
-                                        } else {
-                                            $response['errorCode'] = "1";
-                                            $response['errorMsg'] = "Programme Accreditation Could Not Be Completed. Please Try Again";
-                                        }
+                                    $ins = "INSERT INTO acc_programmes (certid,institution, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
+VALUES ('$certid','$inst','$faculty','$dept','$college','$prog','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
+                                    $insrun = $conn->query($dbcon, $ins);
+                                    if ($insrun) {
+                                        $response['errorCode'] = "0";
+                                        $response['errorMsg'] = "Programme Accreditation Completed Successfully";
                                     } else {
                                         $response['errorCode'] = "1";
-                                        $response['errorMsg'] = "Programme Accreditation With Certificate ID, $certid Already Exists";
+                                        $response['errorMsg'] = "Programme Accreditation Could Not Be Completed. Please Try Again";
                                     }
+                                } else {
+                                    $response['errorCode'] = "1";
+                                    $response['errorMsg'] = "Programme Accreditation With Certificate ID, $certid Already Exists";
                                 }
                             }
-                            $response['errorCode'] = "0";
-                            $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
-                            print json_encode($response);
-                        } else {
-                            $response['errorCode'] = "1";
-                            $response['errorMsg'] = "File Validation Failed";
-                            print json_encode($response);
                         }
+                        $response['errorCode'] = "0";
+                        $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
+                        print json_encode($response);
                     } else {
                         $response['errorCode'] = "1";
                         $response['errorMsg'] = "File Validation Failed";
                         print json_encode($response);
                     }
-                }else{
+                } else {
                     $response['errorCode'] = "1";
-                    $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
+                    $response['errorMsg'] = "File Validation Failed";
                     print json_encode($response);
                 }
             }else{
                 $response['errorCode'] = "1";
-                $response['errorMsg'] = "You Have Not Completed All Fields On The Popup. Kindly Do So And Upload The Excel Sheet Again";
+                $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
                 print json_encode($response);
             }
         }

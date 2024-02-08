@@ -107,14 +107,14 @@ if(isset($_GET['getTheBulkFields'])){
     $dbcon=$conn->conn();
 
     //DECLARE THE FIELD RESULTS ARRAY
-    $progIsced = array();
+    //$progIsced = array();
     $programs = array();
     $institutions = array();
-    $colleges = array();
-    $faculty = array();
-    $dept = array();
-    $rank = array();
-    $category = array();
+    //$colleges = array();
+    //$faculty = array();
+    //$dept = array();
+    //$rank = array();
+    /*$category = array();
 
     $selIsced = "SELECT code, name FROM isceds WHERE status = 'Active'";
     $selIscedRun = $conn->query($dbcon,$selIsced);
@@ -195,18 +195,18 @@ if(isset($_GET['getTheBulkFields'])){
             ["code" => $data['id'],"name" => $data['staff_type']]
         );
     }
-
+*/
 
     $feedback = array();
     array_push($feedback,array(
-        "isced" => $progIsced,
-        "programs" => $programs,
-        "institutions" => $institutions,
-        "colleges" => $colleges,
-        "faculty" => $faculty,
-        "dept" => $dept,
-        "rank" => $rank,
-        "category" => $category,
+        "isced" => "",
+        "programs" => "",
+        "institutions" => "",
+        "colleges" => "",
+        "faculty" => "",
+        "dept" => "",
+        "rank" => "",
+        "category" => "",
     ));
     print json_encode($feedback);
 
@@ -467,7 +467,7 @@ if(isset($_GET['dashboardAI'])){
     $parityQryRun = $conn->query($dbcon,$parityQry);
     $pyramidData = array();
 
-    $pyramidDataTable ="<div class='panel'><div class='panel-heading bg-green-300'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#academic-staff'>ACADEMIC STAFF PYRAMID</a></h6></div><div id='academic-staff' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover' id='pyramidDatatable'>
+    $pyramidDataTable ="<div class='panel'><div class='panel-heading bg-green-300'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#academic-staff'>ACADEMIC STAFF PYRAMID</a></h6></div><div id='academic-staff' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover table-responsive' id='pyramidDatatable'>
                                         <thead>
                                         <tr>
                                             <th>&nbsp;</th>
@@ -518,7 +518,7 @@ if(isset($_GET['dashboardAI'])){
     $parityQry = "SELECT name, code, target FROM isceds WHERE status='Active' ORDER BY name ASC";
     $parityQryRun = $conn->query($dbcon,$parityQry);
 
-    $STR2dataTable ="<div class='panel'><div class='panel-heading bg-indigo-400'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#student-teacher-ratio'>STUDENT TEACHER RATIO FOR FIELD OF SUBJECT</a></h6></div><div id='student-teacher-ratio' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover' id='str2Datatable'>
+    $STR2dataTable ="<div class='panel'><div class='panel-heading bg-indigo-400'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#student-teacher-ratio'>STUDENT TEACHER RATIO FOR FIELD OF SUBJECT</a></h6></div><div id='student-teacher-ratio' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover table-responsive' id='str2Datatable'>
                                         <thead>
                                         <tr>
                                             <th>&nbsp;</th>
@@ -581,7 +581,7 @@ if(isset($_GET['dashboardAI'])){
     $internTarget = $obj->intern;
     $feepayTarget = $obj->feepay;
 
-    $quotaDataTable ="<div class='panel'><div class='panel-heading bg-danger'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#quota'>ENROLLMENT QUOTA</a></h6></div><div id='quota' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover' id='enrolDatatable'>
+    $quotaDataTable ="<div class='panel'><div class='panel-heading bg-danger'><h6 class='panel-title'><a class='collapsed' data-toggle='collapse' data-parent='#accordion-styled' href='#quota'>ENROLLMENT QUOTA</a></h6></div><div id='quota' class='panel-collapse collapse'><div class='panel-body'><table class='table table-hover table-responsive' id='enrolDatatable'>
                                         <thead style='background-color: #000; color: #ffffff; font-weight: bold;'>
                                         <tr>
                                             <th>Year</th>
@@ -1412,7 +1412,7 @@ if(isset($_POST['resetPassword'])){
 
 if(isset($_GET['getGps'])){
     $digaddress = $_GET['getGps'];
-    $feedback = getGpsLocation($digaddress);
+    $feedback = getGpsLocation(trim($digaddress));
 
     $gpsmodeldata = array();
     $district="";
@@ -1534,6 +1534,65 @@ if(isset($_GET['getInstitutionsStaff'])){
     $conn->close($dbcon);
 }
 
+if(isset($_GET['getRoleApply'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $dval = mysqli_real_escape_string($dbcon,$_GET['getRoleApply']);
+
+    $sel = "SELECT id, role FROM roles WHERE status = 'Active' AND apply IN ('Both','".$dval."')  ORDER BY role ASC";
+    $data = "";
+    $selrun = $conn->query($dbcon,$sel);
+    while($seldata = $conn->fetch($selrun)){
+        $data.="<option value='".$seldata['id']."'>".$seldata['role']."</option>";
+    }
+
+    print $data;
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getInstitutionStructure'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $dval = mysqli_real_escape_string($dbcon,$_GET['getInstitutionStructure']);
+
+    $sel = "SELECT name, description FROM institute_schools WHERE description = '$dval' AND status = 'Active'  ORDER BY name ASC";
+    $dataSchool = "";
+    $selrun = $conn->query($dbcon,$sel);
+    while($seldata = $conn->fetch($selrun)){
+        $dataSchool.="<option value='".$seldata['description']."'>".$seldata['name']."</option>";
+    }
+
+    $sel = "SELECT name, id FROM institute_colleges WHERE description = '$dval' AND status = 'Active'  ORDER BY name ASC";
+    $dataColleges = "";
+    $selrun = $conn->query($dbcon,$sel);
+    while($seldata = $conn->fetch($selrun)){
+        $dataColleges.="<option value='".$seldata['id']."'>".$seldata['name']."</option>";
+    }
+
+    $sel = "SELECT name, id FROM institute_faculties WHERE description = '$dval' AND status = 'Active'  ORDER BY name ASC";
+    $dataFaculties = "";
+    $selrun = $conn->query($dbcon,$sel);
+    while($seldata = $conn->fetch($selrun)){
+        $dataFaculties.="<option value='".$seldata['id']."'>".$seldata['name']."</option>";
+    }
+
+    $sel = "SELECT name, id FROM institute_departments WHERE description = '$dval' AND status = 'Active'  ORDER BY name ASC";
+    $dataDepartments = "";
+    $selrun = $conn->query($dbcon,$sel);
+    while($seldata = $conn->fetch($selrun)){
+        $dataDepartments.="<option value='".$seldata['id']."'>".$seldata['name']."</option>";
+    }
+
+    $structures = [];
+    $response['school'] = $dataSchool;
+    $response["colleges"] = $dataColleges;
+    $response["faculties"] = $dataFaculties;
+    $response["departments"] = $dataDepartments;
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
 if(isset($_GET['getEnrollmentTargets'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1546,6 +1605,22 @@ if(isset($_GET['getEnrollmentTargets'])){
     $data.= "<div class='row' style='margin: 10px'><div class='col-md-5'><label style='text-align: left;'>International Students Target</label></div><div class='col-md-5'><input type='text' class='form-control' id='intern' value='".$seldata['intern']."'/></div></div>";
     $data.= "<div class='row' style='margin: 10px'><div class='col-md-5'><label style='text-align: left;'>Fee-Paying Students Target</label></div><div class='col-md-5'><input type='text' class='form-control' id='feepay' value='".$seldata['feepay']."'/></div></div>";
     $data.= "<div class='row' style='margin: 10px'><div class='col-md-12' align='center'><button type='button' class='btn btn-sm btn-success' onclick='updateEnrollmentTarget()'><span class='icon icon-upload10'></span> Update Target</button></div>";
+    print $data;
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getIscedTargets'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $sel = "SELECT name, id, target FROM isceds WHERE status = 'Active'";
+    $selrun = $conn->query($dbcon,$sel);
+
+    $data = "<div class='row' style='margin: 10px'><div class='col-md-12'><p style='text-align: center; color: rgba(187,21,5,0.98); font-weight: bold; font-size: large;'>ISCED STUDENTS TEACHER RATIO TARGETS</p></div>";
+    while($seldata = $conn->fetch($selrun)) {
+        $data .= "<div class='row' style='margin: 10px'><div class='col-md-6' style='text-align: right;'>".$seldata['name'].":</div><div class='col-md-3'><input type='number' min='0' name='target[]' value='".$seldata['target']."' class='form-control'/><input type='hidden' min='0' name='iscedId[]' value='".$seldata['id']."' class='form-control'/></div><div class='col-md-3' style='text-align: left; font-weight: bold; font-size: large'>:1</div></div>";
+    }
+    $data.= "<div class='row' style='margin: 10px'><div class='col-md-12' align='center'><button type='button' class='btn btn-sm btn-success' onclick='updateIscedTarget()'><span class='icon icon-upload10'></span> Update Target</button></div>";
     print $data;
     $conn->close($dbcon);
 }
@@ -1566,7 +1641,7 @@ if(isset($_GET['getInstitutePrograms'])){
             $response = $response."<option value='All'>All</option>";
         }
         while($data = $conn->fetch($selrun)){
-            $response = $response."<option value='".$data['programme']."'>".getProgram($data['programme'])."</option>";
+            $response = $response."<option value='".$data['id']."'>".$data['programme']."</option>";
         }
     }
     print $response;
@@ -1624,6 +1699,26 @@ if(isset($_POST['updateEnrollTargets'])){
     $conn->close($dbcon);
 }
 
+if(isset($_POST['updateIscedTargets'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $target = explode(",",$_POST['target']);
+    $id = explode(",",$_POST['iscedId']);
+
+    for($i = 0; $i < count($target); $i++){
+        $did = $id[$i];
+        $tgt = $target[$i];
+        $upd = "UPDATE isceds SET target = $tgt WHERE id=$did";
+        $conn->query($dbcon, $upd);
+    }
+
+    $response['errorCode'] = "0";
+    $response['errorMsg'] = "Enrollment Targets Updated Successfully";
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
 if(isset($_POST['updateInstitutionCategory'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
@@ -1646,9 +1741,9 @@ if(isset($_POST['updateInstitutionCategory'])){
 if(isset($_POST['updateInstitutionCollege'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $name = mysqli_real_escape_string($dbcon,$_POST['name']);
+    $name = mysqli_real_escape_string($dbcon,trim($_POST['name']));
     $id = mysqli_real_escape_string($dbcon,$_POST['id']);
-    $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $description = mysqli_real_escape_string($dbcon,trim($_POST['description']));
     $status = mysqli_real_escape_string($dbcon,$_POST['status']);
 
     //UPDATE
@@ -1662,12 +1757,31 @@ if(isset($_POST['updateInstitutionCollege'])){
     $conn->close($dbcon);
 }
 
+if(isset($_POST['updateInstitutionSchool'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+    $name = mysqli_real_escape_string($dbcon,trim($_POST['name']));
+    $id = mysqli_real_escape_string($dbcon,$_POST['id']);
+    $description = mysqli_real_escape_string($dbcon,trim($_POST['description']));
+    $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+
+    //UPDATE
+    $upd = "UPDATE institute_schools SET status = '$status',name = '$name', description = '$description' WHERE id ='$id'";
+    $conn->query($dbcon,$upd);
+
+    $response['errorCode'] = "0";
+    $response['errorMsg'] = "School Updated Successfully";
+
+    print json_encode($response);
+    $conn->close($dbcon);
+}
+
 if(isset($_POST['updateInstitutionFaculty'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
     $name = mysqli_real_escape_string($dbcon,$_POST['name']);
     $id = mysqli_real_escape_string($dbcon,$_POST['id']);
-    $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $description = mysqli_real_escape_string($dbcon,trim($_POST['description']));
     $status = mysqli_real_escape_string($dbcon,$_POST['status']);
 
     //UPDATE
@@ -1686,7 +1800,7 @@ if(isset($_POST['updateInstitutionDepartment'])){
     $dbcon=$conn->conn();
     $name = mysqli_real_escape_string($dbcon,$_POST['name']);
     $id = mysqli_real_escape_string($dbcon,$_POST['id']);
-    $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $description = mysqli_real_escape_string($dbcon,trim($_POST['description']));
     $status = mysqli_real_escape_string($dbcon,$_POST['status']);
 
     //UPDATE
@@ -1895,20 +2009,11 @@ if(isset($_POST['addStaffRank'])){
     $chkuname = "SELECT id FROM staffranks WHERE drank = '$rank'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
-        //CHECK PERCENTAGE TARGET
-        $chk = "SELECT SUM(target) AS targets FROM staffranks";
-        $chkrun = $conn->query($dbcon,$chk);
-        $chkdata = $conn->fetch($chkrun);
-        if(($chkdata['targets'] + $target) > 100.00){
-            $response['errorCode'] = "1";
-            $response['errorMsg'] = "Staff rank target of 100% is exceeded. Kindly rectify and try again";
-        }else{
-            //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-            $user = "INSERT INTO staffranks(drank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
-            $conn->query($dbcon,$user);
-            $response['errorCode'] = "0";
-            $response['errorMsg'] = "Staff Rank Created Successfully";
-        }
+        //ADD THE USER RECORDS AS WELL AS THE PASSWORD
+        $user = "INSERT INTO staffranks(drank, status, target, default_type) VALUES('$rank','Active',$target,'None')";
+        $conn->query($dbcon,$user);
+        $response['errorCode'] = "0";
+        $response['errorMsg'] = "Staff Rank Created Successfully";
 
     }else{
         $response['errorCode'] = "1";
@@ -1939,9 +2044,10 @@ if(isset($_POST['addInstitution'])){
     $hname = mysqli_real_escape_string($dbcon,$_POST['hname']);
     $hcont = mysqli_real_escape_string($dbcon,$_POST['hcont']);
     $hmail = mysqli_real_escape_string($dbcon,$_POST['hmail']);
-    $fname = mysqli_real_escape_string($dbcon,$_POST['fname']);
-    $fcont = mysqli_real_escape_string($dbcon,$_POST['fcont']);
-    $fmail = mysqli_real_escape_string($dbcon,$_POST['fmail']);
+    $school = mysqli_real_escape_string($dbcon,$_POST['school']);
+    $college = mysqli_real_escape_string($dbcon,$_POST['college']);
+    $faculty = mysqli_real_escape_string($dbcon,$_POST['faculty']);
+    $dept = mysqli_real_escape_string($dbcon,$_POST['dept']);
     $accredit = mysqli_real_escape_string($dbcon,$_POST['accredit']);
     $expire = mysqli_real_escape_string($dbcon,$_POST['expire']);
 
@@ -1950,8 +2056,8 @@ if(isset($_POST['addInstitution'])){
     $chkcoderun = $conn->query($dbcon,$chkCode);
     if($conn->sqlnum($chkcoderun) == 0){
         $ins = "INSERT INTO institutes (short_name,institution_code,name,category_id,status,region,district,town,latitude,longitude,digital_address
-,contact_telephone,contact_email,url,description,hname, hcont, hmail, fname, fcont, fmail,accredit,expire)VALUES('$short','$code','$name',$cat,'Active','$reg',
-'$district','$town',$lat,$longt,'$dig','$tel','$email','$url','$desc','$hname','$hcont','$hmail','$fname','$fcont','$fmail','$accredit','$expire')";
+,contact_telephone,contact_email,url,description,hname, hcont, hmail, accredit,expire)VALUES('$short','$code','$name',$cat,'Active','$reg',
+'$district','$town',$lat,$longt,'$dig','$tel','$email','$url','$desc','$hname','$hcont','$hmail','$accredit','$expire')";
         if($conn->query($dbcon, $ins)) {
             //CHECK DISTRICT AND REGION
             $chkdistrict = "SELECT id FROM reg_districts WHERE district = '$district' AND region='$reg'";
@@ -1959,6 +2065,63 @@ if(isset($_POST['addInstitution'])){
             if ($conn->sqlnum($chkdistrictrun) == 0) {
                 $ins = "INSERT INTO reg_districts(region, district) VALUES ('$reg','$district')";
                 $conn->query($dbcon, $ins);
+            }
+
+            //CREATE INSTITUTIONAL STRUCTURES FOR INSTITUTION
+            if(!empty($school)){
+                $obj = explode(",",$school);
+                for($i = 0; $i < count($obj); $i++){
+                    $sch = $obj[$i];
+                    //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                    $chk = "SELECT name FROM institute_schools WHERE name='$sch' AND description = '$code'";
+                    $chkrun = $conn->query($dbcon,$chk);
+                    if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                        $ins = "INSERT INTO institute_schools(name, description,status) VALUES ('$sch','$code','Active')";
+                        $conn->query($dbcon,$ins);
+                    }
+                }
+            }
+
+            if(!empty($college)){
+                $obj = explode(",",$college);
+                for($i = 0; $i < count($obj); $i++){
+                    $sch = $obj[$i];
+                    //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                    $chk = "SELECT name FROM institute_colleges WHERE name='$sch' AND description = '$code'";
+                    $chkrun = $conn->query($dbcon,$chk);
+                    if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                        $ins = "INSERT INTO institute_colleges(name, description,status) VALUES ('$sch','$code','Active')";
+                        $conn->query($dbcon,$ins);
+                    }
+                }
+            }
+
+            if(!empty($faculty)){
+                $obj = explode(",",$faculty);
+                for($i = 0; $i < count($obj); $i++){
+                    $sch = $obj[$i];
+                    //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                    $chk = "SELECT name FROM institute_faculties WHERE name='$sch' AND description = '$code'";
+                    $chkrun = $conn->query($dbcon,$chk);
+                    if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                        $ins = "INSERT INTO institute_faculties(name, description,status) VALUES ('$sch','$code','Active')";
+                        $conn->query($dbcon,$ins);
+                    }
+                }
+            }
+
+            if(!empty($dept)){
+                $obj = explode(",",$dept);
+                for($i = 0; $i < count($obj); $i++){
+                    $sch = $obj[$i];
+                    //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                    $chk = "SELECT name FROM institute_departments WHERE name='$sch' AND description = '$code'";
+                    $chkrun = $conn->query($dbcon,$chk);
+                    if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                        $ins = "INSERT INTO institute_departments(name, description,status) VALUES ('$sch','$code','Active')";
+                        $conn->query($dbcon,$ins);
+                    }
+                }
             }
             $response['errorCode'] = "0";
             $response['errorMsg'] = "Institution, $name, added successfully.";
@@ -1996,9 +2159,6 @@ if(isset($_POST['updateInstitution'])){
     $hname = mysqli_real_escape_string($dbcon,$_POST['hname']);
     $hcont = mysqli_real_escape_string($dbcon,$_POST['hcont']);
     $hmail = mysqli_real_escape_string($dbcon,$_POST['hmail']);
-    $fname = mysqli_real_escape_string($dbcon,$_POST['fname']);
-    $fcont = mysqli_real_escape_string($dbcon,$_POST['fcont']);
-    $fmail = mysqli_real_escape_string($dbcon,$_POST['fmail']);
     $accredit = mysqli_real_escape_string($dbcon,$_POST['accredit']);
     $expire = mysqli_real_escape_string($dbcon,$_POST['expire']);
 
@@ -2008,7 +2168,7 @@ if(isset($_POST['updateInstitution'])){
     if($conn->sqlnum($chkcoderun) == 1){
         $ins = "UPDATE institutes SET short_name = '$short',name='$name',category_id='$cat',region='$reg',
 district='$district',town='$town',latitude='$lat',longitude='$longt',digital_address='$dig',contact_telephone='$dig',contact_email='$email',
-url='$url',description='$desc',hname='$hname', hcont='$hcont', hmail='$hmail', fname='$fname', fcont='$fcont', fmail='$fmail',accredit = '$accredit',expire='$expire' WHERE institution_code = '$code'";
+url='$url',description='$desc',hname='$hname', hcont='$hcont', hmail='$hmail', accredit = '$accredit',expire='$expire' WHERE institution_code = '$code'";
         if($conn->query($dbcon, $ins)) {
             //CHECK DISTRICT AND REGION
             $chkdistrict = "SELECT id FROM reg_districts WHERE district = '$district' AND region='$reg'";
@@ -2039,13 +2199,14 @@ if(isset($_POST['addRole'])){
 
     $roles = mysqli_real_escape_string($dbcon,$_POST['addRole']);
     $title = mysqli_real_escape_string($dbcon,ucfirst($_POST['title']));
+    $cat = mysqli_real_escape_string($dbcon,ucfirst($_POST['cat']));
     $response =array();
 
     //CHECK IF ROLE NAME DOES NOT EXIST
     $chk = "SELECT role FROM roles WHERE role = '$title'";
     $chkrun = $conn->query($dbcon,$chk);
     if($conn->sqlnum($chkrun) == 0){
-        $ins="INSERT INTO roles (role, permissions,created_at,status) VALUES ('$title','$roles','".TIMESTAMP."','Active')";
+        $ins="INSERT INTO roles (role, permissions,created_at,status, apply) VALUES ('$title','$roles','".TIMESTAMP."','Active','$cat')";
         $insrun = $conn->query($dbcon,$ins);
         if($insrun){
             $response['erroCode'] = "0";
@@ -2155,7 +2316,7 @@ if(isset($_POST['updateRole'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT role, permissions,status FROM roles WHERE id = $id";
+    $sel = "SELECT role, permissions,status,apply FROM roles WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -2185,10 +2346,21 @@ if(isset($_POST['updateRole'])){
 
         $data = "<form method='post'>
         <div class='row'>
-            <div class='col-md-12'>
+            <div class='col-md-6'>
                 <div class='form-group'>
                     <label>Role Title:<b class='rqd'>*</b></label>
                     <input type='text' id='roletitleU' value='".$rows['role']."' class='form-control' />
+                </div>
+            </div>
+            <div class='col-md-6'>
+                <div class='form-group'>
+                    <label>Role Apply To:<b class='rqd'>*</b></label>
+                    <select id='rolecatU' class='form-control'>
+                        <option value='".$rows['apply']."'>".$rows['apply']."</option>
+                        <option value='Both'>Both</option>
+                        <option value='GTEC'>GTEC</option>
+                        <option value='Institution'>Institution</option>
+                    </select>
                 </div>
             </div>
 
@@ -2302,19 +2474,10 @@ if(isset($_GET['getIsced'])){
 if(isset($_GET['sortDataTableAccPrograms'])){
     $conn=new Db_connect;
     $dbcon=$conn->conn();
-    $year = $_GET['year'];
     $inst = $_GET['inst'];
     $title = "Accredited Programs ";
 
     $clause = "";
-    if($year != 'All'){
-        $title.=" For The Year, ".$year;
-        if($clause == ""){
-            $clause = $clause." WHERE accreditation_year = '$year'";
-        }else{
-            $clause = $clause."AND accreditation_year = '$year'";
-        }
-    }
     if($inst != 'All'){
         $title.=" For ".getInstitution($inst);
         if($clause == ""){
@@ -2333,10 +2496,10 @@ if(isset($_GET['sortDataTableAccPrograms'])){
                                         </tr>
                                         <tr>
                                             <th>Certificate ID</th>
+                                            <th>Programme Code</th>
                                             <th>Name Of Program</th>
                                             <th>Institution</th>
                                             <th>ISCED</th>
-                                            <th>Accreditation Year</th>
                                             <th>College</th>
                                             <th>Faculty / School</th>
                                             <th>Department</th>
@@ -2354,10 +2517,10 @@ if(isset($_GET['sortDataTableAccPrograms'])){
     while($row = $conn->fetch($qryrun)){
         $data = $data."<tr>
                             <td>".$row['certid']."</td>
-                            <td>".getProgram($row['programme'])."</td>
+                            <td>".$row['id']."</td>
+                            <td>".$row['programme']."</td>
                             <td>".getInstitution($row['institution'])."</td>
                             <td>".getIsced($row['isced'])."</td>
-                            <td>".$row['accreditation_year']."</td>
                             <td>".getCollege($row['college'])."</td>
                             <td>".getFaculty($row['faculty_school'])."</td>
                             <td>".getDepartment($row['department'])."</td>
@@ -3004,6 +3167,7 @@ if(isset($_GET['sortDataTableGraduates'])){
                                             <th>Home Region</th>
                                             <th>Institution</th>
                                             <th>Application Year </th>
+                                            <th>Graduation Year </th>
                                             <th> National ID Type</th>
                                             <th> National ID Number</th>
                                             <th>Senior High School Attended </th>
@@ -3032,6 +3196,7 @@ if(isset($_GET['sortDataTableGraduates'])){
                             <td>".$row['home_region']."</td>
                             <td>".getInstitution($row['institution'])."</td>
                             <td>".$row['year']."</td>
+                            <td>".$row['graduating_yr']."</td>
                             <td>".$row['applicant_id_type']."</td>
                             <td>".$row['applicant_national_id']."</td>
                             <td>".$row['high_school']."</td>
@@ -3184,9 +3349,6 @@ if(isset($_GET['sortDataTableInstitutions'])){
                                             <th>Name Of Head</th>
                                             <th>Contact Of Head</th>
                                             <th>E-mail Of Head</th>
-                                            <th>Name Of Representative</th>
-                                            <th>Contact Of Representative</th>
-                                            <th>E-mail Of Representative</th>
                                         </tr>
                                         </thead>
                                         <tbody>";
@@ -3205,9 +3367,6 @@ if(isset($_GET['sortDataTableInstitutions'])){
                             <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['hname']."</a></td>
                             <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['hcont']."</a></td>
                             <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['hmail']."</a></td>
-                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['fname']."</a></td>
-                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['fcont']."</a></td>
-                            <td><a class='clicklink' href='../admin/dashboard.php?view_instituion=". $id."'>". $row['fmail']."</a></td>
                             
                         </tr>";
     }
@@ -3513,7 +3672,7 @@ if(isset($_GET['getInstitutionCollege'])){
                         </div>
                     </div>
                 </div>
-                <div class='row'>
+                <div class='row hidden'>
                     <div class='col-md-4' align='right'><label>College Description:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
@@ -3535,6 +3694,80 @@ if(isset($_GET['getInstitutionCollege'])){
                 <div class='row'>
                     <div class='col-md-12' align='center'>
                         <button class='btn btn-sm btn-primary' type='button' onclick='updateInstitutionCollege()'>Update  </button>
+                    </div>
+                </div>
+            </fieldset>
+            <button type='submit' class='btn btn-primary stepy-finish' style='visibility: hidden'>Submit <i class='icon-check position-right'></i></button>
+        </form>
+        ";
+        print $data;
+    }
+    $conn->close($dbcon);
+}
+
+if(isset($_GET['getInstitutionSchool'])){
+    $conn=new Db_connect;
+    $dbcon=$conn->conn();
+
+    $id = $_GET['getInstitutionSchool'];
+    $response =array();
+
+    //FETCH THE ROLE RECORDS
+    $sel = "SELECT name, description, status FROM institute_schools WHERE id = $id";
+    $selrun = $conn->query($dbcon,$sel);
+    if($conn->sqlnum($selrun) == 0){
+        print "Not Found";
+    }else{
+        $rows = $conn->fetch($selrun);
+
+        $status = $rows['status'];
+        $otheroption = "Active";
+        if($status == "Active"){
+            $otheroption = "Inactive";
+        }
+
+        $data = "
+        <form class='stepy-clickable'>
+            <fieldset title='1'>
+                <legend class='text-semibold'>School Details</legend>
+                <div class='row hidden'>
+                    <div class='col-md-4' align='right'><label>School Code:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='colid' readonly value='".$id."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row' align='center'>
+                    <div class='col-md-4' align='right'><label>School Name:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <input type='text' id='nameedit' value='".$rows['name']."' class='form-control' />
+                        </div>
+                    </div>
+                </div>
+                <div class='row hidden'>
+                    <div class='col-md-4' align='right'><label>College Description:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <textarea id='coldescriptedit' placeholder='COLLEGE DESCRIPTION' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Status:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select id='colstatusedit' class='form-control'> 
+                                <option value='".$status."'>".$status."</option>
+                                <option value='".$otheroption."'>".$otheroption."</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-12' align='center'>
+                        <button class='btn btn-sm btn-primary' type='button' onclick='updateInstitutionSchool()'>Update  </button>
                     </div>
                 </div>
             </fieldset>
@@ -3572,7 +3805,7 @@ if(isset($_GET['getInstitutionFaculty'])){
             <fieldset title='1'>
                 <legend class='text-semibold'>Faculty Details</legend>
                 <div class='row hidden'>
-                    <div class='col-md-4' align='right'><label>Category Code:</label></div>
+                    <div class='col-md-4' align='right'><label>Faculty Code:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <input type='text' id='colid' readonly value='".$id."' class='form-control' />
@@ -3587,7 +3820,7 @@ if(isset($_GET['getInstitutionFaculty'])){
                         </div>
                     </div>
                 </div>
-                <div class='row'>
+                <div class='row hidden'>
                     <div class='col-md-4' align='right'><label>Faculty Description:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
@@ -3661,7 +3894,7 @@ if(isset($_GET['getInstitutionDepartment'])){
                         </div>
                     </div>
                 </div>
-                <div class='row'>
+                <div class='row hidden'>
                     <div class='col-md-4' align='right'><label>Department Description:</label></div>
                     <div class='col-md-8'>
                         <div class='form-group'>
@@ -4317,11 +4550,11 @@ if(isset($_POST['addProgram'])){
     $dbcon=$conn->conn();
 
     $inst=mysqli_real_escape_string($dbcon,$_POST['inst']);
-    $year=mysqli_real_escape_string($dbcon,$_POST['year']);
     $college=mysqli_real_escape_string($dbcon,$_POST['college']);
     $faculty=mysqli_real_escape_string($dbcon,$_POST['faculty']);
     $dept=mysqli_real_escape_string($dbcon,$_POST['dept']);
-    $title=mysqli_real_escape_string($dbcon,$_POST['title']);
+    $prog=mysqli_real_escape_string($dbcon,$_POST['title']);
+    $isced=mysqli_real_escape_string($dbcon,$_POST['isced']);
     $accredit=mysqli_real_escape_string($dbcon,$_POST['accredit']);
     $expire=mysqli_real_escape_string($dbcon,$_POST['expire']);
     $fname=mysqli_real_escape_string($dbcon,$_POST['fname']);
@@ -4332,18 +4565,14 @@ if(isset($_POST['addProgram'])){
     $hmail=mysqli_real_escape_string($dbcon,$_POST['hmail']);
     $certid=mysqli_real_escape_string($dbcon,$_POST['certid']);
 
-    //GET THE ISCED OF THE PROGRAM
-    $obj = explode("*",$title);
-    $isced = $obj[1];
-    $prog = $obj[0];
-
     //CHECK IF ACCREDITATION EXISTS FOR THE PROGRAM
     $chk = "SELECT institution FROM acc_programmes WHERE certid = '$certid' OR (institution = '$inst' AND programme = '$prog' AND isced ='$isced')";
     $chkrun = $conn->query($dbcon,$chk);
     if($conn->sqlnum($chkrun) == 0){
-        $ins = "INSERT INTO acc_programmes (certid,institution, accreditation_year, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
- VALUES ('$certid','$inst','$year','$faculty','$dept','$college','$prog','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
+        $ins = "INSERT INTO acc_programmes (certid,institution, faculty_school, department, college, programme, isced, accredited_date, expiration_date,fname,fcont,fmail,hname,hcont,hmail)
+ VALUES ('$certid','$inst','$faculty','$dept','$college','$prog','$isced','$accredit','$expire','$fname','$fcont','$fmail','$hname','$hcont','$hmail')";
         $insrun = $conn->query($dbcon,$ins);
+
         if($insrun){
             $response['errorCode'] = "0";
             $response['errorMsg'] = "Programme Accreditation Completed Successfully";
@@ -4471,9 +4700,10 @@ if(isset($_POST['updateRoleData'])){
     $access = mysqli_real_escape_string($dbcon,$_POST['updateRoleData']);
     $id = $_POST['id'];
     $title = mysqli_real_escape_string($dbcon,$_POST['title']);
+    $cat = mysqli_real_escape_string($dbcon,$_POST['cat']);
     $response = array();
 
-    $upd = "UPDATE roles SET role = '$title', permissions = '$access' WHERE id = $id";
+    $upd = "UPDATE roles SET role = '$title', permissions = '$access', apply = '$cat' WHERE id = $id";
     $updrun = $conn->query($dbcon, $upd);
     if($updrun){
         $response['errorCode'] = "0";
