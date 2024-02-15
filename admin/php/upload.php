@@ -388,6 +388,148 @@ if (isset($_POST["uploadType"])) {
 
 
         }
+        elseif($type == "add_institution"){
+            if($sheetCount <= BULK_UPLOAD_LIMIT) {
+                if ($highestColumm == "Q") {
+                    $col1 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['0']);
+                    $col2 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['3']);
+                    $col3 = mysqli_real_escape_string($dbcon, $spreadSheetAry[0]['12']);
+
+                    if (trim($col1) == "Name" && trim($col2) == "Category Code" && $col3 == "Schools") {
+                        for ($i = 1; $i < $sheetCount; $i++) {
+                            $inst = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['0']);
+                            $shortName = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['1']);
+                            $instCode = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['2']);
+                            $cat = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['3']);
+                            $dateAccredit = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['4']);
+                            $dateExpiry = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['5']);
+                            $offTel = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['6']);
+                            $offMail = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['7']);
+                            $webUrl = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['8']);
+                            $hinst = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['9']);
+                            $hcont = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['10']);
+                            $hmail = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['11']);
+                            $schools = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['12']);
+                            $colleges = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['13']);
+                            $faculties = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['14']);
+                            $depts = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['15']);
+                            $digAddress = mysqli_real_escape_string($dbcon, $spreadSheetAry[$i]['16']);
+
+                            $reg = "";
+                            $district = "";
+                            $area = "";
+                            $lat = 0;
+                            $longt = 0;
+
+                            //GET THE DETAILS OF THE DIGITAL ADDRESS
+                            if(!empty($digAddress)){
+                                $feedback = json_decode(getGpsLocation(trim($digAddress)));
+                                if(!empty($feedback)){
+                                    if($feedback->status == 'Successful'){
+                                        $reg = $feedback->region;
+                                        $district = $feedback->district;
+                                        $area = $feedback->area;
+                                        $lat = $feedback->latitude;
+                                        $longt = $feedback->longitude;
+
+                                        //CHECK DISTRICT AND REGION
+                                        $chkdistrict = "SELECT id FROM reg_districts WHERE district = '$district' AND region='$reg'";
+                                        $chkdistrictrun = $conn->query($dbcon, $chkdistrict);
+                                        if ($conn->sqlnum($chkdistrictrun) == 0) {
+                                            $ins = "INSERT INTO reg_districts(region, district) VALUES ('$reg','$district')";
+                                            $conn->query($dbcon, $ins);
+                                        }
+                                    }
+                                }
+                            }
+
+                            //CHECK IF INSTITUTION ALREADY EXISTS
+                            $chkCode = "SELECT short_name FROM institutes WHERE institution_code = '$instCode'";
+                            $chkcoderun = $conn->query($dbcon,$chkCode);
+                            if($conn->sqlnum($chkcoderun) == 0) {
+                                $ins = "INSERT INTO institutes (short_name,institution_code,name,category_id,status,region,district,town,latitude,longitude,digital_address
+                                        ,contact_telephone,contact_email,url,description,hname, hcont, hmail, accredit,expire)VALUES('$shortName','$instCode','$inst',$cat,'Active','$reg',
+                                        '$district','$area',$lat,$longt,'$digAddress','$offTel','$offMail','$webUrl','','$hinst','$hcont','$hmail','$dateAccredit','$dateExpiry')";
+                                $conn->query($dbcon,$ins);
+                                //CREATE INSTITUTIONAL STRUCTURES FOR INSTITUTION
+                                if(!empty($schools)){
+                                    $obj = explode(",",$schools);
+                                    for($i = 0; $i < count($obj); $i++){
+                                        $sch = $obj[$i];
+                                        //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                                        $chk = "SELECT name FROM institute_schools WHERE name='$sch' AND description = '$instCode'";
+                                        $chkrun = $conn->query($dbcon,$chk);
+                                        if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                                            $ins = "INSERT INTO institute_schools(name, description,status) VALUES ('$sch','$instCode','Active')";
+                                            $conn->query($dbcon,$ins);
+                                        }
+                                    }
+                                }
+
+                                if(!empty($colleges)){
+                                    $obj = explode(",",$colleges);
+                                    for($i = 0; $i < count($obj); $i++){
+                                        $sch = $obj[$i];
+                                        //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                                        $chk = "SELECT name FROM institute_colleges WHERE name='$sch' AND description = '$instCode'";
+                                        $chkrun = $conn->query($dbcon,$chk);
+                                        if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                                            $ins = "INSERT INTO institute_colleges(name, description,status) VALUES ('$sch','$instCode','Active')";
+                                            $conn->query($dbcon,$ins);
+                                        }
+                                    }
+                                }
+
+                                if(!empty($faculties)){
+                                    $obj = explode(",",$faculties);
+                                    for($i = 0; $i < count($obj); $i++){
+                                        $sch = $obj[$i];
+                                        //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                                        $chk = "SELECT name FROM institute_faculties WHERE name='$sch' AND description = '$instCode'";
+                                        $chkrun = $conn->query($dbcon,$chk);
+                                        if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                                            $ins = "INSERT INTO institute_faculties(name, description,status) VALUES ('$sch','$instCode','Active')";
+                                            $conn->query($dbcon,$ins);
+                                        }
+                                    }
+                                }
+
+                                if(!empty($depts)){
+                                    $obj = explode(",",$depts);
+                                    for($i = 0; $i < count($obj); $i++){
+                                        $sch = $obj[$i];
+                                        //CHECK IF THE SCHOOL ALREADY EXISTS FOR THE INSTITUTION
+                                        $chk = "SELECT name FROM institute_departments WHERE name='$sch' AND description = '$instCode'";
+                                        $chkrun = $conn->query($dbcon,$chk);
+                                        if($conn->sqlnum($chkrun) == 0 && !empty($sch)){
+                                            $ins = "INSERT INTO institute_departments(name, description,status) VALUES ('$sch','$instCode','Active')";
+                                            $conn->query($dbcon,$ins);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        $response['errorCode'] = "0";
+                        $response['errorMsg'] = "Bulk Data Has Been Uploaded Successfully";
+                        print json_encode($response);
+                    } else {
+                        $response['errorCode'] = "1";
+                        $response['errorMsg'] = "File Validation Failedddd";
+                        print json_encode($response);
+                    }
+                } else {
+                    $response['errorCode'] = "1";
+                    $response['errorMsg'] = "File Validation Failed";
+                    print json_encode($response);
+                }
+            }else{
+                $response['errorCode'] = "1";
+                $response['errorMsg'] = "Sorry! Your excel sheet contains more than the allowable ".BULK_UPLOAD_LIMIT." rows";
+                print json_encode($response);
+            }
+
+
+        }
         elseif($type == "add_accreditation"){
             if($sheetCount <= BULK_UPLOAD_LIMIT) {
                 if ($highestColumm == "O") {

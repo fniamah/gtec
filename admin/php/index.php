@@ -290,7 +290,11 @@ if(isset($_GET['genderParityIndex'])){
         $getMaleEnrollments = getEnrollmentsByGenderByInstitution($id,'Male');
         $getFemaleEnrollments = getEnrollmentsByGenderByInstitution($id,'Female');
         $totalPerCat = $getMaleEnrollments + $getFemaleEnrollments;
-        $tabledisp.="<tr><td>".$instname."</td><td>".$getMaleEnrollments."</td><td>".$getFemaleEnrollments."</td><td>".$totalPerCat."</td><td>".number_format((($totalPerCat / $totalEnrollments)*100),2)."</td></tr>";
+        $percentageCalc=0;
+        if($totalEnrollments != 0){
+            $percentageCalc = number_format((($totalPerCat / $totalEnrollments)*100),2);
+        }
+        $tabledisp.="<tr><td>".$instname."</td><td>".$getMaleEnrollments."</td><td>".$getFemaleEnrollments."</td><td>".$totalPerCat."</td><td>".$percentageCalc."</td></tr>";
         /*array_push($enrollmentData,[
             "category" => $instname,
             "males" => $getMaleEnrollments,
@@ -1024,7 +1028,7 @@ if(isset($_GET['analyticDataChart'])){
         print json_encode($feedback);
     }
     elseif($chartType == "privateenrol"){
-        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND dtype='Private' ORDER BY name ASC";
         $selrun = $conn->query($dbcon,$sel);
         $dataTable ="<table class='table table-hover' id='gpiDatatable'>
                                         <thead>
@@ -1088,7 +1092,7 @@ if(isset($_GET['analyticDataChart'])){
         print json_encode($feedback);
     }
     elseif($chartType == "ptsprivate"){
-        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+        $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND dtype = 'Private' ORDER BY name ASC";
         $selrun = $conn->query($dbcon,$sel);
         $dataTable ="<table class='table table-hover' id='gpiDatatable'>
                                         <thead>
@@ -1413,49 +1417,7 @@ if(isset($_POST['resetPassword'])){
 if(isset($_GET['getGps'])){
     $digaddress = $_GET['getGps'];
     $feedback = getGpsLocation(trim($digaddress));
-
-    $gpsmodeldata = array();
-    $district="";
-    $region="";
-    $area="";
-
-    if (!empty($feedback)) {
-        $result = json_decode($feedback);
-        if (!empty($result->Table)) {
-            $data = $result->Table[0];
-            $gpsmodeldata = array(
-                "centerlatitude" => $data->CenterLatitude,
-                "centerlongitude" => $data->CenterLongitude,
-                "northlat" => $data->NorthLat,
-                "northlong" => $data->NorthLong,
-                "southlat" => $data->SouthLat,
-                "southlong" => $data->SouthLong,
-                "eastlat" => $data->EastLat,
-                "eastlongt" => $data->EastLong,
-                "westlat" => $data->WestLat,
-                "westlongt" => $data->WestLong,
-                "gpsname" => $data->GPSName,
-                "postcode" => $data->PostCode,
-                "district" => $data->District,
-                "region" => $data->Region,
-                "street" => $data->Street,
-                "area" => $data->Area,
-            );
-            $response['status'] = 'Successful';
-            $response['district'] = $data->District;
-            $response['area'] = $data->Area;
-            $response['region'] = $data->Region;
-            $response['latitude'] = $data->CenterLatitude;
-            $response['longitude'] = $data->CenterLongitude;
-            print json_encode($response);
-        }else{
-            $response['status'] = 'failed';
-            print json_encode($response);
-        }
-    }else{
-        $response['status'] = 'failed';
-        print json_encode($response);
-    }
+    print($feedback);
 }
 
 if(isset($_POST['addIsced'])){
@@ -1726,9 +1688,10 @@ if(isset($_POST['updateInstitutionCategory'])){
     $id = mysqli_real_escape_string($dbcon,$_POST['id']);
     $description = mysqli_real_escape_string($dbcon,$_POST['description']);
     $status = mysqli_real_escape_string($dbcon,$_POST['status']);
+    $type = mysqli_real_escape_string($dbcon,$_POST['type']);
 
     //UPDATE
-    $upd = "UPDATE institute_categories SET status = '$status',name = '$name', description = '$description' WHERE id ='$id'";
+    $upd = "UPDATE institute_categories SET status = '$status',name = '$name', description = '$description', dtype='$type' WHERE id =$id";
     $conn->query($dbcon,$upd);
 
     $response['errorCode'] = "0";
@@ -1819,13 +1782,14 @@ if(isset($_POST['addInstCategory'])){
     $dbcon=$conn->conn();
     $name = mysqli_real_escape_string($dbcon,$_POST['name']);
     $description = mysqli_real_escape_string($dbcon,$_POST['description']);
+    $dtype = mysqli_real_escape_string($dbcon,$_POST['type']);
 
     //CHECK IF CODE HAS NOT BEEN TAKEN
-    $chkuname = "SELECT name FROM institute_categories WHERE name = '$name'";
+    $chkuname = "SELECT name FROM institute_categories WHERE name = '$name' AND status = 'Active'";
     $chkunamerun = $conn->query($dbcon,$chkuname);
     if($conn->sqlnum($chkunamerun) == 0){
         //ADD THE USER RECORDS AS WELL AS THE PASSWORD
-        $user = "INSERT INTO institute_categories(name, description) VALUES('$name','$description')";
+        $user = "INSERT INTO institute_categories(name, description, dtype) VALUES('$name','$description','$dtype')";
         $conn->query($dbcon,$user);
 
         $response['errorCode'] = "0";
@@ -3564,7 +3528,7 @@ if(isset($_GET['getInstitutionCategory'])){
     $response =array();
 
     //FETCH THE ROLE RECORDS
-    $sel = "SELECT name, description, status FROM institute_categories WHERE id = $id";
+    $sel = "SELECT name, description, status,dtype FROM institute_categories WHERE id = $id";
     $selrun = $conn->query($dbcon,$sel);
     if($conn->sqlnum($selrun) == 0){
         print "Not Found";
@@ -3603,6 +3567,18 @@ if(isset($_GET['getInstitutionCategory'])){
                     <div class='col-md-8'>
                         <div class='form-group'>
                             <textarea id='catdescriptedit' placeholder='ISCED DESCRIPTION' class='form-control' maxlength='1000' rows='5'> ".$rows['description']."</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4' align='right'><label>Category Type:</label></div>
+                    <div class='col-md-8'>
+                        <div class='form-group'>
+                            <select id='cattypeedit' class='form-control'> 
+                                <option value='".$rows['dtype']."'>".$rows['dtype']."</option>
+                                <option value='Private'>Private</option>
+                                <option value='Public'>Public</option>
+                            </select>
                         </div>
                     </div>
                 </div>

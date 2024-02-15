@@ -244,7 +244,12 @@ function getActualTargetPyramid($id){
     $getStfTypeDataTgt = $conn->fetch($getStfTypeRunTgt);
     $allCount = $getStfTypeDataTgt['total'];
 
-    $actualTarget = 100*($singleCount / $allCount);
+    $actualTarget = 0;
+    if($allCount > 0){
+        $actualTarget = 100*($singleCount / $allCount);
+    }
+
+
     return $actualTarget;
 
     $conn->close($dbcon);
@@ -594,6 +599,7 @@ function getTotalEnrollments(){
     $selrun = $conn->query($dbcon,$sel);
     $data = $conn->fetch($selrun);
     $response = $data['totalCount'];
+
     return $response;
 }
 
@@ -664,7 +670,48 @@ function getGpsLocation($digital_address)
         return null;
     }
     curl_close($ch);
-    return $response;
+
+    //PROCESS THE RESPONSE
+    return processGPSResponse($response);
+}
+
+function processGPSResponse($responses){
+    if (!empty($responses)) {
+        $result = json_decode($responses);
+        $response = array();
+        if (!empty($result->Table)) {
+            $data = $result->Table[0];
+            /*$gpsmodeldata = array(
+                "centerlatitude" => $data->CenterLatitude,
+                "centerlongitude" => $data->CenterLongitude,
+                "northlat" => $data->NorthLat,
+                "northlong" => $data->NorthLong,
+                "southlat" => $data->SouthLat,
+                "southlong" => $data->SouthLong,
+                "eastlat" => $data->EastLat,
+                "eastlongt" => $data->EastLong,
+                "westlat" => $data->WestLat,
+                "westlongt" => $data->WestLong,
+                "gpsname" => $data->GPSName,
+                "postcode" => $data->PostCode,
+                "district" => $data->District,
+                "region" => $data->Region,
+                "street" => $data->Street,
+                "area" => $data->Area,
+            );*/
+            $response['status'] = 'Successful';
+            $response['district'] = $data->District;
+            $response['area'] = $data->Area;
+            $response['region'] = $data->Region;
+            $response['latitude'] = $data->CenterLatitude;
+            $response['longitude'] = $data->CenterLongitude;
+        }else{
+            $response['status'] = 'failed';
+        }
+    }else{
+        $response['status'] = 'failed';
+    }
+    return json_encode($response);
 }
 
 //function for sending emails
