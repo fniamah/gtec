@@ -895,6 +895,61 @@ if (!isset($_SESSION['uname'])) {
 
                             </div>
                             <div class="row" style="margin: 10px;">
+
+                                <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+                                    <p style="font-weight: bold; font-size: large; color: rgba(187,21,5,0.98); text-align: center">INSTITUTION STRUCTURE</p>
+                                </div>
+                                <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3 content-group">
+                                    <span class="text-muted"><h5>Schools:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <?php
+                                            $sele = "SELECT name, id FROM institute_schools WHERE description = '".$rows['institution_code']."'";
+                                            $selerun = $conn->query($dbcon,$sele);
+                                            while($data = $conn->fetch($selerun)){
+                                        ?>
+                                        <li><?php echo $data['name']; ?><span style="font-weight: bold; color: rgba(187,21,5,0.98)"><?php echo "  [ ".$data['id']." ]"; ?></span></li>
+                                        <?php } ?>
+                                    </ul>
+                                </div>
+                                <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3 content-group">
+                                    <span class="text-muted"><h5>Colleges:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <?php
+                                        $sele = "SELECT name, id FROM institute_colleges WHERE description = '".$rows['institution_code']."'";
+                                        $selerun = $conn->query($dbcon,$sele);
+                                        while($data = $conn->fetch($selerun)){
+                                            ?>
+                                            <li><?php echo $data['name']; ?><span style="font-weight: bold; color: rgba(187,21,5,0.98)"><?php echo "  [ ".$data['id']." ]"; ?></span></li>
+                                        <?php } ?>
+                                    </ul>
+                                </div>
+                                <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3 content-group">
+                                    <span class="text-muted"><h5>Faculties:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <?php
+                                        $sele = "SELECT name, id FROM institute_faculties WHERE description = '".$rows['institution_code']."'";
+                                        $selerun = $conn->query($dbcon,$sele);
+                                        while($data = $conn->fetch($selerun)){
+                                            ?>
+                                            <li><?php echo $data['name']; ?><span style="font-weight: bold; color: rgba(187,21,5,0.98)"><?php echo "  [ ".$data['id']." ]"; ?></span></li>
+                                        <?php } ?>
+                                    </ul>
+                                </div>
+                                <div class="col-md-3 col-lg-3 col-sm-3 col-xs-3 content-group">
+                                    <span class="text-muted"><h5>Departments:</h5></span>
+                                    <ul class="list-condensed list-unstyled">
+                                        <?php
+                                        $sele = "SELECT name, id FROM institute_departments WHERE description = '".$rows['institution_code']."'";
+                                        $selerun = $conn->query($dbcon,$sele);
+                                        while($data = $conn->fetch($selerun)){
+                                            ?>
+                                            <li><?php echo $data['name']; ?><span style="font-weight: bold; color: rgba(187,21,5,0.98)"><?php echo "  [ ".$data['id']." ]"; ?></span></li>
+                                        <?php } ?>
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <div class="row" style="margin: 10px;">
                                 <div class="col-md-12" id="map"></div>
                             </div>
                         </div>
@@ -2600,7 +2655,7 @@ if (!isset($_SESSION['uname'])) {
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND dtype = 'Private' ORDER BY name ASC";
                                     $selrun = $conn->query($dbcon,$sel);
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
@@ -2634,7 +2689,7 @@ if (!isset($_SESSION['uname'])) {
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Public%' OR name LIKE '%public%') ORDER BY name ASC";
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND dtype = 'Public' ORDER BY name ASC";
                                     $selrun = $conn->query($dbcon,$sel);
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
@@ -2668,7 +2723,7 @@ if (!isset($_SESSION['uname'])) {
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Private%' OR name LIKE '%private%') ORDER BY name ASC";
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active'  AND dtype = 'Private' ORDER BY name ASC";
                                     $selrun = $conn->query($dbcon,$sel);
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
@@ -2702,7 +2757,7 @@ if (!isset($_SESSION['uname'])) {
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND (name LIKE '%Public%' OR name LIKE '%public%') ORDER BY name ASC";
+                                    $sel = "SELECT id, name FROM institute_categories WHERE status='Active' AND dtype = 'Public' ORDER BY name ASC";
                                     $selrun = $conn->query($dbcon,$sel);
                                     while($data = $conn->fetch($selrun)){
                                         $name = $data['name'];
@@ -6001,7 +6056,7 @@ if (!isset($_SESSION['uname'])) {
                                     <div class="col-md-4">&nbsp;</div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <input type="text" id="catname" class="form-control" placeholder="Category Name" />
+                                            <input type="text" id="catname" class="form-control btnrqd" placeholder="Category Name" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">&nbsp;</div>
@@ -6011,6 +6066,19 @@ if (!isset($_SESSION['uname'])) {
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <textarea id="catdescript" placeholder="Description" class="form-control" maxlength="200" rows="4"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">&nbsp;</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">&nbsp;</div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <select class="form-control btnrqd" id="catType">
+                                                <option value="">--Select Type--</option>
+                                                <option value="Private">Private</option>
+                                                <option value="Public">Public</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4">&nbsp;</div>
@@ -6047,6 +6115,7 @@ if (!isset($_SESSION['uname'])) {
                                         <tr>
                                             <th>#</th>
                                             <th>Name</th>
+                                            <th>Category Type</th>
                                             <th>Description</th>
                                             <th>Action</th>
                                         </tr>
@@ -6054,7 +6123,7 @@ if (!isset($_SESSION['uname'])) {
                                         <tbody>
                                         <?php
                                         $count= 0;
-                                        $sel = "SELECT id, name, description, status FROM institute_categories WHERE status='Active' ORDER BY name ASC";
+                                        $sel = "SELECT id, name, description, status, dtype FROM institute_categories WHERE status='Active' ORDER BY name ASC";
                                         $selrun = $conn->query($dbcon,$sel);
                                         while($row = $conn->fetch($selrun)){
                                             $count++;
@@ -6068,6 +6137,7 @@ if (!isset($_SESSION['uname'])) {
                                             <tr style="color: <?php echo $color; ?>">
                                                 <td><?php echo $count; ?></td>
                                                 <td><?php echo $row['name']; ?></td>
+                                                <td><?php echo $row['dtype']; ?></td>
                                                 <td><?php echo $row['description']; ?></td>
                                                 <td>
                                                     <?php if(strpos($mypermission,'update') !== false){ ?><a class="btn" onclick="getInstitutionCategory(<?php echo $id; ?>)" data-popup="tooltip" title="Edit" data-placement="bottom"><span class="icon icon-database-edit2"></span></a>&nbsp;&nbsp;&nbsp;<?php } ?>
@@ -6185,7 +6255,7 @@ if (!isset($_SESSION['uname'])) {
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="panel panel-flat" style="margin: 10px;">
-                                    <table class="table table-hover dataTable">
+                                    <table class="table table-hover" id="datatableJS">
                                         <thead>
                                         <tr>
                                             <th>#</th>

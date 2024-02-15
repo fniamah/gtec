@@ -36,12 +36,20 @@
                         <ul>
                             <!--<?php if(str_contains($access,'Contact')){?><li><a href="../admin/dashboard.php?acc_contact"><i class="icon-mobile"></i><span>Contact</span></a></li><?php } ?>-->
                             <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_category"><i class="icon-mobile"></i><span>Category</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_schools"><i class="icon-mobile"></i><span>Schools</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_colleges"><i class="icon-mobile"></i><span>Colleges</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_faculties"><i class="icon-mobile"></i><span>Faculties</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_departments"><i class="icon-mobile"></i><span>Departments</span></a></li><?php } ?>
-                            <?php if(str_contains($access,'Institution') && strpos($mypermission,'create') !== false){?><li><a href="../admin/dashboard.php?institutions"><i class="icon-book3"></i><span>Add Institutions</span></a></li><?php } ?>
+                            <?php if(str_contains($access,'Institution') && strpos($mypermission,'create') !== false){?>
+                                <li><a href="../admin/dashboard.php?institutions"><i class="icon-book3"></i><span>Add Institutions</span></a></li>
+                                <li><a onclick="bulkUploads('appadmissions', 'add_institution', 'yes')"><i class="icon-folder-upload3"></i><span>Bulk Add Institutions</span></a></li>
+                            <?php } ?>
                             <?php if(str_contains($access,'Institution')){?><li><a href="../admin/dashboard.php?view_institutions"><i class="icon-file-eye2"></i><span>View Institutions</span></a></li><?php } ?>
+                            <li>
+                                <a href="#"><i class="icon-pie-chart5"></i> <span>Structures</span></a>
+                                <ul>
+                                    <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_schools"><i class="icon-mobile"></i><span>Schools</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_colleges"><i class="icon-mobile"></i><span>Colleges</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_faculties"><i class="icon-mobile"></i><span>Faculties</span></a></li><?php } ?>
+                                    <?php if(str_contains($access,'Institution Category')){?><li><a href="../admin/dashboard.php?institution_departments"><i class="icon-mobile"></i><span>Departments</span></a></li><?php } ?>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <?php } if(str_contains($access,'Contact') || str_contains($access,'Programs') || str_contains($access,'Proposed')){?>
